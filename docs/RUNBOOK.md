@@ -337,7 +337,7 @@ on_call:
   escalation: support@enswork.com
 
 services:
-  github: https://github.com/enswork/pacadev-core/issues
+  github: https://github.com/ENSWORK/pacadev/issues
   monitoring: http://localhost:3000  # Grafana local
   logs: http://localhost:3000/explore  # Loki
 ```
