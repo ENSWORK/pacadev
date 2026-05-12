@@ -1,0 +1,63 @@
+groups:
+  - name: system
+    rules:
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Mémoire > 90% sur {{ $labels.instance }}"
+          description: "{{ $value | humanizePercentage }} utilisée"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU > 85% sur {{ $labels.instance }}"
+
+      - alert: DiskSpaceLow
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disque < 10% disponible sur {{ $labels.instance }}"
+
+  - name: containers
+    rules:
+      - alert: ContainerDown
+        expr: absent(container_last_seen{name=~".*_odoo_.*"})
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container Odoo disparu: {{ $labels.name }}"
+
+      - alert: ContainerHighMemory
+        expr: container_memory_usage_bytes{name=~".*_odoo_.*"} / container_spec_memory_limit_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} mémoire > 85%"
+
+  - name: pacadev
+    rules:
+      - alert: OdooUnreachable
+        expr: up{job="odoo"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Odoo inaccessible: {{ $labels.instance }}"
+
+      - alert: PostgresDown
+        expr: absent(pg_up{job="postgres"})
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL down sur {{ $labels.instance }}"

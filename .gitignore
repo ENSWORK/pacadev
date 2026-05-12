@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Venv
+.pacadev-venv/
+venv/
+env/
+
+# Secrets — JAMAIS committer
+*.enc.yaml
+.env
+.env.*
+!.env.example
+secrets/*.yaml
+!secrets/.env.template.yaml
+!secrets/.gitignore
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Docker volumes & data
+v*/clients/*/data/
+v*/clients/*/addons/oca/
+
+# État local (spécifique machine)
+v*/clients/*/.pacadev/
+.claude/

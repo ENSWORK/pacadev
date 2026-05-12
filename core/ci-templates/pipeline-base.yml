@@ -1,0 +1,306 @@
+name: PACADEV Pipeline
+
+on:
+  push:
+    branches:
+      - 'dev/**'
+  pull_request:
+    branches:
+      - main
+      - staging
+
+env:
+  ODOO_VERSION: ${{ vars.ODOO_VERSION || '17' }}
+  CLIENT_SLUG: ${{ vars.CLIENT_SLUG || 'default' }}
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  # ─────────────────────────────────────────
+  # JOB 1 — LINT
+  # ─────────────────────────────────────────
+  lint:
+    name: Lint (ruff + pylint-odoo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install lint tools
+        run: pip install ruff black pylint pylint-odoo
+
+      - name: ruff check
+        run: ruff check addons/custom/ --output-format=github
+
+      - name: black check
+        run: black --check --diff addons/custom/
+
+      - name: pylint-odoo
+        run: |
+          pylint addons/custom/ \
+            --load-plugins=pylint_odoo \
+            --rcfile=.pylintrc \
+            --output-format=colorized \
+            --disable=C0114,C0115,C0116 \
+            || true
+
+  # ─────────────────────────────────────────
+  # JOB 2 — TESTS
+  # ─────────────────────────────────────────
+  test:
+    name: Tests Odoo
+    runs-on: ubuntu-latest
+    needs: lint
+
+    services:
+      db:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Pull Odoo image
+        run: docker pull odoo:${{ env.ODOO_VERSION }}
+
+      - name: Run Odoo tests
+        run: |
+          docker run --rm \
+            --network host \
+            -v ${{ github.workspace }}/addons/custom:/mnt/extra-addons/custom:ro \
+            -v ${{ github.workspace }}/addons/oca:/mnt/extra-addons/oca:ro \
+            -e DB_HOST=localhost \
+            -e DB_PORT=5432 \
+            -e DB_USER=odoo \
+            -e DB_PASSWORD=odoo \
+            odoo:${{ env.ODOO_VERSION }} \
+            odoo-bin \
+              --test-enable \
+              --test-tags=/custom \
+              --db_host=localhost \
+              --db_user=odoo \
+              --db_password=odoo \
+              -d test_db \
+              --stop-after-init \
+              --log-level=test
+
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: /var/log/odoo/
+
+  # ─────────────────────────────────────────
+  # JOB 3 — SECURITY
+  # ─────────────────────────────────────────
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install security tools
+        run: pip install bandit safety
+
+      - name: bandit (SAST)
+        run: |
+          bandit -r addons/custom/ \
+            -f json \
+            -o bandit-report.json \
+            --severity-level medium \
+            || true
+          cat bandit-report.json | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)
+          issues=d.get('results',[])
+          highs=[i for i in issues if i['issue_severity']=='HIGH']
+          print(f'Bandit: {len(issues)} issues, {len(highs)} HIGH')
+          if highs:
+              for h in highs: print(f'  ❌ {h[\"filename\"]}:{h[\"line_number\"]} — {h[\"issue_text\"]}')
+              sys.exit(1)
+          "
+
+      - name: safety (CVE check)
+        run: |
+          pip freeze > requirements-ci.txt
+          safety check -r requirements-ci.txt --json 2>/dev/null \
+            | python3 -c "
+          import json,sys
+          try:
+              d=json.load(sys.stdin)
+              vulns=d.get('vulnerabilities',[])
+              print(f'Safety: {len(vulns)} vulnérabilités')
+              for v in vulns[:5]:
+                  print(f'  ⚠️  {v[\"package_name\"]} {v[\"analyzed_version\"]} — {v[\"vulnerability_id\"]}')
+          except: print('Safety check terminé')
+          " || true
+
+      - name: trivy (container scan)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: odoo:${{ env.ODOO_VERSION }}
+          format: table
+          exit-code: 0
+          severity: CRITICAL
+
+      - name: Upload security report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: bandit-report.json
+
+  # ─────────────────────────────────────────
+  # JOB 4 — IA RISK SCORE
+  # ─────────────────────────────────────────
+  ai-risk:
+    name: IA Risk Score
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    outputs:
+      score: ${{ steps.score.outputs.score }}
+      label: ${{ steps.score.outputs.label }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install anthropic SDK
+        run: pip install anthropic
+
+      - name: Compute risk score
+        id: score
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 << 'PYEOF'
+          import subprocess, os, json, sys
+
+          diff = subprocess.run(
+              ["git", "diff", "origin/main...HEAD", "--stat", "--diff-filter=ACMR"],
+              capture_output=True, text=True
+          ).stdout[:3000]
+
+          changed = subprocess.run(
+              ["git", "diff", "origin/main...HEAD", "--name-only", "--diff-filter=ACMR"],
+              capture_output=True, text=True
+          ).stdout.strip()
+
+          prompt = f"""Analyse ce diff Git et retourne uniquement un JSON avec:
+          - score: float 0.0-1.0 (risque déploiement)
+          - label: "LOW"|"MEDIUM"|"HIGH"
+          - reason: string courte (max 100 chars)
+
+          Critères:
+          - 0.0-0.3: ajout champs/vues simples, pas de migration
+          - 0.3-0.6: nouveaux modèles, modifications logique métier
+          - 0.6-1.0: migrations DB, refactoring core, sécurité, multi-modules
+
+          Fichiers modifiés:
+          {changed}
+
+          Statistiques:
+          {diff}
+
+          Réponds UNIQUEMENT avec le JSON, sans markdown."""
+
+          try:
+              import anthropic
+              client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+              msg = client.messages.create(
+                  model="claude-haiku-4-5-20251001",
+                  max_tokens=200,
+                  messages=[{"role": "user", "content": prompt}]
+              )
+              result = json.loads(msg.content[0].text)
+          except Exception as e:
+              print(f"IA indisponible ({e}), score défaut: 0.5", file=sys.stderr)
+              result = {"score": 0.5, "label": "MEDIUM", "reason": "IA unavailable - manual review required"}
+
+          score = round(float(result["score"]), 2)
+          label = result["label"]
+          reason = result["reason"]
+
+          print(f"🤖 IA Risk Score: {score} ({label})")
+          print(f"   Raison: {reason}")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"score={score}\n")
+              f.write(f"label={label}\n")
+
+          with open("risk-report.json", "w") as f:
+              json.dump({"score": score, "label": label, "reason": reason}, f, indent=2)
+          PYEOF
+
+      - name: Upload risk report
+        uses: actions/upload-artifact@v4
+        with:
+          name: risk-report
+          path: risk-report.json
+
+  # ─────────────────────────────────────────
+  # JOB 5 — TAG & AUTO-MERGE
+  # ─────────────────────────────────────────
+  tag-and-merge:
+    name: Tag & Auto-merge
+    runs-on: ubuntu-latest
+    needs: ai-risk
+    if: github.event_name == 'push' && contains(github.ref, 'dev/')
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create version tag
+        run: |
+          DATE=$(date +%Y.%m.%d)
+          RUN_N=${{ github.run_number }}
+          TAG="${{ env.CLIENT_SLUG }}/v${{ env.ODOO_VERSION }}/${DATE}-${RUN_N}"
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "🏷️  Tag créé: $TAG"
+
+      - name: Auto-merge si score faible
+        if: needs.ai-risk.outputs.score < 0.5
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SCORE: ${{ needs.ai-risk.outputs.score }}
+          LABEL: ${{ needs.ai-risk.outputs.label }}
+        run: |
+          PR_NUMBER=$(gh pr list --head "${GITHUB_REF_NAME}" --json number -q '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr merge "$PR_NUMBER" --squash --auto \
+              --body "🤖 Auto-merged: Risk Score ${SCORE} (${LABEL}) < 0.5"
+            echo "✅ PR #${PR_NUMBER} auto-merged (score: ${SCORE})"
+          else
+            echo "ℹ️  Pas de PR ouverte pour cette branche"
+          fi

@@ -1,0 +1,29 @@
+{
+  "groups": {
+    "group:dev": ["dg.enswork@gmail.com"],
+    "group:ops": ["dg.enswork@gmail.com"]
+  },
+  "hosts": {
+    "pacadev-dev": "100.x.x.x"
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["group:dev"],
+      "dst": ["group:dev:8069,5432,9090,3000,3100"]
+    },
+    {
+      "action": "accept",
+      "src": ["group:ops"],
+      "dst": ["*:*"]
+    }
+  ],
+  "ssh": [
+    {
+      "action": "accept",
+      "src": ["group:ops"],
+      "dst": ["group:dev"],
+      "users": ["root", "abdelali"]
+    }
+  ]
+}

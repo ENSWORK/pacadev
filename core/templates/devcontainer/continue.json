@@ -1,0 +1,37 @@
+{
+  "models": [
+    {
+      "title": "Claude Sonnet 4.6",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "apiKey": "${ANTHROPIC_API_KEY}",
+      "maxTokens": 4000,
+      "contextWindow": 8000,
+      "temperature": 0.1
+    }
+  ],
+  "rules": [
+    "NEVER use @workspace. Always use @file for specific files.",
+    "Follow Odoo V{{ odoo_version }} coding guidelines and conventions.",
+    "Always propose unit tests alongside new code.",
+    "Respect .aiignore file for context scoping.",
+    "Use French for comments and documentation.",
+    "Check for existing modules before creating new ones.",
+    "Client: {{ client_slug }}"
+  ],
+  "contextProviders": [
+    { "name": "code", "params": {} },
+    { "name": "diff", "params": {} },
+    { "name": "terminal", "params": {} }
+  ],
+  "slashCommands": [
+    {
+      "name": "odoo-model",
+      "description": "Génère un modèle Odoo V{{ odoo_version }} complet"
+    },
+    {
+      "name": "odoo-test",
+      "description": "Génère les tests unitaires pour le modèle courant"
+    }
+  ]
+}

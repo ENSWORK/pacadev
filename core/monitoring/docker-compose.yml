@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: pacadev_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    networks:
+      - pacadev_monitoring
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: pacadev_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - pacadev_monitoring
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: pacadev_loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki:/etc/loki:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/loki.yml
+    networks:
+      - pacadev_monitoring
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: pacadev_promtail
+    volumes:
+      - /var/log:/var/log:ro
+      - /data/Pacadev:/data/Pacadev:ro
+      - /home/abdelali/.pacadev/logs:/pacadev-logs:ro
+      - ./promtail:/etc/promtail:ro
+    command: -config.file=/etc/promtail/promtail.yml
+    networks:
+      - pacadev_monitoring
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+
+networks:
+  pacadev_monitoring:
+    driver: bridge

@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  odoo:
+    image: odoo:17
+    container_name: acmecorp_odoo_dev
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./addons/custom:/mnt/extra-addons/custom:rw
+      - ./addons/oca:/mnt/extra-addons/oca:ro
+      - odoo-web-data:/var/lib/odoo
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+    command: --dev=all --workers=0 --db-filter=^acmecorp_db$
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=${DB_PASSWORD}
+    networks:
+      - pacadev_net
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: acmecorp_db_dev
+    environment:
+      - POSTGRES_DB=acmecorp_db
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - pacadev_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  odoo-web-data:
+  postgres-data:
+
+networks:
+  pacadev_net:
+    driver: bridge
