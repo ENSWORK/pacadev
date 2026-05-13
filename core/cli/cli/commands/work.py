@@ -104,7 +104,6 @@ def start(
     if is_git_repo(client_dir):
         if not create_branch(branch, cwd=client_dir):
             console.print(f"[yellow]⚠️  Branche '{branch}' existe déjà, basculement...[/yellow]")
-            import subprocess
             subprocess.run(["git", "checkout", branch], cwd=client_dir)
         console.print("[green]✅ Branche Git prête[/green]")
     else:
