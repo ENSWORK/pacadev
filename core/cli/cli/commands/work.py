@@ -7,6 +7,11 @@ from rich.panel import Panel
 from cli.utils.state import get_client_config, update_client_state, list_clients, audit, load_versions, PACADEV_ROOT
 from cli.utils.git import create_branch, current_branch, is_git_repo
 
+# Phase A + B imports
+from workflow import WorkflowFSM, TransitionEvent
+from security import RBAC
+from audit import AuditLogger
+
 
 def _fetch_issue_info(repo: str, number: int) -> dict:
     """Récupère titre + labels d'une issue GitHub"""
@@ -54,6 +59,14 @@ def start(
     odoo: str = typer.Option("17", "--odoo", "-o", help="Version Odoo"),
 ):
     """Démarre un environnement de travail pour un ticket"""
+    # Phase B: RBAC permission check
+    rbac = RBAC()
+    user = subprocess.run(["whoami"], capture_output=True, text=True, timeout=2).stdout.strip()
+    if not rbac.can_access(user, "work_start", client):
+        console.print(f"[red]❌ Permission refusée pour {user}[/red]")
+        console.print(f"[yellow]💡 Contact votre admin pour le rôle 'dev' ou 'lead'[/yellow]")
+        raise typer.Exit(1)
+
     config = get_client_config(client)
     odoo = odoo or config.get("odoo_version", "17")
     client_dir = PACADEV_ROOT / f"v{odoo}" / "clients" / client
@@ -97,6 +110,14 @@ def start(
     else:
         console.print("[yellow]⚠️  Pas de dépôt Git — initialisez avec: git init[/yellow]")
 
+    # Phase A: FSM transition
+    fsm = WorkflowFSM(client)
+    try:
+        fsm.transition(TransitionEvent.WORK_START_VALID, metadata={"issue": issue, "module": module, "branch": branch})
+        console.print(f"[blue]🔄 Workflow: {fsm.state.value}[/blue]")
+    except Exception as e:
+        console.print(f"[yellow]⚠️  FSM: {str(e)}[/yellow]")
+
     update_client_state(client, {
         "current_branch": branch,
         "current_issue": f"#{issue}",
@@ -104,6 +125,10 @@ def start(
         "status": "dev",
         "odoo_version": odoo,
     })
+
+    # Phase B: Audit log avec masquage secrets
+    logger = AuditLogger()
+    logger.log_action("work_start", client, issue=issue, branch=branch, module=module, user=user)
     audit("work_start", client, {"issue": issue, "branch": branch, "module": module})
 
     # Mettre l'issue en status:in-progress sur GitHub
