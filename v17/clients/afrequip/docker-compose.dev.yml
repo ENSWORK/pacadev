@@ -31,9 +31,9 @@ services:
       - "8070:8069"
     volumes:
       - afrequip_odoo_data:/var/lib/odoo
-      - ./addons/custom:/mnt/extra-addons/custom
       - ./addons/oca:/mnt/extra-addons/oca
-    command: odoo -c /odoo.conf --addons-path=/mnt/extra-addons/custom,/mnt/extra-addons/oca,/usr/lib/python3/dist-packages/odoo/addons
+      - ./addons/ens_core:/mnt/extra-addons/ens_core
+    command: odoo -c /odoo.conf --addons-path=/mnt/extra-addons/oca,/mnt/extra-addons/ens_core,/usr/lib/python3/dist-packages/odoo/addons
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
       interval: 10s
