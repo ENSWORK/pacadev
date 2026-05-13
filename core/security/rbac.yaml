@@ -1,0 +1,40 @@
+# Configuration RBAC (Role-Based Access Control) pour PACADEV
+# Modifiez ce fichier pour ajouter des utilisateurs et leurs rôles
+
+roles:
+  admin:
+    # Admin a accès à tout sur tous les clients
+    permissions: ["*"]
+    clients: ["*"]
+
+  lead:
+    # Lead peut approuver les déploiements et rollbacks
+    permissions:
+      - work_start
+      - test
+      - deploy_staging
+      - deploy_prod
+      - approve_prod
+      - rollback
+      - manage_clients
+    clients: ["*"]
+
+  dev:
+    # Dev peut faire du dev et staging, mais pas prod
+    permissions:
+      - work_start
+      - test
+      - deploy_staging
+    clients: ["*"]
+
+  viewer:
+    # Viewer peut seulement voir (aucune action)
+    permissions: []
+    clients: ["*"]
+
+# Mapping utilisateurs → rôles
+user_roles:
+  # abdelali: admin
+  # alice: lead
+  # bob: dev
+  # charlie: viewer

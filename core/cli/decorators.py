@@ -151,3 +151,94 @@ def fsm_transition(event) -> Callable:
                 raise
         return wrapper
     return decorator
+
+
+def require_permission(permission: str) -> Callable:
+    """Décorateur: exige une permission RBAC"""
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            from security import RBAC
+            import subprocess
+
+            client = kwargs.get('client')
+            if not client:
+                console.print("[red]❌ --client requis[/red]")
+                raise typer.Exit(1)
+
+            # Récupérer l'utilisateur courant
+            try:
+                user = subprocess.run(["whoami"], capture_output=True, text=True, timeout=2).stdout.strip()
+            except:
+                user = "unknown"
+
+            # Vérifier la permission
+            rbac = RBAC()
+            if not rbac.can_access(user, permission, client):
+                console.print(
+                    f"[red]❌ Permission refusée pour {user}[/red]\n"
+                    f"[yellow]Required: {permission} on {client}[/yellow]"
+                )
+                raise typer.Exit(1)
+
+            console.print(f"[green]✅ Permission OK: {permission}[/green]")
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def require_approval(action: str) -> Callable:
+    """Décorateur: exige une approbation signée pour actions critiques"""
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            from security import ApprovalManager, TokenError
+
+            client = kwargs.get('client')
+            token = kwargs.get('approve_token')
+
+            if not client:
+                console.print("[red]❌ --client requis[/red]")
+                raise typer.Exit(1)
+
+            if not token:
+                console.print(
+                    f"[red]❌ Token d'approbation requis pour {action}[/red]\n"
+                    f"[yellow]💡 Utilisez: --approve-token <token>[/yellow]"
+                )
+                raise typer.Exit(1)
+
+            # Vérifier et utiliser l'approbation
+            manager = ApprovalManager()
+            try:
+                import subprocess
+                user = subprocess.run(["whoami"], capture_output=True, text=True, timeout=2).stdout.strip()
+                manager.use_approval(token, user)
+                console.print(f"[green]✅ Approbation validée[/green]")
+            except TokenError as e:
+                console.print(f"[red]❌ {str(e)}[/red]")
+                raise typer.Exit(1)
+
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def mask_secrets_in_log(func: Callable) -> Callable:
+    """Décorateur: masque les secrets avant logging"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        from security import SecretsMasker
+        from audit import AuditLogger
+
+        try:
+            result = func(*args, **kwargs)
+            # Les secrets sont masqués automatiquement dans audit log
+            return result
+        except Exception as e:
+            # Masquer les secrets dans les erreurs aussi
+            masker = SecretsMasker()
+            error_msg = masker.mask_text(str(e))
+            console.print(f"[red]❌ Erreur: {error_msg}[/red]")
+            raise
+    return wrapper

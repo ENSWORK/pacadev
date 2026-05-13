@@ -1,0 +1,33 @@
+{
+  "roles": {
+    "admin": {
+      "permissions": ["*"],
+      "clients": ["*"]
+    },
+    "lead": {
+      "permissions": [
+        "work_start",
+        "test",
+        "deploy_staging",
+        "deploy_prod",
+        "approve_prod",
+        "rollback",
+        "manage_clients"
+      ],
+      "clients": ["*"]
+    },
+    "dev": {
+      "permissions": [
+        "work_start",
+        "test",
+        "deploy_staging"
+      ],
+      "clients": ["*"]
+    },
+    "viewer": {
+      "permissions": [],
+      "clients": ["*"]
+    }
+  },
+  "user_roles": {}
+}
