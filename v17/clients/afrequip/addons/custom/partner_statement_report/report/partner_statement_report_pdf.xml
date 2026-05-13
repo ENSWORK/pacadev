@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Partner Statement Report - Afrequip Customizations
+Modifications:
+1. MOD 1: Traduction FR (strings hardcodées)
+2. MOD 2: Header/Footer custom_reports
+3. MOD 3: Suppression devise sur lignes (gardée sur totaux)
+4. MOD 4: Ajout colonne date_due
+5. MOD 5: Ajout champ ICE
+-->
+<odoo>
+    <data>
+        <!-- MOD 2: Utiliser custom_reports.custom_external_layout si disponible -->
+        <template id="partner_statement_report_pdf">
+            <t t-call="custom_reports.custom_external_layout">
+                <div class="page">
+                    <!-- En-tête client avec MOD 5: ICE -->
+                    <div class="row mb-4">
+                        <div class="col-8">
+                            <h2 t-esc="'DÉCLARATION DE COMPTE'"/>
+                            <!-- MOD 1: Traduction FR -->
+                            <p t-esc="'Date: ' + o.date.strftime('%d/%m/%Y')"/>
+                        </div>
+                        <div class="col-4">
+                            <p>
+                                <strong t-esc="o.name"/>
+                            </p>
+                            <!-- MOD 5: Ajouter ICE si disponible -->
+                            <t t-if="o.ice">
+                                <p t-esc="'ICE: ' + o.ice"/>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Section 1: Activity (Activité) -->
+                    <h3 t-esc="'ACTIVITÉ'"/>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th t-esc="'Référence'"/>
+                                <th t-esc="'Date'"/>
+                                <!-- MOD 4: Ajouter colonne date_due -->
+                                <th t-esc="'Date d\'échéance'"/>
+                                <th t-esc="'Débit'"/>
+                                <th t-esc="'Crédit'"/>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.activity_lines" t-as="line">
+                                <tr>
+                                    <td t-esc="line['ref']"/>
+                                    <td t-esc="line['date'].strftime('%d/%m/%Y')"/>
+                                    <!-- MOD 4: Afficher date_due -->
+                                    <td t-esc="line['date_due'].strftime('%d/%m/%Y') if line.get('date_due') else '-'"/>
+                                    <td t-esc="'{:,.2f}'.format(line['debit'])"/>
+                                    <!-- MOD 3: Suppression devise sur ligne (pas de currency ici) -->
+                                    <td t-esc="'{:,.2f}'.format(line['credit'])"/>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- Section 2: Detailed Activity (Activité détaillée) -->
+                    <h3 t-esc="'ACTIVITÉ DÉTAILLÉE'"/>
+                    <table class="table table-sm table-bordered">
+                        <colgroup>
+                            <col style="width: 15%;"/>
+                            <col style="width: 12%;"/>
+                            <!-- MOD 4: Ajuster colgroup pour date_due -->
+                            <col style="width: 12%;"/>
+                            <col style="width: 15%;"/>
+                            <col style="width: 15%;"/>
+                            <col style="width: 15%;"/>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th t-esc="'Pièce'"/>
+                                <th t-esc="'Date'"/>
+                                <!-- MOD 4: Ajouter colonne -->
+                                <th t-esc="'Échéance'"/>
+                                <th t-esc="'Montant'"/>
+                                <th t-esc="'Payé'"/>
+                                <th t-esc="'Solde'"/>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.detailed_lines" t-as="line">
+                                <tr>
+                                    <td t-esc="line['ref']"/>
+                                    <td t-esc="line['date'].strftime('%d/%m/%Y')"/>
+                                    <!-- MOD 4: Afficher date_due -->
+                                    <td t-esc="line['date_due'].strftime('%d/%m/%Y') if line.get('date_due') else '-'"/>
+                                    <td t-esc="'{:,.2f}'.format(line['amount'])"/>
+                                    <td t-esc="'{:,.2f}'.format(line['paid'])"/>
+                                    <!-- MOD 3: Pas de devise sur la ligne -->
+                                    <td t-esc="'{:,.2f}'.format(line['balance'])"/>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" t-esc="'TOTAL'"/>
+                                <td/>
+                                <td>
+                                    <strong t-esc="'{:,.2f}'.format(sum(l['amount'] for l in o.detailed_lines))"/>
+                                </td>
+                                <td>
+                                    <strong t-esc="'{:,.2f}'.format(sum(l['paid'] for l in o.detailed_lines))"/>
+                                </td>
+                                <td>
+                                    <!-- MOD 3: Devise gardée sur les totaux -->
+                                    <strong t-esc="'{:,.2f} '.format(sum(l['balance'] for l in o.detailed_lines)) + o.currency_id.name"/>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- Section 3: Outstanding (Encours) -->
+                    <h3 t-esc="'ENCOURS'"/>
+                    <table class="table table-sm table-bordered">
+                        <colgroup>
+                            <col style="width: 15%;"/>
+                            <col style="width: 12%;"/>
+                            <!-- MOD 4: Ajuster colgroup -->
+                            <col style="width: 12%;"/>
+                            <col style="width: 30%;"/>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th t-esc="'Référence'"/>
+                                <th t-esc="'Date'"/>
+                                <!-- MOD 4: Ajouter colonne -->
+                                <th t-esc="'Échéance'"/>
+                                <th t-esc="'Montant restant'"/>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.outstanding_lines" t-as="line">
+                                <tr>
+                                    <td t-esc="line['ref']"/>
+                                    <td t-esc="line['date'].strftime('%d/%m/%Y')"/>
+                                    <!-- MOD 4: Afficher date_due -->
+                                    <td t-esc="line['date_due'].strftime('%d/%m/%Y') if line.get('date_due') else '-'"/>
+                                    <!-- MOD 3: Pas de devise sur la ligne -->
+                                    <td t-esc="'{:,.2f}'.format(line['amount'])"/>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" t-esc="'TOTAL ENCOURS'"/>
+                                <td/>
+                                <td>
+                                    <!-- MOD 3: Devise gardée sur les totaux -->
+                                    <strong t-esc="'{:,.2f} '.format(sum(l['amount'] for l in o.outstanding_lines)) + o.currency_id.name"/>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- Section 4: Aging Analysis (Analyse d'âge) -->
+                    <h3 t-esc="'ANALYSE D\'ÂGE'"/>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th t-esc="'Catégorie'"/>
+                                <th t-esc="'Montant'"/>
+                                <th t-esc="'Pourcentage'"/>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td t-esc="'Courant'"/>
+                                <td t-esc="'{:,.2f}'.format(o.aging['current'])"/>
+                                <td t-esc="'{:.1f}%'.format((o.aging['current'] / o.aging['total']) * 100 if o.aging['total'] > 0 else 0)"/>
+                            </tr>
+                            <tr>
+                                <td t-esc="'0-30 jours'"/>
+                                <td t-esc="'{:,.2f}'.format(o.aging['30'])"/>
+                                <td t-esc="'{:.1f}%'.format((o.aging['30'] / o.aging['total']) * 100 if o.aging['total'] > 0 else 0)"/>
+                            </tr>
+                            <tr>
+                                <td t-esc="'30-60 jours'"/>
+                                <td t-esc="'{:,.2f}'.format(o.aging['60'])"/>
+                                <td t-esc="'{:.1f}%'.format((o.aging['60'] / o.aging['total']) * 100 if o.aging['total'] > 0 else 0)"/>
+                            </tr>
+                            <tr>
+                                <td t-esc="'60-90 jours'"/>
+                                <td t-esc="'{:,.2f}'.format(o.aging['90'])"/>
+                                <td t-esc="'{:.1f}%'.format((o.aging['90'] / o.aging['total']) * 100 if o.aging['total'] > 0 else 0)"/>
+                            </tr>
+                            <tr>
+                                <td t-esc="'Plus de 90 jours'"/>
+                                <td t-esc="'{:,.2f}'.format(o.aging['older'])"/>
+                                <td t-esc="'{:.1f}%'.format((o.aging['older'] / o.aging['total']) * 100 if o.aging['total'] > 0 else 0)"/>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td t-esc="'TOTAL'"/>
+                                <!-- MOD 3: Devise gardée sur les totaux d'aging -->
+                                <td t-esc="'{:,.2f} '.format(o.aging['total']) + o.currency_id.name"/>
+                                <td t-esc="'100.0%'"/>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

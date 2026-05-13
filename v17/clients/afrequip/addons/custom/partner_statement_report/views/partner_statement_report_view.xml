@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MOD 1: Traduction FR des vues -->
+<odoo>
+    <data>
+        <!-- Rapport: Déclaration de compte partenaire -->
+        <report
+            id="action_partner_statement_report"
+            model="res.partner"
+            string="Déclaration de compte"
+            report_type="qweb-pdf"
+            file="partner_statement_report.partner_statement_report"
+            print_report_name="'Déclaration de compte - ' + object.name + ' - ' + (context_timestamp(datetime.now()).strftime('%Y%m%d'))"/>
+    </data>
+</odoo>
