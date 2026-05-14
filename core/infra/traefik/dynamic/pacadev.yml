@@ -1,0 +1,34 @@
+# Routes dynamiques Traefik pacadev
+# Rechargées à chaud (watch=true).
+#
+# Conventions :
+#   - <client>.pacadev.local  → Odoo client
+#   - dashboard.pacadev.local → Streamlit operator dashboard (Phase 6)
+#   - grafana.pacadev.local   → Grafana monitoring stack
+
+http:
+  routers:
+    # Dashboard Streamlit opérateur (à câbler Phase 6).
+    pacadev-dashboard:
+      rule: "Host(`dashboard.pacadev.local`)"
+      entryPoints:
+        - web
+      service: pacadev-dashboard-svc
+
+    # Grafana monitoring (déjà déployé sur :3000).
+    pacadev-grafana:
+      rule: "Host(`grafana.pacadev.local`)"
+      entryPoints:
+        - web
+      service: pacadev-grafana-svc
+
+  services:
+    pacadev-dashboard-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8501"
+
+    pacadev-grafana-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3000"

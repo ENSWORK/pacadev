@@ -1,0 +1,32 @@
+# PACADEV — PostgreSQL partagé multi-clients
+# Port host = 5434 (5432/5433 occupés par OpenEnsdev pendant la coexistence)
+# Container : pacadev_postgres_shared
+# Network   : pacadev-network (externe, créé par `pacadev infra start`)
+#
+# Credentials : injectés via env vars (cf. core/secrets/pacadev_infra.enc.yaml).
+# Pour tester sans SOPS, définir POSTGRES_PASSWORD avant docker compose up.
+
+services:
+  db:
+    image: postgres:14
+    container_name: pacadev_postgres_shared
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-odoo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+    ports:
+      - "${PACADEV_PG_HOST_PORT:-5434}:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-odoo} -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pacadev-network
+
+networks:
+  pacadev-network:
+    external: true

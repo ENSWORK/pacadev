@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import typer
 from rich.console import Console
-from cli.commands import work, deploy, backup, rollback, test, secrets, generate, monitor, runbook, issue
+from cli.commands import work, deploy, backup, rollback, test, secrets, generate, monitor, runbook, issue, infra
 from cli.utils.state import init_client, list_clients, load_versions, PACADEV_ROOT
 
 app = typer.Typer(
@@ -21,6 +21,7 @@ app.add_typer(generate.app, name="generate")
 app.add_typer(monitor.app, name="monitor")
 app.add_typer(runbook.app, name="runbook")
 app.add_typer(issue.app, name="issue")
+app.add_typer(infra.app, name="infra")
 
 console = Console()
 
