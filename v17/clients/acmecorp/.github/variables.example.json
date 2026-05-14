@@ -1,6 +1,0 @@
-{
-  "CLIENT_SLUG": "acmecorp",
-  "ODOO_VERSION": "17",
-  "DEPLOY_HOST": "user@acmecorp-prod.example.com",
-  "ODOO_HOST": "acmecorp-prod.example.com"
-}
