@@ -246,26 +246,26 @@ class InvoiceAbstractReport(models.AbstractModel):
                 domain = [
                     ('partner_id', '=', partner.id),
                     ('move_type', '=', move_type),
+                    ('state', '=', 'posted'),
+                    ('payment_state', 'not in', ['paid', 'reversed']),
                 ]
                 if start_date:
                     domain.append(('invoice_date', '>=', start_date))
                 if end_date:
                     domain.append(('invoice_date', '<=', end_date))
-                invoices = self.env['account.move'].search(domain)
+                invoices = self.env['account.move'].search(domain, order='invoice_date asc')
                 invoice_data = []
-                total_amount = total_payment = total_balance = 0
+                total_amount = total_balance = 0
                 for invoice in invoices:
-                    paid_amount = abs(invoice.amount_total_signed) - abs(invoice.amount_residual_signed)
                     invoice_data.append({
                         'invoice_date': invoice.invoice_date,
                         'invoice_date_due': invoice.invoice_date_due,
                         'invoice_id': invoice.name,
+                        'ref': invoice.ref or '',
                         'amount': fmt(abs(invoice.amount_total_signed)),
-                        'payment_amount': fmt(paid_amount),
                         'balance_due': fmt(abs(invoice.amount_residual_signed)),
                     })
                     total_amount += abs(invoice.amount_total_signed)
-                    total_payment += paid_amount
                     total_balance += abs(invoice.amount_residual_signed)
 
                 if exclude_zero_balance and round(total_balance, 2) == 0:
@@ -285,7 +285,6 @@ class InvoiceAbstractReport(models.AbstractModel):
                     'partner_country_id': partner.country_id.name,
                     'invoices': invoice_data,
                     'total_amount': fmt(total_amount),
-                    'total_payment': fmt(total_payment),
                     'total_balance': fmt(total_balance),
                     'aging_buckets': fmt_buckets,
                     'partner_record': partner,
