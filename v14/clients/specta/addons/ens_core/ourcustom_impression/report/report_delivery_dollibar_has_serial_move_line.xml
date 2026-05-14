@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <template id="report_delivery_dollibar_has_serial_move_line">
+            <td class="text-center" style="text-align:center;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:4%" name="move_line_num">
+                <span t-field="move_line.sl_no"/>
+            </td>
+            <td style="border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:11%"> <span t-if="move_line.product_id.default_code" t-esc="str(move_line.product_id.default_code).replace('-', '⁻')"/></td>
+            <td style="border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB">
+                <t t-if="move_line.ourname and move_line.ourname !=''">
+                     <span t-field="move_line.ourname"/>
+                </t>
+                <t t-else="">
+                    <span t-field="move_line.product_id"/>
+                </t>
+                <t t-if="move_line.lot_id">
+                    <br/><small style="color:#555;">N° Série : <span t-field="move_line.lot_id.name"/></small>
+                </t>
+            </td>
+
+            <td class="text-center" style="text-align:center;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:9%" name="move_line_lot_qty_done">
+                <span t-field="move_line.qty_done"/>
+            </td>
+            <td class="text-center" style="text-align:center;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:13%" name="move_line_lot_uom">
+                <span t-field="move_line.product_uom_id"/>
+            </td>
+    </template>
+    </data>
+</odoo>
+

@@ -1,0 +1,13 @@
+<odoo>
+    <record id="add_min_discount" model="ir.ui.view">
+        <field name="name">add_min_discount</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="use_min_discount" invisible="1"/>
+                <field name="min_discount" attrs="{'invisible': [('use_min_discount','=',False)]}"/>
+            </xpath>
+        </field>
+     </record>
+</odoo>

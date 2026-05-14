@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Increase DB Report LOGO SIZE-->
+    <template id="purchasequotation_dollibar_headfoot_specta" inherit_id="ourcustom_impression.report_purchasequotation_dollibar_headfoot">
+        <xpath expr="//div[hasclass('header')]/div/div[hasclass('row','mb8')]/div[hasclass('col-6')]/img" position="replace">
+            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 350px; max-height: 200px;"/>
+        </xpath>
+    </template>
+    <template id="purchaseorder_dollibar_headfoot_specta" inherit_id="ourcustom_impression.report_purchaseorder_dollibar_headfoot">
+        <xpath expr="//div[hasclass('header')]/div/div[hasclass('row','mb8')]/div[hasclass('col-6')]/img" position="replace">
+            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 350px; max-height: 200px;"/>
+        </xpath>
+    </template>
+    <template id="saleorder_pro_dollibar_headfoot_specta" inherit_id="ourcustom_impression.report_saleorder_pro_dollibar_headfoot">
+        <xpath expr="//div[hasclass('header')]/div/div[hasclass('row','mb8')]/div[hasclass('col-6')]/img" position="replace">
+            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 350px; max-height: 200px;"/>
+        </xpath>
+    </template>
+    <template id="report_saleorder_dollibar_headfoot_specta" inherit_id="ourcustom_impression.report_saleorder_dollibar_headfoot">
+        <xpath expr="//div[hasclass('header')]/div/div[hasclass('row','mb8')]/div[hasclass('col-6')]/img" position="replace">
+            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 350px; max-height: 200px;"/>
+        </xpath>
+    </template>
+    <template id="delivery_dollibar_headfoot_specta" inherit_id="ourcustom_impression.report_delivery_dollibar_headfoot">
+        <xpath expr="//div[hasclass('header')]/div/div[hasclass('row','mb8')]/div[hasclass('col-6')]/img" position="replace">
+            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 350px; max-height: 200px;"/>
+        </xpath>
+    </template>
+    <template id="invoice_dollibar_headfoot_specta" inherit_id="ourcustom_impression.report_invoice_dollibar_headfoot">
+        <xpath expr="//div[hasclass('header')]/div/div[hasclass('row','mb8')]/div[hasclass('col-6')]/img" position="replace">
+            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 350px; max-height: 200px;"/>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ourcustom_header_footeroc_whf">
+        <t t-set="company" t-value="user.company_id" />
+        <div class="header">
+            <div>
+                <style>
+                   #informations {
+                        display: block;
+                        }
+                   .m-0{
+                        display:inline;
+                         }
+                   strong,p,span{
+                        color:black;
+                        }
+               </style>
+                <br/><br/>
+                <div style="margin-left:700px;margin-bottom:0px;color:black;font-size:14px" t-if="report_type == 'pdf'">
+                Page N°: <span class="page"/> de <span class="topage"/>
+                </div>
+            </div>
+            <div class="not-first-page" style="padding-top:-79px" >
+                 <style>
+                     div.not{
+                     display:inline-block;
+                     margin-right:9px;}
+                 </style>
+                 <div class="not">
+                    <div style="font-size:16px">
+                        <strong>Offre Commerciale N°:</strong>
+                        <p class="m-0" t-field="o.name"/>
+                    </div>
+                 </div>
+                  <div class="not">
+                        <div style="font-size:14px" t-if="o.partner_id.ref" >
+                            <strong>Client :</strong>
+                            <span class="m-0" t-field="o.partner_id"/>
+                            <t t-if="o.partner_id.ref">
+                                &#032;<strong>N°</strong>&#032;<span class="m-0" t-field="o.partner_id.ref"/>&#032;
+                            </t>
+                        </div>
+                  </div>
+             </div>
+        </div>
+    </template>
+</odoo>

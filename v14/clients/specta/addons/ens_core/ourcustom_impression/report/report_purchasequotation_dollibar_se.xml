@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_purchasequotation_dollibar_se">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                <div class="article o_report_layout_boxed" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"><!--To ignore the default layout(remove header+footer)-->
+                    <t t-call="ourcustom_impression.report_purchasequotation_dollibar_headfoot_se" />
+                <style>
+                   #informations {
+                        display: block;
+                        }
+                   .m-0{
+                        display:inline;
+                         }
+                   strong,p,span{
+                        color:black;
+                        }
+                    div.T2{
+                    display:inline-block;
+                    }
+                    .rows_color tr:nth-child(even){
+		                background: #EEEDED;
+                    }
+
+                    #content {
+                          border:1px solid #ABABAB;
+                    }
+
+                </style>
+                    <div class="ourpage">
+                        <div class="oe_structure"/>
+                        <br/>
+                        <table style="width:100%;border:0px;margin-top:0px" class="mod" >
+                            <tr>
+                                <td style="width:45%;border:0px;color:black">Émetteur</td>
+                                <td style="width:5%;border:0px;"> </td>
+                                <td style="width:50%;border:none;color:black">Adressé à</td>
+                            </tr>
+                            <tr>
+                                <td style="width:45%;border:0px;background-color:#EEEDED;">
+                                        <div class="col-auto col-3 mw-100 mb-2">
+                                            <strong><p class="m-0" t-field="o.company_id.name" style="color:#0D0446"/></strong><br/>
+                                            <p class="m-0" t-field="o.company_id.street" style="color:#0D0446"/>
+                                            <p class="m-0" t-field="o.company_id.street2" style="color:#0D0446"/>
+                                            <p class="m-0" t-field="o.company_id.city" style="color:#0D0446"/>
+                                            <p class="m-0" t-field="o.company_id.state_id" style="color:#0D0446"/>
+                                            <p class="m-0" t-field="o.company_id.country_id" style="color:#0D0446"/>
+                                            <br/>
+                                            <strong style="color:#0D0446">Tél: </strong>
+                                            <p class="m-0" t-field="o.company_id.phone" style="color:#0D0446"/><br/>
+                                            <strong style="color:#0D0446">Email: </strong>
+                                            <p class="m-0" t-field="o.company_id.email" style="color:#0D0446"/><br/>
+                                            <strong style="color:#0D0446">Web: </strong>
+                                            <p class="m-0" t-field="o.company_id.website" style="color:#0D0446"/><br/>
+
+                                        </div>
+                                </td>
+                                <td style="width:5%;border:0px;"> </td>
+                                <td style="width:50%;border:none;">
+                                    <div id="content" style="padding-left:15px;padding-right:20px;padding-bottom:6px;min-height:160px">
+                                                <p style="color:black;">
+                                                    <div class="mod3"><strong><p class="m-0" t-field="o.partner_id"/></strong></div>
+                                                    <div>
+                                                        <span  t-field="o.partner_id.street"></span>&#032;<span t-field="o.partner_id.street2"></span>&#032;
+                                                        <span  t-field="o.partner_id.city"></span>&#032;<span t-field="o.partner_id.state_id"></span>&#032;
+                                                        <span  t-field="o.partner_id.zip"></span>&#032;<span t-field="o.partner_id.country_id"></span><br/></div>
+                                                    <div><strong>Tél :</strong>
+                                                        <t t-if="o.partner_id.company_type == 'person'">
+                                                            <p t-if="o.partner_id.phone_required" class="m-0" t-esc="str(o.partner_id.phone_required).replace('.',' ')"/>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <p class="m-0" t-field="o.partner_id.phone"/>
+                                                        </t>
+                                                    </div>
+                                                    <div><strong>E-mail :</strong><p class="m-0" t-field="o.partner_id.email"/></div>
+                                                    <div><strong>ICE :</strong><p class="m-0" t-field="o.partner_id.vat"/></div>
+                                                </p>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </table><br/>
+
+                            <!--TABLE PRINCIPALE-->
+                        <t t-set="display_discount" t-value="any(l.discount for l in o.order_line)"/>
+                        <table class="table table-sm o_main_table"  style="height:135mm;border-color:#ABABAB">
+                            <thead style="border-color:#ABABAB">
+                                <tr style="border-color:#ABABAB">
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:4%" name="th_line_num" class="text-center">N°</th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:14%" name="th_ref"><strong>Référence</strong></th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB" name="th_description"><strong>Désignation</strong></th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:15%" name="th_quantity" class="text-center"><strong>Qté</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody style="border-color:#ABABAB">
+                                <t t-set="current_subtotal" t-value="0"/>
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                    <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+                                    <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''" style="height:8mm">
+                                        <t t-if="not line.display_type">
+
+                                            <td style="color:black;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:4%" name="td_line_num" class="text-center"><span t-field="line.sl_no"/></td>
+                                            <td name="td_ref" style="border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:14%"> <span t-if="line.product_id.default_code" t-esc="str(line.product_id.default_code).replace('-', '⁻')"/></td>
+                                            <td id="product" style="border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB">
+                                                <span t-field="line.name"/>
+                                            </td>
+
+                                            <td class="text-center" style="border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:15%">
+                                                <span t-field="line.product_qty"/>
+                                                <!--<span t-field="line.product_uom.name" groups="uom.group_uom"/>-->
+                                            </td>
+                                        </t>
+                                        <t t-else="">
+                                            <td colspan="99" id="section" style="border-color:#ABABAB;background-color:white">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                    <!--<t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
+                                        <tr class="is-subtotal text-right" style="border-color:#ABABAB;vertical-align:middle;">
+                                            <td colspan="99" id="subtotal" style="border-color:#ABABAB">
+                                                <strong class="mr16">Subtotal</strong>
+                                                <span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </t>-->
+                                </t>
+                                <tr style="background-color:white !important">
+                                    <td style="border-color:#ABABAB;"> </td>
+                                    <td style="border-color:#ABABAB;"> </td>
+                                    <td style="border-color:#ABABAB;"> </td>
+                                    <td style="border-color:#ABABAB;"> </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table style="width:100%;page-break-inside: avoid;border:none;margin-top:-12px" name="table_cdp">
+                            <tr>
+                                <td style="width:55%;padding-right:7px;border:none">
+                                   <div class="col-auto col-3 mw-100 mb-2" style="font-size:13px;margin-left:-10px" name="cd_paiement">
+                                       <strong>Conditions de paiement  : </strong>
+                                       <p class="m-0" t-field="o.payment_term_id"/>
+                                   </div>
+                                    <div class="col-auto col-3 mw-100 mb-2" style="font-size:13px;margin-left:-10px" name="cd_livraison">
+                                       <strong>Conditions de livraison  : </strong>
+                                       <p class="m-0" t-field="o.incoterm_id"/>
+                                   </div>
+
+                                    <div t-if="o.notes" class="col-auto col-3 mw-100 mb-2" style="font-size:13px;margin-left:-10px" name="note">
+                                        <strong>Note  : </strong>
+                                        <p class="m-0" t-field="o.notes"/>
+                                    </div>
+
+                                </td>
+                                <td style="padding:0px;width:45%;border:none">
+
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div id="total" class="row justify-content-end">
+                            <div class="col-4">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

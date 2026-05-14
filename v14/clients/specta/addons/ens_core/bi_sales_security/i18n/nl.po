@@ -1,0 +1,173 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* bi_sales_security
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 13.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-02 07:47+0000\n"
+"PO-Revision-Date: 2021-04-02 07:47+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: bi_sales_security
+#: model:res.groups,name:bi_sales_security.group_sales_security_manager
+msgid "All Customers"
+msgstr "Alle klanten"
+
+#. module: bi_sales_security
+#: model:ir.model,name:bi_sales_security.model_res_partner_allowed
+msgid "Allow Partner to SalesPerson"
+msgstr "Sta partner toe aan verkoper"
+
+#. module: bi_sales_security
+#: model:ir.actions.act_window,name:bi_sales_security.bi_allow_users_action
+#: model:ir.actions.act_window,name:bi_sales_security.partner_user_sale_view
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_partner_allowed__allowed_user_ids
+msgid "Allow Users to Access Customers"
+msgstr "Geef gebruikers toegang tot klanten"
+
+#. module: bi_sales_security
+#: model:res.groups,name:bi_sales_security.group_sales_security_allowed_customer
+msgid "Allowed Customers Only"
+msgstr "Alleen toegestane klanten"
+
+#. module: bi_sales_security
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_partner__allowed_user_ids
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_users__allowed_user_ids
+msgid "Allowed Users"
+msgstr "Toegestane gebruikers"
+
+#. module: bi_sales_security
+#: model_terms:ir.ui.view,arch_db:bi_sales_security.allow_users_request_form
+msgid "Assign Users"
+msgstr "Wijs gebruikers toe"
+
+#. module: bi_sales_security
+#: model_terms:ir.ui.view,arch_db:bi_sales_security.allow_users_request_form
+msgid "Cancel"
+msgstr "Annuleer"
+
+#. module: bi_sales_security
+#: code:addons/bi_sales_security/models/customer.py:0
+#, python-format
+msgid ""
+"Cannot find a chart of accounts for this company, You should configure it. \n"
+"Please go to Account Configuration."
+msgstr ""
+"Kan geen grootboekschema vinden voor dit bedrijf. U dient dit in te stellen. \n"
+"Ga alsjeblieft naar de instellingen."
+
+#. module: bi_sales_security
+#: model:ir.model,name:bi_sales_security.model_res_partner
+msgid "Contact"
+msgstr "Contact"
+
+#. module: bi_sales_security
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_partner_allowed__create_uid
+msgid "Created by"
+msgstr "Gemaakt door"
+
+#. module: bi_sales_security
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_partner_allowed__create_date
+msgid "Created on"
+msgstr "Gemaakt op"
+
+#. module: bi_sales_security
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_partner_allowed__display_name
+msgid "Display Name"
+msgstr "Weergavenaam"
+
+#. module: bi_sales_security
+#: code:addons/bi_sales_security/models/customer.py:0
+#, python-format
+msgid "Go to the configuration panel"
+msgstr "Ga naar het configuratiepaneel"
+
+#. module: bi_sales_security
+#: model:ir.module.category,description:bi_sales_security.module_category_sale_customer_management
+msgid "Helps you handle your customers by salespersons."
+msgstr "Helpt u bij het afhandelen van uw klanten door verkopers."
+
+#. module: bi_sales_security
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_partner_allowed__id
+msgid "ID"
+msgstr "ID kaart"
+
+#. module: bi_sales_security
+#: model_terms:ir.ui.view,arch_db:bi_sales_security.allow_users_request_form
+msgid "Import Invoice"
+msgstr "Factuur importeren"
+
+#. module: bi_sales_security
+#: model:ir.model,name:bi_sales_security.model_account_move
+msgid "Journal Entries"
+msgstr "Boekingen"
+
+#. module: bi_sales_security
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_partner_allowed____last_update
+msgid "Last Modified on"
+msgstr "Laatst gewijzigd op"
+
+#. module: bi_sales_security
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_partner_allowed__write_uid
+msgid "Last Updated by"
+msgstr "Laatst bijgewerkt door"
+
+#. module: bi_sales_security
+#: model:ir.model.fields,field_description:bi_sales_security.field_res_partner_allowed__write_date
+msgid "Last Updated on"
+msgstr "Laatst geupdate op"
+
+#. module: bi_sales_security
+#: model:res.groups,name:bi_sales_security.group_sales_security_own_customer
+msgid "Own Customers Only"
+msgstr "Alleen voor eigen klanten"
+
+#. module: bi_sales_security
+#: code:addons/bi_sales_security/wizard/allow_customers.py:0
+#, python-format
+msgid "Please Select At least One User..!!!!"
+msgstr "Selecteer ten minste één gebruiker .. !!!!"
+
+#. module: bi_sales_security
+#: code:addons/bi_sales_security/models/customer.py:0
+#, python-format
+msgid "Please define an accounting sales journal for the company %s (%s)."
+msgstr "Maak een verkoopdagboek voor dit bedrijf %s (%s)."
+
+#. module: bi_sales_security
+#: model:ir.module.category,name:bi_sales_security.module_category_sale_customer_management
+msgid "Sale Partners"
+msgstr "Verkooppartners"
+
+#. module: bi_sales_security
+#: model:ir.model,name:bi_sales_security.model_sale_order
+msgid "Sales Order"
+msgstr "Verkooporder"
+
+#. module: bi_sales_security
+#: model:res.groups,comment:bi_sales_security.group_sales_security_manager
+msgid "The User have access of All the customers."
+msgstr "De gebruiker heeft toegang tot alle klanten."
+
+#. module: bi_sales_security
+#: model:res.groups,comment:bi_sales_security.group_sales_security_allowed_customer
+msgid "The user will have access to all allowed customers."
+msgstr "De gebruiker heeft toegang tot alle toegestane klanten."
+
+#. module: bi_sales_security
+#: model:res.groups,comment:bi_sales_security.group_sales_security_own_customer
+msgid "The user will have access to to see his/her own customers."
+msgstr "De gebruiker krijgt toegang om zijn / haar eigen klanten te zien."
+
+#. module: bi_sales_security
+#: code:addons/bi_sales_security/models/customer.py:0
+#, python-format
+msgid "Warning for %s"
+msgstr "Waarschuwing voor %s"

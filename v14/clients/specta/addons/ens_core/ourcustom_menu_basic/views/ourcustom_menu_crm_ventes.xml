@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+     <!-- Create Menu 'CRM / Ventes' -->
+    <menuitem
+        id="our_crm_menu_root"
+        name="CRM / Ventes"
+        web_icon="crm,static/description/icon.png"
+        groups="sales_team.group_sale_salesman,sales_team.group_sale_manager"
+        sequence="6"/>
+        <!--Menu CRM-->
+        <menuitem
+        id="our_crm_menu"
+        name="CRM"
+        parent="our_crm_menu_root"
+        sequence="1"/>
+
+            <!-- LEADS (MAIN USER MENU) -->
+            <menuitem
+                id="our_crm_menu_leads"
+                name="Pistes"
+                parent="our_crm_menu"
+                groups="crm.group_use_lead"
+                action="crm.crm_lead_all_leads"
+                sequence="1"/>
+            <!-- Opportunité -->
+            <menuitem
+                id="our_menu_crm_opportunities"
+                name="Opportunité"
+                parent="our_crm_menu"
+                action="crm.action_your_pipeline"
+                sequence="2"/>
+
+        <!--Menu Ventes-->
+        <menuitem
+        id="our_sale_menu"
+        name="Ventes"
+        parent="our_crm_menu_root"
+        sequence="2"/>
+
+            <!--Devis-->
+            <menuitem
+                id="our_menu_sale_quotations"
+                name="Devis"
+                action="sale.action_quotations_with_onboarding"
+                parent="our_sale_menu"
+                sequence="1" groups="sales_team.group_sale_salesman"/>
+
+            <!--Commandes-->
+            <menuitem
+                id="our_menu_sale_order"
+                name="Commandes"
+                action="sale.action_orders"
+                parent="our_sale_menu"
+                sequence="2" groups="sales_team.group_sale_salesman"/>
+            <!--Commandes à facturer -->
+            <menuitem
+                id="our_menu_sale_order_invoice"
+                name="Commandes à facturer"
+                action="sale.action_orders_to_invoice"
+                parent="our_sale_menu"
+                sequence="3"/>
+
+        <!-- Menu 'Clients'-->
+        <menuitem
+        name="Clients"
+        id="menu_clients_crm_sale_id"
+        action="account.res_partner_action_customer"
+        parent="our_crm_menu_root"
+        sequence="3"/>
+
+        <!-- CRM CONFIGURATION -->
+        <menuitem
+            id="our_crm_menu_config"
+            name="CRM Configuration"
+            parent="our_crm_menu_root"
+            sequence="20" groups="base.group_system"/>
+            <menuitem
+                id="our_crm_config_settings_menu"
+                name="Configuration"
+                parent="our_crm_menu_config"
+                action="crm.crm_config_settings_action"
+                groups="base.group_system"
+                sequence="0"/>
+            <menuitem
+                id="our_menu_crm_config_opportunity"
+                name="Opportunités"
+                parent="our_crm_menu_config"
+                sequence="1"
+                groups="sales_team.group_sale_manager"/>
+            <menuitem
+                id="our_crm_team_config"
+                name="Équipes commerciales"
+                parent="our_crm_menu_config"
+                action="sales_team.sales_team_config_action"
+                sequence="5"/>
+            <menuitem
+                id="our_crm_team_menu_config_activity_types"
+                name="Types d'activités"
+                parent="our_crm_menu_config"
+                action="sales_team.mail_activity_type_action_config_sales"
+                sequence="10"/>
+            <menuitem
+                id="our_crm_recurring_plan_menu_config"
+                name="Plans récurrents"
+                parent="our_crm_menu_config"
+                action="crm.crm_recurring_plan_action"
+                sequence="12"
+                groups="crm.group_use_recurring_revenues"/>
+            <menuitem
+                id="our_menu_crm_config_lead"
+                name="Opportunité"
+                parent="our_crm_menu_config"
+                sequence="15"
+                groups="sales_team.group_sale_manager"/>
+                <menuitem
+                    id="our_menu_crm_lead_stage_act"
+                    name="Etapes"
+                    sequence="0"
+                    parent="our_menu_crm_config_lead"
+                    action="crm.crm_stage_action"
+                    groups="base.group_no_one"/>
+                <menuitem
+                    id="our_menu_crm_lead_categ"
+                    name="Étiquettes"
+                    action="sales_team.sales_team_crm_tag_action"
+                    parent="our_menu_crm_config_lead"
+                    sequence="1"/>
+                <menuitem
+                    id="our_menu_crm_lost_reason"
+                    name="Motifs de la perte"
+                    parent="our_menu_crm_config_lead"
+                    action="crm.crm_lost_reason_action"
+                    sequence="6"/>
+            <menuitem
+                    id="our_crm_menu_resellers"
+                    name="Revendeurs"
+                    parent="our_crm_menu_config"
+                    sequence="16"/>
+                <menuitem
+                        action="website_crm_partner_assign.res_partner_grade_action"
+                        id="our_menu_res_partner_grade_action"
+                        name="Grade du partenaire"
+                        parent="our_crm_menu_resellers"
+                        sequence="5" />
+                <menuitem
+                        id="our_res_partner_activation_config_mi"
+                        name="Activations de partenaire"
+                        parent="our_crm_menu_resellers"
+                        action="website_crm_partner_assign.res_partner_activation_act"
+                        sequence="6"/>
+
+        <!-- VENTES CONFIGURATION-->
+        <menuitem id="our_menu_sale_config"
+            name="VENTES Configuration"
+            parent="our_crm_menu_root"
+            sequence="21"
+            groups="base.group_system"/>
+
+            <menuitem
+                id="our_menu_sale_general_settings"
+                name="Configuration"
+                parent="our_menu_sale_config"
+                sequence="0"
+                action="sale.action_sale_config_settings"
+                groups="base.group_system"/>
+
+            <menuitem id="our_sales_team_config"
+                name="Équipes commerciales"
+                parent="our_menu_sale_config"
+                action="sales_team.sales_team_config_action"
+                sequence="2"/>
+
+            <menuitem
+                id="our_menu_sales_config"
+                parent="our_menu_sale_config"
+                sequence="4"
+                name="Bons de Commandes"/>
+
+                <menuitem
+                    id="our_menu_tag_config"
+                    name="Étiquettes"
+                    parent="our_menu_sales_config"
+                    action="sales_team.sales_team_crm_tag_action"
+                    sequence="2"/>
+            <menuitem
+                id="our_sale_menu_config_activity_type"
+                name="Types d'activités"
+                action="sale.mail_activity_type_action_config_sale"
+                parent="our_menu_sale_config"
+                groups="base.group_no_one"/>
+            <menuitem
+                id="our_menu_quotation_cancelation_reasons"
+                name="Raison de l'annulation du devis"
+                parent="our_menu_sale_config"
+                action="abs_sales_cancel_reason.open_view_reason_new_tree"/>
+
+
+</odoo>

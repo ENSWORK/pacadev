@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--Create Menu 'Contacts / Tiers'-->
+    <menuitem name="Contacts / Tiers"
+    id="our_menu_contacts"
+    sequence="4"
+    web_icon="contacts,static/description/icon.png"
+    groups="base.group_partner_manager,sales_team.group_sale_salesman"/>
+
+        <menuitem id="our_res_partner_menu_contacts"
+        name="Contacts"
+        action="contacts.action_contacts"
+        parent="our_menu_contacts"
+        sequence="2"/>
+
+        <!--Create Menu 'Clients'-->
+        <menuitem
+        name="Clients"
+        id="menu_clients_id"
+        action="account.res_partner_action_customer"
+        parent="our_menu_contacts"
+        sequence="0"/>
+
+        <!--Create Menu 'Fournisseurs'-->
+        <menuitem
+        name="Fournisseurs"
+        id="menu_fournisseurs_id"
+        action="account.res_partner_action_supplier"
+        parent="our_menu_contacts"
+        sequence="1"/>
+
+        <!--Configuration-->
+
+        <menuitem
+            id="our_res_partner_menu_config"
+            name="Configuration"
+            parent="our_menu_contacts"
+            groups="base.group_system"
+            sequence="3"/>
+            <menuitem
+                id="our_menu_partner_category_form"
+                action="base.action_partner_category_form"
+                name="Étiquettes de contact"
+                sequence="1" parent="our_res_partner_menu_config"/>
+
+            <menuitem
+                id="our_menu_partner_title_contact"
+                action="base.action_partner_title_contact"
+                name="Civilités" parent="our_res_partner_menu_config"
+                sequence="3"/>
+
+            <menuitem
+                id="our_res_partner_industry_menu"
+                name="Les Industries"
+                action="base.res_partner_industry_action" parent="our_res_partner_menu_config"
+                sequence="4"/>
+            <menuitem
+                    id="our_menu_localisation"
+                    name="Localisation"
+                    parent="our_res_partner_menu_config"
+                    sequence="5"/>
+
+                <menuitem
+                        id="our_menu_country_partner"
+                        name="Pays"
+                        action="base.action_country"
+                        parent="our_menu_localisation"
+                        sequence="1"/>
+                <menuitem
+                        id="our_menu_country_group"
+                        action="base.action_country_group"
+                        name="Groupe de pays"
+                        parent="our_menu_localisation"
+                        sequence="3"/>
+                <menuitem
+                    id="our_menu_country_state_partner"
+                    name="États fédéraux"
+                    action="base.action_country_state"
+                    parent="our_menu_localisation"
+                    sequence="2"/>
+            <menuitem
+                id="our_menu_config_bank_accounts"
+                name="Comptes bancaires"
+                parent="our_res_partner_menu_config"
+                sequence="6"/>
+                <menuitem
+                    id="our_menu_action_res_bank_form"
+                    name="Banques"
+                    action="base.action_res_bank_form"
+                    parent="our_menu_config_bank_accounts"
+                    sequence="1"/>
+                <menuitem
+                    id="our_menu_action_res_partner_bank_form"
+                    name="Comptes bancaires"
+                    action="base.action_res_partner_bank_account_form"
+                    parent="our_menu_config_bank_accounts"
+                    sequence="2"/>
+
+
+</odoo>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--Menu 'Produits / Services'-->
+    <menuitem
+            id="our_menu_product_service_root"
+            name="Produits / Services"
+            sequence="5"
+            groups="sales_team.group_sale_salesman"
+            web_icon="ourcustom_menu,static/images/produits.png"/>
+        <!--Articles-->
+        <menuitem id="our_menu_product_variant_config_stock"
+                  name="Articles"
+                  action="stock.product_template_action_product"
+                  parent="our_menu_product_service_root" sequence="1"/>
+        <!--Lots-->
+        <menuitem
+                action="stock.action_production_lot_form"
+                id="our_menu_action_production_lot_form"
+                name="Numéros de lots/séries"
+                parent="our_menu_product_service_root"
+                groups="stock.group_production_lot"
+                sequence="2"/>
+        <!--Marques-->
+        <menuitem id="our_product_brand_purchase"
+                   name="Marques"
+                   action="product_brand_purchase.product_brand_action"
+                   parent="our_menu_product_service_root"
+                   sequence="3"/>
+</odoo>

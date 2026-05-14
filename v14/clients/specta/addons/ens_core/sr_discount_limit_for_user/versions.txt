@@ -1,0 +1,6 @@
+V14.0.0.0_ED1 on 23-03-2023
+[FIX] Fix constraint check problem
+    (Problem:when using a discount == discount_limit it raise the constraint error when saving because they take more numbers after comma)
+    Edit Function: check_discount_limit_constrains(self):
+            use round(record.discount, 2) instead of record.discount
+[IMP] Add transaltion folder + translate the error message directly to french

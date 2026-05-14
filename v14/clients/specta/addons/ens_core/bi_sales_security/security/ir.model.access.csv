@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_res_partner_user_sale,res.partner.user.sale,base.model_res_partner,bi_sales_security.group_sales_security_own_customer,1,1,1,0
+access_res_partner_user_sale_manager,res.partner.user.sale.manager,base.model_res_partner,bi_sales_security.group_sales_security_manager,1,1,1,1
+access_res_partner_allowed,res.partner.allowed,bi_sales_security.model_res_partner_allowed,,1,1,1,1

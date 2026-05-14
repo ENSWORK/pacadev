@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--Change Sequence for Achats Menu-->
+    <record id="purchase.menu_purchase_root" model="ir.ui.menu">
+        <field name="sequence">7</field>
+    </record>
+       <!--inherit 'Achats/Analyse' and make it visible just for group 'Administration/Configuration'-->
+    <record id="purchase.purchase_report" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+    </record>
+     <!--inherit 'Achats/Configuration' and make it visible just for group 'Administration/Configuration'-->
+    <record id="purchase.menu_purchase_config" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+    </record>
+     <!--inherit 'Achats/Articles' and make it visible just for group 'Administration/Configuration'-->
+    <record id="purchase.menu_purchase_products" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+    </record>
+
+     <!--inherit 'Achats/Commandes/Demandes de prix' and change its parent to be 'Achats/Demandes de prix'-->
+    <record id="purchase.menu_purchase_rfq" model="ir.ui.menu">
+        <field name="parent_id" ref="purchase.menu_purchase_root"></field>
+        <field name="sequence" eval="0" />
+    </record>
+    <!--inherit 'Achats/Commandes/Bons de commandes' and change its parent to be 'Achats/Bons de commandes'-->
+    <record id="purchase.menu_purchase_form_action" model="ir.ui.menu">
+        <field name="parent_id" ref="purchase.menu_purchase_root"></field>
+        <field name="sequence" eval="1" />
+    </record>
+    <!--inherit 'Achats/Commandes/Fournisseurs' and change its parent to be 'Achats/Fournisseurs'-->
+    <record id="purchase.menu_procurement_management_supplier_name" model="ir.ui.menu">
+        <field name="parent_id" ref="purchase.menu_purchase_root"></field>
+        <field name="sequence" eval="2" />
+    </record>
+
+    <!--inherit and Change group for 'Achats/Commandes'-->
+    <record id="purchase.menu_procurement_management" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+    </record>
+
+
+
+
+
+</odoo>

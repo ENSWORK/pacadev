@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--inherit 'Projet/Analyse' and make it visible just for group 'Administration/Configuration'-->
+    <record id="project.menu_project_report" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+    </record>
+    <!--inherit 'Projet/Configuration' and make it visible just for group 'Administration/Configuration'-->
+    <record id="project.menu_project_config" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+    </record>
+    <!--Change Sequence For 'Projet' Menu-->
+    <record id="project.menu_main_pm" model="ir.ui.menu">
+        <field name="sequence">11</field>
+    </record>
+
+</odoo>

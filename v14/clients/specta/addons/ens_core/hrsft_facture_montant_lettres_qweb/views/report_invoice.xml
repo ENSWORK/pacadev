@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<template id="report_facture_inherit_mod3" inherit_id="ourcustom_impression.report_ourinvoice_document_inherit">
+			<xpath expr="//div[@class='amount2word']" position="replace">
+				<style>
+					strong,p{
+					display:inline;}
+				</style>
+				<p>
+        			<strong>Arrêter la pr&#233;sente facture à la somme de:</strong>
+        			<p t-esc="o.get_amount_letter()"/>
+    			</p>
+			</xpath>
+		</template>
+		<template id="report_facture_inherit_mod4" inherit_id="ourcustom_impression.report_ourinvoice_document_inherit_whf">
+			<xpath expr="//div[@class='amount2word']" position="replace">
+				<style>
+					strong,p{
+					display:inline;}
+				</style>
+				<p>
+        			<strong>Arrêter la pr&#233;sente facture à la somme de:</strong>
+        			<p t-esc="o.get_amount_letter()"/>
+    			</p>
+			</xpath>
+		</template>
+        
+        		<!--Dolibarr Facture-->
+		<template id="report_facture_dolibarr_inherit" inherit_id="ourcustom_impression.report_invoice_dollibar">
+			<xpath expr="//div[@class='amount2word']" position="replace">
+				<div class="col-auto col-3 mw-100 mb-2" style="font-size:13px;margin-left:-10px" name="amount2word">
+				   <strong>Arrêter la pr&#233;sente facture à la somme de : </strong>
+				   <p class="m-0"  t-esc="o.get_amount_letter()"/>
+			   </div>
+			</xpath>
+		</template>
+				<!--Dolibarr Facture sans Entete-->
+		<template id="report_facture_dolibarr_inherit_se" inherit_id="ourcustom_impression.report_invoice_dollibar_se">
+			<xpath expr="//div[@class='amount2word']" position="replace">
+				<div class="col-auto col-3 mw-100 mb-2" style="font-size:13px;margin-left:-10px" name="amount2word">
+				   <strong>Arrêter la pr&#233;sente facture à la somme de : </strong>
+				   <p class="m-0"  t-esc="o.get_amount_letter()"/>
+			   </div>
+			</xpath>
+		</template>
+
+	</data>
+</odoo>

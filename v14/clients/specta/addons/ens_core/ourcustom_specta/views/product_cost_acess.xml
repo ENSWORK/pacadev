@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--Just Users with group : Achat/Administrator who can see product cost(standard_price)-->
+    <record model="ir.ui.view" id="product_cost_acess_tree">
+        <field name="name">product_cost_acess_tree</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree/field[@name='standard_price']" position="attributes">
+                <attribute name="groups">purchase.group_purchase_manager</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_cost_acess_form">
+        <field name="name">product_cost_acess_form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/notebook/page[@name='general_information']/group/group[2]/label[@for='standard_price']" position="attributes">
+                <attribute name="groups">purchase.group_purchase_manager</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/notebook/page[@name='general_information']/group/group[2]/div[@name='standard_price_uom']" position="attributes">
+                <attribute name="groups">purchase.group_purchase_manager</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_cost_acess_edit_View">
+        <field name="name">product_cost_acess_edit_view</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
+        <field name="arch" type="xml">
+            <field name="standard_price" position="attributes">
+                <attribute name="groups">purchase.group_purchase_manager</attribute>
+            </field>
+        </field>
+    </record>
+
+    <!--Vente/Article/Variante d'article (dans le menu original) and Achat/Article/Variante d'article -->
+    <record model="ir.ui.view" id="product_cost_acess_tree_2">
+        <field name="name">product_cost_acess_tree_2</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree/field[@name='standard_price']" position="attributes">
+                <attribute name="groups">purchase.group_purchase_manager</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
+<!--!! NOTE: if model product_margin or mrp(maybe mrp_account) or hr_expense are installed
+    you will have to edit there views also-->

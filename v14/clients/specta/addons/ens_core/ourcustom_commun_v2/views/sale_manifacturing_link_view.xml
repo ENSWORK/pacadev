@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+         <record id="sale_manifacturing_link_button" model="ir.ui.view">
+            <field name="name">sale_manifacturing_link_button</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <header>
+                        <button name="%(action_create_bom_from_sale_wizard)d" string="Créer Ordre de Fabrication" type="action" class="btn-primary" attrs="{'invisible':[('state','in',['done','cancel'])]}"/>
+                </header>
+            </field>
+        </record>
+
+    </data>
+</odoo>

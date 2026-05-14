@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <!--
+ This File Contains a SIMPLE BL (Requested By INNOVELEC) it :
+  -Its the same at all states
+  -Ignore Groupment of The quantity of same product when state = done
+  -There is no Reliquat
+  -->
+<odoo>
+    <template id="bon_de_livraison_simple">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="article o_report_layout_boxed" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"><!--To ignore the default layout(remove header+footer)-->
+                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                    <t t-call="ourcustom_impression.ourcustom_header_footerbl" />
+                     <style>
+                       #informations {
+                            display: block;
+                            }
+                       .m-0{
+                            display:inline;
+                             }
+                       strong,p,span{
+                            color:black;
+                            }
+                        /*  Define the background color for all the EVEN background rows  */
+                        .rows_color tr:nth-child(even){
+                            background: #B1B7BF;
+                        }
+                         /*Border Cornerred*/
+                        #content {
+                              position:relative;
+                              width:420px;
+                              height:190px;
+                              align-items: center;
+                        }
+
+                        #content:before,
+                        #content:after,
+                        #content>:last-child:before,
+                        #content>:last-child:after {
+                            position: absolute;
+                            width: 60px;
+                            height: 50px;
+                            border-color: black;
+                            border-style: solid;
+                            content: ' ';
+                        }
+
+                        #content:before {
+                            top: 10px;
+                            left: 10px;
+                            width:20%;
+                            border-right:0px;
+                            border-bottom:0px;
+                            border-width: 1px 0px 0px 1px;
+                        }
+
+                        #content:after {
+                            top: 10px;
+                            right: 10px;
+                            width:20%;
+                            border-left:0px;
+                            border-bottom:0px;
+                            border-width: 1px 1px 0px 0px;
+                        }
+
+                        #content>:last-child:before {
+                            bottom: 10px;
+                            right: 10px;
+                            width:20%;
+                            border-left:0px;
+                            border-top:0px;
+                            border-width: 0px 1px 1px 0px;
+                        }
+
+                        #content>:last-child:after {
+                            bottom: 10px;
+                            left: 10px;
+                            width:20%;
+                            border-right:0px;
+                            border-top:0px;
+                            border-width: 0px 0px 1px 1px;
+                        }
+
+                   </style>
+
+                    <div class="ourpage">
+                        <br/>
+                        <table style="width:100%;border:none" class="mod" >
+                            <tr>
+                                <td style="border:none">
+                                    <h2>
+                                        <strong style="font-size:20px" >Bon de Livraison N°:</strong><strong><span style="font-size:20px" t-field="o.name"/></strong>
+                                    </h2>
+                                    <div id="informations" class="row mt32 mb32">
+                                        <div t-if="o.state" class="col-auto" name="div_sched_date">
+                                            <strong>Shipping Date:</strong>
+                                            <t t-if="o.state == 'done'">
+                                                <p class="m-0" t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
+                                            </t>
+                                            <t t-if="o.state != 'done'">
+                                                <p class="m-0" t-field="o.scheduled_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                           </t>
+                                        </div>
+                                        <div  class="col-auto" name="div_ref">
+                                            <strong>Notre Référence:</strong>
+                                            <p class="m-0" t-field="o.origin"/>
+                                        </div>
+                                        <div class="col-auto" name="reference_client">
+                                            <strong>Votre Commande:</strong>
+                                            <p class="m-0" t-field="o.sale_id.client_order_ref"/>
+                                        </div>
+
+                                    </div>
+                                </td>
+                                <td  style="width:50%;border:none">
+                                   <div id="content" style="padding-left:20px;padding-right:20px">
+                                        <div class="mod2" style="color:black;padding-top:20px"><p class="m-0" t-field="o.sale_id.partner_id"/></div>
+                                        <div>
+                                            <span t-field="o.sale_id.partner_id.street"></span>&#032;<span t-field="o.sale_id.partner_id.street2"></span>&#032;
+                                            <span t-field="o.sale_id.partner_id.city"></span>&#032;<span t-field="o.sale_id.partner_id.state_id"></span>&#032;
+                                            <span t-field="o.sale_id.partner_id.zip"></span>&#032;<span t-field="o.sale_id.partner_id.country_id"></span></div>
+                                        <div><strong>Tél :</strong><p class="m-0" t-field="o.sale_id.partner_id.phone"/></div>
+                                        <div><strong>Contact : </strong><p class="m-0" t-field="o.sale_id.ourcontact"/></div>
+                                        <div><strong>E-mail :</strong><p class="m-0" t-field="o.sale_id.partner_id.email"/></div>
+                                        <div><strong>ICE :</strong><p class="m-0" t-field="o.partner_id.vat"/></div>
+                                   </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <br/>
+
+                        <!--********************Adresse************************-->
+                        <table style="width:100%;border:1px solid black;color:black">
+                            <tr>
+                            <td colspan="2">
+                                 <div class="col-auto col-3 mw-100 mb-2" name="shipping_adresse">
+                                    <strong>Lieu de livraision:</strong>
+                                    <!--<p class="m-0" t-field="o.partner_id.contact_address"/>-->
+                                   <p class="m-0">  <strong t-field="o.partner_id">&#032;</strong><strong>:</strong> &#032;
+                                   <span t-field="o.partner_id.street"></span>&#032;<span t-field="o.partner_id.street2"></span>&#032;
+                                       <span  t-field="o.partner_id.city"></span>&#032;<span t-field="o.partner_id.state_id"></span>&#032;
+                                    <span  t-field="o.partner_id.zip"></span>&#032;<span  t-field="o.partner_id.country_id"></span></p>
+                                </div>
+                            </td>
+                            </tr>
+                            <tr>
+                                <td style="width:50%;border:none;vertical-align:top">
+                                    <div style="float:left">
+                                        <div class="col-auto col-3 mw-100 mb-2" style="margin-top:-8px"  name="user_contact">
+                                            <strong>Votre Contact:</strong>
+                                            <p class="m-0" t-field="o.user_id"/>
+                                        </div>
+                                        <div class="col-auto col-3 mw-100 mb-2"  style="margin-top:-10px" name="user_phone">
+                                            <strong>Téléphone:</strong>
+                                            <p class="m-0" t-field="o.user_id.phone"/>
+                                        </div>
+                                        <div class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px" name="user_email">
+                                            <strong>E-mail:</strong>
+                                            <p class="m-0" t-field="o.user_id.email"/>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="width:50%;vertical-align:top">
+                                    <div style="float:left">
+                                         <div class="col-auto col-3 mw-100 mb-2" style="margin-top:-8px" name="payment_term">
+                                             <strong>Conditions de paiement:</strong>
+                                             <p class="m-0" t-field="o.sale_id.payment_term_id"/>
+                                         </div>
+                                        <div class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px" name="condition_livraison">
+                                            <strong>Conditions de livraison:</strong>
+                                            <p class="m-0" t-field="o.sale_id.incoterm"/>
+                                        </div>
+                                        <div class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px" name="transporteur">
+                                            <strong>Transporteur:</strong>
+                                            <p class="m-0" t-field="o.ourtransporteur"/>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table><br/>
+
+                        <!--Table Principale -->
+                        <table class="table table-sm rows_color"  name="stock_simple_table">
+                            <thead>
+                                <tr>
+                                    <!--<th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_line_num" class="text-center">N°Ligne</th>-->
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" class="text-left" name="th_sm_product"><strong>Produit</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_sm_quantity"><strong>Quantité </strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_sm_udm"><strong>Conditionnement</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="lines" t-value="o.move_lines.filtered(lambda x: x.product_uom_qty)"/>
+                                <tr t-foreach="lines" t-as="move">
+
+                                    <!--<td style="color:black;vertical-align:middle" name="td_line_num" class="text-center">
+                                        <span t-field="move.sl_no"/>
+                                    </td>-->
+                                    <td>
+                                        <!--<span t-field="move.product_id"/>
+                                        <p t-if="move.description_picking != move.product_id.name">
+                                            <span t-field="move.description_picking"/>
+                                        </p>-->
+                                        <!-- Impression de La désignation au lieu du nom de l'article -->
+                                            <span t-field="move.name"/>
+                                    </td>
+                                    <td style="text-align:center;vertical-align:middle">
+                                        <t t-if="o.state =='done'">
+                                             <span t-field="move.quantity_done"/>
+                                         </t>
+                                        <t t-else="">
+                                             <span t-field="move.product_uom_qty"/>
+                                        </t>
+                                    </td>
+                                    <td style="text-align:center;vertical-align:middle">
+                                        <span t-field="move.product_uom"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <table style="border: 1px solid black;color:black;width:60%;margin-left:200px;page-break-inside: avoid;">
+                            <tr style="color:black;"><td colspan="2"><center><strong>Visa</strong></center></td></tr>
+                            <tr style="border: 1px solid black">
+                                <td style="width:40%;color:black;"><center><strong>Service Livraison</strong></center></td>
+                                <td style="width:40%;color:black;"><center><strong>Client</strong></center></td>
+                            </tr>
+                            <tr style="border:1px solid black">
+                                <td style="width:40%;height:200px;color:black;"></td>
+                                <td style="width:40%;height:200px;color:black;"></td>
+                            </tr>
+                        </table><br/><br/>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

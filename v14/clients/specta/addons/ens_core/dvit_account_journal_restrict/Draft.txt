@@ -1,0 +1,31 @@
+
+    <!--<record id="group_invoicing_allowed_journals" model="res.groups">
+        <field name="name">Facturation + Journaux autorisés seulement.</field>
+        <field name="category_id" ref="base.module_category_accounting_accounting"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>-->
+
+    <!--<record model="ir.rule" id="invoices_allowed_journals_rule">
+      <field name="name">Invoices of allowed Journals</field>
+      <field name="model_id" ref="account.model_account_move"/>
+      <field name="groups" eval="[(4, ref('dvit_account_journal_restrict.group_invoicing_allowed_journals'))]"/>
+      <field name="domain_force">[('journal_id.id', 'in', user.journal_ids.ids)]</field>
+    </record>-->
+
+    <!-- Edit domain of existing record rule -->
+    <!--NAME:All Journal Entries - Groupe:Comptabilité/Facturation - Original Domain: [(1, '=', 1)]-->
+    <record id="account.account_move_see_all" model="ir.rule">
+        <field name="domain_force">[('journal_id.id', 'in', user.journal_ids.ids)]</field>
+    </record>
+    <!--NAME:Readonly Move - Groupe:Technique/Afficher les fonctions comptables - En lecture seule - Original Domain: [(1, '=', 1)]-->
+    <record id="account.account_move_rule_group_readonly" model="ir.rule">
+        <field name="domain_force">[('journal_id.id', 'in', user.journal_ids.ids)]</field>
+    </record>
+    <!--NAME:Readonly Move - Groupe:Comptabilité/Facturation - Original Domain: [(1, '=', 1)]-->
+    <record id="account.account_move_rule_group_invoice" model="ir.rule">
+        <field name="domain_force">[('journal_id.id', 'in', user.journal_ids.ids)]</field>
+    </record>
+    <!--NAME:Purchase User Account Move - Groupe:Achats / Utilisateur - Original Domain: [('move_type', 'in', ('in_invoice', 'in_refund', 'in_receipt'))]-->
+    <record id="account.account_move_rule_group_invoice" model="ir.rule">
+        <field name="domain_force">[('move_type', 'in', ('in_invoice', 'in_refund', 'in_receipt'))]</field>
+    </record>

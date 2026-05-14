@@ -1,0 +1,6 @@
+.o-app-name {
+    color: #4c4c4c !important;
+    margin-top: 4px;
+    font-size: 1.25rem;
+    text-shadow: 1px 1px 1px rgba(gray("black"), 0.1) !important;
+}

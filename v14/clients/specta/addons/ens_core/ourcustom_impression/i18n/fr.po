@@ -1,0 +1,669 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ourcustom_impression
+# 	* stock
+# 	* sale
+# 	* purchase
+#
+# Translators:
+# Ladid Hajar <ladidhajar@gmail.com>, 2023
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"POT-Creation-Date: 2021-02-20 09:02+0000\n"
+"PO-Revision-Date: 2021-02-20 09:30+0000\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Language: fr\n"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content_totals_table
+msgid "&amp;nbsp;<span>on</span>&amp;nbsp;"
+msgstr "&amp;nbsp;<span>sur</span>&amp;nbsp;"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Amount</span>\n"
+"                            <span groups=\"account.group_show_line_subtotals_tax_included\">Total Price</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Montant</span>\n"
+"                            <span groups=\"account.group_show_line_subtotals_tax_included\">Prix Total</span>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_template
+msgid "<span>Accepted on the behalf of:</span>"
+msgstr "<span>Accepté au nom de :</span>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content
+msgid "<span>Disc.%</span>"
+msgstr "<span>Remise</span>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid "<span>Pro-Forma Invoice # </span>"
+msgstr "<span>Facture pro-forma n° </span>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content
+msgid "<strong class=\"mr16\">Subtotal</strong>"
+msgstr "<strong class=\"mr16\">Sous-total</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content_totals_table
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+msgid "<strong>Subtotal</strong>"
+msgstr "<strong>Sous-total</strong>"
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid "<strong>Expiration:</strong>"
+msgstr "<strong>Echéance:</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid "<strong>Fiscal Position Remark:</strong>"
+msgstr "<strong>Remarque sur le régime fiscal :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footerbc
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content
+msgid "<strong>Order Date:</strong>"
+msgstr "<strong>Date de commande :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content
+msgid "<strong>Quotation Date:</strong>"
+msgstr "<strong>Date du devis :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid "<strong>Salesperson:</strong>"
+msgstr "<strong>Vendeur :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:sale.report_invoice_document_inherit_sale
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid "<strong>Shipping Address:</strong>"
+msgstr "<strong>Adresse de livraison:</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourdelivery_document_inherit
+msgid "<strong>Signature</strong>"
+msgstr "<strong>Signature</strong>"
+
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content_totals_table
+msgid "<strong>Total</strong>"
+msgstr "<strong>Total</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid "<strong>Your Reference:</strong>"
+msgstr "<strong>Votre référence : </strong>"
+
+#. module: ourcustom_impression
+#: model:ir.model.fields,field_description:sale.field_sale_order_line__name
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.view_order_form
+msgid "Description"
+msgstr "Description"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content
+msgid "Invoicing Address:"
+msgstr "Adresse de facturation:"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content
+msgid "Invoicing and Shipping Address:"
+msgstr "Adresse de facturation et d'expédition:"
+
+
+
+#. module: ourcustom_impression
+#: model:ir.model.fields,field_description:sale.field_sale_report__order_id
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid "Order #"
+msgstr "Commande n°"
+
+
+#. module: ourcustom_impression
+#: model:ir.model.fields,field_description:sale.field_sale_order_line__product_uom_qty
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content
+msgid "Quantity"
+msgstr "Quantité"
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:sale.portal_my_quotations
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid "Quotation #"
+msgstr "Devis N°"
+
+
+#. module: ourcustom_impression
+#: model:ir.model.fields,field_description:sale.field_sale_order__amount_tax
+#: model:ir.model.fields,field_description:sale.field_sale_order_line__tax_id
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+msgid "Taxes"
+msgstr "Taxes"
+
+#. module: ourcustom_impression
+#: model:ir.model.fields,field_description:sale.field_sale_order_line__price_unit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_saleorder_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_oursaleorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:sale.sale_order_portal_content
+msgid "Unit Price"
+msgstr "Prix unitaire"
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Amount</span>\n"
+"                                    <span groups=\"account.group_show_line_subtotals_tax_included\">Total Price</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Montant</span>\n"
+"                                    <span groups=\"account.group_show_line_subtotals_tax_included\">Prix Total</span>"
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+msgid "<span>Description</span>"
+msgstr "<span>Description</span>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "<span>Disc.%</span>"
+msgstr "<span>Rem.%</span>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourdelivery_document_inherit
+msgid "<span>Quantity</span>"
+msgstr "<span>Quantité</span>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "<span>Taxes</span>"
+msgstr "<span>Taxes</span>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+msgid "<span>Unit Price</span>"
+msgstr "<span>Prix unitaire</span>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "<strong class=\"mr16\">Subtotal</strong>"
+msgstr "<strong class=\"mr16\">Sous-total</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid ""
+"<strong class=\"text-center\">Scan me with your banking "
+"app.</strong><br/><br/>"
+msgstr ""
+"<strong class=\"text-center\">Scannez-moi avec votre application "
+"bancaire.</strong><br/><br/>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "<strong>Amount Due</strong>"
+msgstr "<strong>Montant dû</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "<strong>Customer Code:</strong>"
+msgstr "<strong>Numéro de client :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "<strong>Due Date:</strong>"
+msgstr "<strong>Date d'échéance :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "<strong>Incoterm: </strong>"
+msgstr "<strong>Incoterm: </strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footer
+msgid "<strong>Invoice Date:</strong>"
+msgstr "<strong>Date de la facture :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footer
+msgid "<strong>Reference:</strong>"
+msgstr "<strong>Référence :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "<strong>Source:</strong>"
+msgstr "<strong>Origine :</strong>"
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+msgid "<strong>Total</strong>"
+msgstr "<strong>Total</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footer
+msgid "Cancelled Invoice"
+msgstr "Facture annulée"
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footer
+msgid "Credit Note"
+msgstr "Avoir"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footer
+msgid "Draft Invoice"
+msgstr "Facture en brouillon"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footer
+msgid "Invoice"
+msgstr "Facture :"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "Paid on"
+msgstr "Payé le"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "Please use the following communication for your payment :"
+msgstr "Merci d'utiliser la communication suivante pour votre paiement:"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "Tax ID"
+msgstr "N° TVA"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footer
+msgid "Vendor Bill"
+msgstr "Facture fournisseur :"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footer
+msgid "Vendor Credit Note"
+msgstr "Avoir de fournisseur :"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+msgid "on"
+msgstr "sur"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourinvoice_document_inherit_whf
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footer
+msgid "Payment Reference"
+msgstr "Notre Référence"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchasequotation_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_purchaseorder_document_inherit
+msgid "<strong>Description</strong>"
+msgstr "<strong>Description</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchasequotation_document_inherit
+msgid "<strong>Expected Date</strong>"
+msgstr "<strong>Date prévue</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchasequotation_document_inherit
+#: model_terms:ir.ui.view,arch_db:Import.report_purchaseorder_document_inherit
+msgid "<strong>Shipping address:</strong>"
+msgstr "<strong>Adresse de livraison :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+msgid "<strong class=\"mr16\">Subtotal</strong>"
+msgstr "<strong class=\"mr16\">Sous-total</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+msgid "<strong>Amount</strong>"
+msgstr "<strong>Montant</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footerbc
+msgid "<strong>Date Req.</strong>"
+msgstr "<strong>Date Demandée.</strong>"
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+msgid "<strong>Purchase Representative:</strong>"
+msgstr "<strong>Responsable achat:</strong>"
+
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+msgid "<strong>Your Order Reference:</strong>"
+msgstr "<strong>Votre référence de commande :</strong>"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footerbc
+msgid "Cancelled Purchase Order #"
+msgstr "Numéro du bon d'achat annulé"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footerbc
+msgid "Purchase Order #"
+msgstr "Bon de Commande N°"
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourpurchaseorder_document_inherit
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.ourcustom_header_footerbc
+msgid "Request for Quotation #"
+msgstr "Demande pour Devis #"
+
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourdelivery_document_inherit
+msgid ""
+"<span>All items couldn't be shipped, the following items will be shipped as "
+"soon as they become available.</span>"
+msgstr ""
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourdelivery_document_inherit
+msgid "<strong>Order:</strong>"
+msgstr "<strong>Notre Référence:</strong>"
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourdelivery_document_inherit
+msgid "<strong>Shipping Date:</strong>"
+msgstr "<strong>Date d'expédition:</strong>"
+
+
+
+#. module: ourcustom_impression
+#: model_terms:ir.ui.view,arch_db:ourcustom_impression.report_ourdelivery_document_inherit
+msgid "Lot/Serial Number"
+msgstr "Lot/numéro de série"
+
+
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_delivery_with_price_id
+msgid ""
+"'BL Chifrée N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+msgstr ""
+"'BL Chifrée N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_purchaseorder_db
+msgid ""
+"'Bon Commande DB N° %s - Fournisseur %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+msgstr ""
+"'Bon Commande DB N° %s - Fournisseur %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_purchaseorder_db_se
+msgid ""
+"'Bon Commande DB SE N° %s - Fournisseur %s' % ((object.name).replace('/', '') "
+", object.partner_id.name)"
+msgstr ""
+"'Bon Commande DB SE N° %s - Fournisseur %s' % ((object.name).replace('/', '') "
+", object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_delivery_db
+msgid ""
+"'Bon de Livraison DB N° %s - Client %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name) if (object.picking_type_code == 'outgoing') else "
+"'Bon DB - %s - Partenaire %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+msgstr ""
+"'Bon de Livraison DB N° %s - Client %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name) if (object.picking_type_code == 'outgoing') else "
+"'Bon DB - %s - Partenaire %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_delivery_db_se
+msgid ""
+"'Bon de Livraison DB SE N° %s - Client %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name) if (object.picking_type_code == 'outgoing') else "
+"'Bon DB - %s - Partenaire %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+msgstr ""
+"'Bon de Livraison DB SE N° %s - Client %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name) if (object.picking_type_code == 'outgoing') else "
+"'Bon DB - %s - Partenaire %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.bon_de_livraison_simple_id
+msgid ""
+"'Bon de Livraison. N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name) if (object.picking_type_code == 'outgoing') else "
+"'Bon %s - Partenaire %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+msgstr ""
+"'Bon de Livraison. N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name) if (object.picking_type_code == 'outgoing') else "
+"'Bon %s - Partenaire %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_purchasequotation_db
+msgid ""
+"'Demande de Prix DB N° %s - Fournisseur %s' % ((object.name).replace('/', "
+"''), object.partner_id.name)"
+msgstr ""
+"'Demande de Prix DB N° %s - Fournisseur %s' % ((object.name).replace('/', "
+"''), object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_purchasequotation_db_se
+msgid ""
+"'Demande de Prix DB SE N° %s - Fournisseur %s' % ((object.name).replace('/', "
+"''), object.partner_id.name)"
+msgstr ""
+"'Demande de Prix DB SE N° %s - Fournisseur %s' % ((object.name).replace('/', "
+"''), object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_saleorder_db
+msgid ""
+"'Devis DB N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+msgstr ""
+"'Devis DB N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_saleorder_db_se
+msgid ""
+"'Devis DB SE N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+msgstr ""
+"'Devis DB SE N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_saleorder_whf
+msgid ""
+"'Devis_SE N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+msgstr ""
+"'Devis_SE N° %s - Client %s' % ((object.name).replace('/', '') , "
+"object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_invoice_db
+msgid ""
+"'Facture DB N° %s - %s %s' % ((object.name).replace('/', ''), 'Fourniseur' if"
+" (object.move_type == 'in_invoice') else 'Client', object.partner_id.name)"
+msgstr ""
+"'Facture DB N° %s - %s %s' % ((object.name).replace('/', ''), 'Fourniseur' if"
+" (object.move_type == 'in_invoice') else 'Client', object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_invoice_db_se
+msgid ""
+"'Facture DB SE N° %s - %s %s' % ((object.name).replace('/', ''), 'Fourniseur' "
+"if (object.move_type == 'in_invoice') else 'Client', object.partner_id.name)"
+msgstr ""
+"'Facture DB SE N° %s - %s %s' % ((object.name).replace('/', ''), 'Fourniseur' "
+"if (object.move_type == 'in_invoice') else 'Client', object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_saleorder_pro_db
+msgid ""
+"'Facture Pro-Forma DB N° %s - Client %s' % ((object.name).replace('/', '') , object.partner_id.name)"
+msgstr ""
+"'Facture Pro-Forma DB N° %s - Client %s' % ((object.name).replace('/', '') , object.partner_id.name)"
+
+#. module: ourcustom_impression
+#: model:ir.actions.report,print_report_name:ourcustom_impression.report_invoice_whf
+msgid ""
+"'Facture_SE N° %s - %s %s' % ((object.name).replace('/', ''), 'Fourniseur' if"
+" (object.move_type == 'in_invoice') else 'Client', object.partner_id.name)"
+msgstr ""
+"'Facture_SE N° %s - %s %s' % ((object.name).replace('/', ''), 'Fourniseur' if"
+" (object.move_type == 'in_invoice') else 'Client', object.partner_id.name)"
+
+
+
+#. module: sale
+#: model:ir.actions.report,print_report_name:sale.action_report_saleorder
+msgid ""
+"'Devis N° %s - Client %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+msgstr ""
+"'Devis N° %s - Client %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+
+#. module: purchase
+#: model:ir.actions.report,print_report_name:purchase.report_purchase_quotation
+msgid ""
+"'Demande de prix N° %s - Fournisseur %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+msgstr ""
+"'Demande de prix N° %s - Fournisseur %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+
+#. module: purchase
+#: model:ir.actions.report,print_report_name:purchase.action_report_purchase_order
+msgid ""
+"'Bon de Commande N° %s - Fournisseur %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+msgstr ""
+"'Bon de Commande N° %s - Fournisseur %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+
+#. module: sale
+#: model:ir.actions.report,print_report_name:sale.action_report_pro_forma_invoice
+msgid "'PRO-FORMA N° %s - Client %s' % (object.name, object.partner_id.name)"
+msgstr "'PRO-FORMA N° %s - Client %s' % (object.name, object.partner_id.name)"
+
+#. module: stock
+#: model:ir.actions.report,print_report_name:stock.action_report_delivery
+msgid ""
+"'Bon de Livraison N° %s - Client %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name) if (object.picking_type_code == 'outgoing') else "
+"'Bon %s - Partenaire %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+msgstr ""
+"'Bon de Livraison N° %s - Client %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name) if (object.picking_type_code == 'outgoing') else "
+"'Bon %s - Partenaire %s' % ((object.name).replace('/', ''), "
+"object.partner_id.name)"
+

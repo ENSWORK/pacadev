@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- purchase order line Treeview  -->
+    <record id="purchase_order_line_tree_view_comm" model="ir.ui.view">
+      <field name="name">purchase.order.line.Tree.comm</field>
+      <field name="model">purchase.order.line</field>
+      <field name="arch" type="xml">
+        <tree create="false" delete="false">
+          <field name="partner_id" string="Fournisseur"/>
+          <field name="product_id" optional="hide"/>
+          <field name="name"/>
+          <field name="product_qty"/>
+          <field name="qty_received" string="Reçu"/>
+          <field name="qty_invoiced" string="Facturé"/>
+          <field name="product_uom" string="UdM"/>
+          <field name="price_unit"/>
+          <field name="discount"/>
+          <field name="taxes_id" widget="many2many_tags"/>
+          <field name="price_subtotal"/>
+        </tree>
+      </field>
+    </record>
+
+        <!--we need an ACTION to call this view-->
+    <record id="action_purchase_order_line_tree_view" model="ir.actions.act_window">
+      <field name="name">Lignes des Achats</field>
+      <field name="res_model">purchase.order.line</field>
+      <field name="view_mode">tree</field>
+    </record>
+
+    <menuitem
+      name="Lignes des Achats"
+      id="menu_purchase_order_line_id"
+      action="action_purchase_order_line_tree_view"
+      parent="purchase.menu_purchase_root"
+      sequence="10"
+    />
+<!--In case its an odoo instance that doesn't use ourcustom_menu model
+    The menu "Liste des Achats" should be placed based on code bellow
+    and you should comment the menuitem above
+
+    <menuitem
+      name="Lignes des Achats"
+      id="menu_purchase_order_line_id_org"
+      action="action_purchase_order_line_tree_view"
+      parent="purchase.menu_procurement_management"
+      sequence="10"
+    />
+
+-->
+</odoo>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_to_saleorder_whf">
+       <t t-foreach="docs" t-as="o">
+            <t t-call="ourcustom_impression.report_oursaleorder_document_inherit_whf" t-lang="o.partner_id.lang"/>
+        </t>
+    </template>
+</odoo>
+

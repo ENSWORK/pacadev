@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+                    <!--This File Edit BL Invoice and Invoice_whf For SPECTA-->
+
+    <!--Facture SPECTA-->
+     <template id="edit_invoice_specta" inherit_id="ourcustom_impression.report_ourinvoice_document_inherit">
+         <!--Remove NB-->
+         <xpath expr="//t/div/div[@class='ourpage']/div[@class='line NB']" position="replace">
+
+        </xpath>
+
+         <!--Remove Numero de Client-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/p/div[@class='mod1']" position="replace">
+
+        </xpath>
+         <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/p/div[@class='mod2']" position="replace">
+
+        </xpath>
+         <!--Edit padding of partner name-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/p/div[@class='mod3']" position="replace">
+            <div  class='mod3' style="color:black;padding-top:20px"><p class="m-0" t-field="o.partner_id"/></div>
+        </xpath>
+
+     </template>
+
+
+
+     <!--Facture Sans Entete SPECTA-->
+    <template id="edit_invoice_whf_specta" inherit_id="ourcustom_impression.report_ourinvoice_document_inherit_whf">
+        <!--Remove NB-->
+         <xpath expr="//t/div/div[@class='ourpage']/div[@class='line NB']" position="replace">
+
+        </xpath>
+
+         <!--Remove Numero de Client-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/p/div[@class='mod1']" position="replace">
+
+        </xpath>
+         <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/p/div[@class='mod2']" position="replace">
+
+        </xpath>
+         <!--Edit padding of partner name-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/p/div[@class='mod3']" position="replace">
+            <div  class='mod3' style="color:black;padding-top:20px"><p class="m-0" t-field="o.partner_id"/></div>
+        </xpath>
+     </template>
+
+
+    <!--BL SPECTA-->
+    <template id="edit_bl_specta" inherit_id="ourcustom_impression.report_ourdelivery_document_inherit">
+         <!--Remove Numero de Client-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/div[@class='mod1']" position="replace">
+
+        </xpath>
+
+         <!--Edit padding of partner name-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/div[@class='mod2']" position="replace">
+            <div  class='mod3' style="color:black;padding-top:20px"><p class="m-0" t-field="o.sale_id.partner_id"/></div>
+        </xpath>
+
+     </template>
+
+</odoo>

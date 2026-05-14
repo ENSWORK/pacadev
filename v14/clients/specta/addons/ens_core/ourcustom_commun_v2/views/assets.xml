@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<odoo>
+    <template id="assets_backend_commun_v2" name="Commun V2 Style" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" type="text/scss" href="/ourcustom_commun_v2/static/src/css/style.css"/>
+            <link rel="stylesheet" type="text/scss" href="/ourcustom_commun_v2/static/src/css/menu_items.css"/>
+        </xpath>
+    </template>
+</odoo>

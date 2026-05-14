@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--This file edit BL DB for SPECTA-->
+     <template id="report_delivery_dollibar_specta" inherit_id="ourcustom_impression.report_delivery_dollibar">
+
+          <!--Edit Table VISA-->
+         <xpath expr="//table[@name='table_visa']" position="replace">
+             <table style="border: 1px solid #ABABAB;color:#ABABAB;width:60%;margin-left:200px;page-break-inside: avoid;" name="table_visa">
+                <tr style="color:black;">
+                    <td colspan="3" style="border-color:#ABABAB"><center><strong>Visa</strong></center></td>
+                </tr>
+                <tr style="border: 1px solid #ABABAB">
+                    <td style="width:26%;color:black;border-color:#ABABAB"><center><strong>Responsable livraison</strong></center></td>
+                    <td style="width:26%;color:black;border-color:#ABABAB"><center><strong>Livreur/Technicien</strong></center></td>
+                    <td style="width:26%;color:black;border-color:#ABABAB"><center><strong>Client</strong></center></td>
+                </tr>
+                <tr style="border:1px solid #ABABAB">
+                    <td style="width:26%;height:200px;color:black;border-color:#ABABAB"></td>
+                    <td style="width:26%;height:200px;color:black;border-color:#ABABAB"></td>
+                    <td style="width:26%;height:200px;color:black;border-color:#ABABAB"></td>
+                </tr>
+            </table>
+         </xpath>
+     </template>
+</odoo>

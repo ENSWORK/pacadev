@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="allow_users_request_form" model="ir.ui.view">
+        <field name="name">Allow Users to Access Customers</field>
+        <field name="model">res.partner.allowed</field>
+        <field name="arch" type="xml">
+            <form string="Import Invoice">
+                <group>
+                    <group>
+                        <field name="allowed_user_ids" widget="many2many_tags" options="{'no_create':True}"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="assign_users" string="Assign Users"  class="btn btn-primary" icon="fa-user" type="object"/>
+                    <button name="cancel" string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="bi_allow_users_action" model="ir.actions.act_window">
+        <field name="name">Allow Users to Access Customers</field>
+        <field name="res_model">res.partner.allowed</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

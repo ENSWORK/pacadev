@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_equipment_request_view_tree_inherit_specta" model="ir.ui.view">
+        <field name="name">equipment.request.tree.inherit.specta</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='employee_id']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='request_date']" position="attributes">
+                <attribute name="groups">base.group_user</attribute>
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='request_date']" position="after">
+                <field name="close_date" optional="hide"/>
+                <field name="equipment_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

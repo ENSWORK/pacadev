@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Starting from 05-10-2022
+There will be:
+-NO RELIQUAT displayed
+-No Merging/Grouping same products in one line
+-->
+<odoo>
+    <template id="report_delivery_with_price">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                <div class="article o_report_layout_boxed" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"><!--To ignore the default layout(remove header+footer)-->
+                    <t t-call="ourcustom_impression.ourcustom_header_footerbl" />
+                     <style>
+                       #informations {
+                            display: block;
+                            }
+                       .m-0{
+                            display:inline;
+                             }
+                       strong,p{
+                            color:black;
+                            }
+                        /*  Define the background color for all the EVEN background rows  */
+                        .rows_color tr:nth-child(even){
+                            background: #B1B7BF;
+                        }
+                         /*Border Cornerred*/
+                        #content {
+                          position:relative;
+                          width:420px;
+                         /* min-height:180px;*/
+                          min-height:160px;
+                          align-items: center;
+                          overflow:auto;
+                          padding-bottom:20px;
+                    }
+
+
+                        #content:before,
+                        #content:after,
+                        #content>:last-child:before,
+                        #content>:last-child:after {
+                            position: absolute;
+                            width: 60px;
+                            height: 50px;
+                            border-color: black;
+                            border-style: solid;
+                            content: ' ';
+                        }
+
+                        #content:before {
+                            top: 10px;
+                            left: 10px;
+                            width:20%;
+                            border-right:0px;
+                            border-bottom:0px;
+                            border-width: 1px 0px 0px 1px;
+                        }
+
+                        #content:after {
+                            top: 10px;
+                            right: 10px;
+                            width:20%;
+                            border-left:0px;
+                            border-bottom:0px;
+                            border-width: 1px 1px 0px 0px;
+                        }
+
+                        #content>:last-child:before {
+                            bottom: 10px;
+                            right: 10px;
+                            width:20%;
+                            border-left:0px;
+                            border-top:0px;
+                            border-width: 0px 1px 1px 0px;
+                        }
+
+                        #content>:last-child:after {
+                            bottom: 10px;
+                            left: 10px;
+                            width:20%;
+                            border-right:0px;
+                            border-top:0px;
+                            border-width: 0px 0px 1px 1px;
+                        }
+
+                   </style>
+                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+
+                    <div class="ourpage">
+                        <table style="width:100%;border:none" class="mod" >
+                            <tr>
+                                <td style="border:none">
+                                    <h2>
+                                        <t t-if="o.picking_type_code == 'incoming'">
+                                            <strong style="font-size:20px" >Bon de Réception N°:</strong><strong><span style="font-size:20px" t-field="o.name"/></strong>
+                                        </t>
+                                        <t t-if="o.picking_type_code == 'internal'">
+                                            <strong style="font-size:20px" >Bon de Sortie N°:</strong><strong><span style="font-size:20px" t-field="o.name"/></strong>
+                                        </t>
+                                        <t t-if="o.picking_type_code == 'outgoing'">
+                                            <strong style="font-size:20px" >Bon de Livraison N°:</strong><strong><span style="font-size:20px" t-field="o.name"/></strong>
+                                        </t>
+                                    </h2>
+                                    <div id="informations" class="row mt32 mb32">
+                                        <div t-if="o.state" class="col-auto" name="div_sched_date">
+                                            <strong>Date d'expédition:</strong>
+                                            <t t-if="o.state == 'done'">
+                                                <p class="m-0" t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
+                                            </t>
+                                            <t t-if="o.state != 'done'">
+                                                <p class="m-0" t-field="o.scheduled_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                           </t>
+                                        </div>
+                                        <div t-if="o.sale_id.client_order_ref" class="col-auto" name="reference_client">
+                                            <strong>Votre Commande:</strong>
+                                            <p class="m-0" t-field="o.sale_id.client_order_ref"/>
+                                        </div>
+                                        <div t-if="o.sale_id.date_order" class="col-auto" name="date_commande">
+                                            <strong>Date Commande:</strong>
+                                            <p class="m-0" t-field="o.sale_id.date_order" t-options='{"format": "dd/MM/yyyy"}'/>
+                                        </div>
+                                        <div t-if="o.sale_id.payment_term_id" class="col-auto" name="payment_term">
+                                             <strong>Conditions de paiement:</strong>
+                                             <p class="m-0" t-field="o.sale_id.payment_term_id"/>
+                                         </div>
+                                        <div t-if="o.sale_id.incoterm" class="col-auto" name="condition_livraison">
+                                            <strong>Conditions de livraison:</strong>
+                                            <p class="m-0" t-field="o.sale_id.incoterm"/>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td  style="width:50%;border:none">
+                                   <div id="content" style="padding-left:20px;padding-right:20px">
+                                        <div class="mod1"><center><strong>Client N° : </strong><p class="m-0" t-field="o.partner_id.ref"/></center></div>
+                                        <div class="mod2"><p class="m-0" t-field="o.partner_id"/></div>
+                                        <div style="color:black">
+                                            <span t-field="o.partner_id.street"></span>&#032;<span t-field="o.partner_id.street2"></span>&#032;
+                                            <span t-field="o.partner_id.city"></span>&#032;<span t-field="o.partner_id.state_id"></span>&#032;
+                                            <span t-field="o.partner_id.zip"></span>&#032;<span t-field="o.partner_id.country_id"></span></div>
+                                        <div>
+                                            <strong>Tél :</strong>
+                                            <t t-if="o.partner_id.company_type == 'person'">
+                                                <p t-if="o.partner_id.phone_required" class="m-0" t-esc="str(o.partner_id.phone_required).replace('.',' ')"/>
+                                            </t>
+                                            <t t-else="">
+                                                <p class="m-0" t-field="o.partner_id.phone"/>
+                                            </t>
+                                        </div>
+                                        <div t-if="o.sale_id.ourcontact"><strong>Contact : </strong><p class="m-0" t-field="o.sale_id.ourcontact.name"/></div>
+                                        <div t-if="o.partner_id.email"><strong>E-mail :</strong><p class="m-0" t-field="o.partner_id.email"/></div>
+                                        <div><strong>ICE :</strong><p class="m-0" t-field="o.partner_id.vat"/></div>
+                                   </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <br/>
+
+
+                        <!--Table Principale -->
+                        <table class="table table-sm rows_color" t-if="o.state!='done'" name="stock_move_table">
+                            <thead>
+                                <tr>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:4%" name="th_line_num" class="text-center"><strong>N°</strong></th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" class="text-left" name="th_sm_product_ref"><strong>Référence</strong></th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" class="text-left" name="th_sm_product_desc"><strong>Désignation</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_sm_quantity"><strong>Qté Commandée</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_sm_quantity_done"><strong>Qté Livrée</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:6%" groups="uom.group_uom" name="th_sm_udm"><strong>UdM</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_sm_price_unit"><strong>PU HT</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_sm_price_subtotal"><strong>Total HT</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="lines" t-value="o.move_lines.sorted(lambda x: x.sl_no)"/>
+                                <tr t-foreach="lines" t-as="move">
+
+                                    <td style="color:black;vertical-align:middle" name="td_line_num" class="text-center">
+                                        <span t-field="move.sl_no" style="color:black"/>
+                                    </td>
+                                    <td name="th_sm_product_ref" style="vertical-align:middle;color:black;width:11%">
+                                        <span t-if="move.product_id.default_code" t-esc="str(move.product_id.default_code).replace('-', '⁻')"/>
+                                    </td>
+                                    <td style="vertical-align:middle">
+                                        <!-- Impression de La désignation au lieu du nom de l'article -->
+                                        <t t-if="move.name">
+                                            <span t-field="move.name"  style="color:black" t-options="{'widget': 'text'}"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-field="move.product_id"  style="color:black"/>
+                                        </t>
+                                    </td>
+                                    <td style="text-align:center;vertical-align:middle;width:7%">
+                                        <span t-field="move.product_uom_qty" style="color:black"/>
+                                    </td>
+                                    <td style="text-align:center;vertical-align:middle;width:7%">
+                                        <span t-field="move.quantity_done" style="color:black"/>
+                                    </td>
+                                    <td style="text-align:center;vertical-align:middle;width:6%" groups="uom.group_uom">
+                                        <span t-field="move.product_uom" style="color:black"/>
+                                    </td>
+                                    <td style="text-align:center;vertical-align:middle;width:11%">
+                                        <span t-field="move.price_unit" style="color:black"/>
+                                    </td>
+                                    <td style="text-align:center;vertical-align:middle;width:11%">
+                                        <span t-esc="str('{0:,.2f}'.format(float(move.price_subtotal)).replace(',', ' ')).replace('.', ',')" style="color:black"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-sm mt48 rows_color" t-if="o.move_line_ids and o.state=='done'" name="stock_move_line_table">
+                            <t t-set="has_serial_number" t-value="False"/>
+                            <t t-set="has_serial_number" t-value="o.move_line_ids.mapped('lot_id')" groups="stock.group_lot_on_delivery_slip"/>
+                            <thead>
+                                <tr>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:4%" name="th_line_num" class="text-center"><strong>N°</strong></th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" class="text-left" name="th_sm_product_ref"><strong>Référence</strong></th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_sml_product"><strong>Désignation</strong></th>
+                                    <t name="lot_serial" t-if="has_serial_number">
+                                        <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" >
+                                            Lot/Serial Number
+                                        </th>
+                                    </t>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_sm_quantity"><strong>Qté Livrée</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:6%" name="th_sm_udm"><strong>UdM</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_sm_price_unit"><strong>PU HT</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_sm_price_subtotal"><strong>Total HT</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <!-- This part gets complicated with different use cases (additional use cases in extensions of this report):
+                                    1. If serial numbers are used and set to print on delivery slip => print lines as is, otherwise group them by overlapping
+                                        product + description + uom combinations
+                                    2. If any packages are assigned => split products up by package (or non-package) and then apply use case 1 -->
+                                <!-- If has destination packages => create sections of corresponding products -->
+                                <t t-if="o.has_packages" name="has_packages">
+                                    <t t-set="packages" t-value="o.move_line_ids.mapped('result_package_id')"/>
+                                    <t t-foreach="packages" t-as="package">
+                                        <t t-call="stock.stock_report_delivery_package_section_line"/>
+                                        <t t-set="package_move_lines" t-value="o.move_line_ids.filtered(lambda l: l.result_package_id == package)"/>
+                                        <!-- If printing lots/serial numbers => keep products in original lines -->
+                                        <t t-if="has_serial_number">
+                                            <tr t-foreach="package_move_lines" t-as="move_line">
+                                                <t t-call="ourcustom_impression.ourstock_report_delivery_has_serial_move_line_pr"/>
+                                            </tr>
+                                        </t>
+                                        <!-- If not printing lots/serial numbers => merge lines with same product+description+uom -->
+                                        <!--<t t-else="">
+                                            <t t-set="aggregated_lines" t-value="package_move_lines._get_aggregated_product_quantities_pr()"/>
+                                            <t t-call="ourcustom_impression.ourstock_report_delivery_aggregated_move_lines_pr"/>
+                                        </t>-->
+                                        <!-- If not printing lots/serial numbers => ALSO KEEP products in original lines -->
+                                        <t t-else="">
+                                            <t t-set="lines" t-value="o.move_line_ids.sorted(lambda x: x.sl_no)"/>
+                                            <tr t-foreach="lines" t-as="move">
+
+                                                 <td style="color:black;vertical-align:middle;width:4%" name="td_line_num" class="text-center">
+                                                    <span t-field="move.sl_no" style="color:black"/>
+                                                </td>
+                                                <td name="td_product_ref" style="vertical-align:middle;width:11%">
+                                                    <span t-if="move.product_id.default_code" t-esc="str(move.product_id.default_code).replace('-', '⁻')" style="color:black"/>
+                                                </td>
+                                                <td style="vertical-align:middle" name="product_desc">
+                                                        <span t-field="move.ourname" style="color:black" t-options="{'widget': 'text'}"/>
+                                                </td>
+                                                <td style="text-align:center;vertical-align:middle;width:7%" name="quantity_done">
+                                                    <span t-field="move.qty_done" style="color:black"/>
+                                                </td>
+                                                <td style="text-align:center;vertical-align:middle;width:6%" name="product_uom">
+                                                    <span t-field="move.product_uom_id.name" style="color:black"/>
+                                                </td>
+                                                <td style="text-align:center;vertical-align:middle;width:11%" name="price_unit">
+                                                    <span t-field="move.move_id.price_unit" style="color:black"/>
+                                                </td>
+                                                <td style="text-align:center;vertical-align:middle;width:11%" name="price_subtotal">
+                                                    <!--<span t-esc="str('%.2f'% move.move_id.price_subtotal).replace('.', ',')" style="color:black"/>-->
+                                                    <span t-esc="str('{0:,.2f}'.format(float(move.move_id.price_subtotal)).replace(',', ' ')).replace('.', ',')" style="color:black"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <!-- Make sure we do another section for package-less products if they exist -->
+                                    <t t-set="move_lines" t-value="o.move_line_ids.filtered(lambda l: not l.result_package_id)"/>
+                                    <t t-if="move_lines" name="no_package_move_lines">
+                                        <t t-call="stock.stock_report_delivery_no_package_section_line" name="no_package_section"/>
+                                        <t t-if="has_serial_number">
+                                            <tr t-foreach="move_lines" t-as="move_line">
+                                                <t t-call="ourcustom_impression.ourstock_report_delivery_has_serial_move_line_pr"/>
+                                            </tr>
+                                        </t>
+                                        <!--<t t-else="">
+                                            <t t-set="aggregated_lines" t-value="move_lines._get_aggregated_product_quantities_pr()"/>
+                                            <t t-if="aggregated_lines">
+                                                <t t-call="ourcustom_impression.ourstock_report_delivery_aggregated_move_lines_pr"/>
+                                            </t>
+                                        </t>-->
+                                        <!-- If not printing lots/serial numbers => ALSO KEEP products in original lines -->
+                                        <t t-else="">
+                                            <t t-set="lines" t-value="o.move_line_ids.sorted(lambda x: x.sl_no)"/>
+                                            <tr t-foreach="lines" t-as="move">
+
+                                                 <td style="color:black;vertical-align:middle;width:4%" name="td_line_num" class="text-center">
+                                                    <span t-field="move.sl_no" style="color:black"/>
+                                                </td>
+                                                <td name="td_product_ref" style="vertical-align:middle;width:11%">
+                                                    <span t-if="move.product_id.default_code" t-esc="str(move.product_id.default_code).replace('-', '⁻')" style="color:black"/>
+                                                </td>
+                                                <td style="vertical-align:middle" name="product_desc">
+                                                        <span t-field="move.ourname" style="color:black" t-options="{'widget': 'text'}"/>
+                                                </td>
+                                                <td style="text-align:center;vertical-align:middle;width:7%" name="quantity_done">
+                                                    <span t-field="move.qty_done" style="color:black"/>
+                                                </td>
+                                                <td style="text-align:center;vertical-align:middle;width:6%" name="product_uom">
+                                                    <span t-field="move.product_uom_id.name" style="color:black"/>
+                                                </td>
+                                                <td style="text-align:center;vertical-align:middle;width:11%" name="price_unit">
+                                                    <span t-field="move.move_id.price_unit" style="color:black"/>
+                                                </td>
+                                                <td style="text-align:center;vertical-align:middle;width:11%" name="price_subtotal">
+                                                    <!--<span t-esc="str('%.2f'% move.move_id.price_subtotal).replace('.', ',')" style="color:black"/> -->
+                                                    <span t-esc="str('{0:,.2f}'.format(float(move.move_id.price_subtotal)).replace(',', ' ')).replace('.', ',')" style="color:black"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </t>
+                                <!-- No destination packages -->
+                                <t t-else="">
+                                    <!-- If printing lots/serial numbers => keep products in original lines -->
+                                    <t t-if="has_serial_number">
+                                        <tr t-foreach="o.move_line_ids" t-as="move_line">
+                                            <t t-call="ourcustom_impression.ourstock_report_delivery_has_serial_move_line_pr"/>
+                                        </tr>
+                                    </t>
+                                    <!-- If not printing lots/serial numbers => merge lines with same product -->
+                                    <!--<t t-else="" name="aggregated_move_lines">
+                                        <t t-set="aggregated_lines" t-value="o.move_line_ids._get_aggregated_product_quantities_pr()"/>
+                                            <t t-call="ourcustom_impression.ourstock_report_delivery_aggregated_move_lines_pr"/>
+                                    </t>-->
+                                    <!-- If not printing lots/serial numbers => ALSO KEEP products in original lines -->
+                                    <t t-else="">
+                                        <t t-set="lines" t-value="o.move_line_ids.sorted(lambda x: x.sl_no)"/>
+                                        <tr t-foreach="lines" t-as="move">
+
+                                             <td style="color:black;vertical-align:middle;width:4%" name="td_line_num" class="text-center">
+                                                <span t-field="move.sl_no" style="color:black"/>
+                                            </td>
+                                            <td name="td_product_ref" style="vertical-align:middle;width:11%">
+                                                <span t-if="move.product_id.default_code" t-esc="str(move.product_id.default_code).replace('-', '⁻')" style="color:black"/>
+                                            </td>
+                                            <td style="vertical-align:middle" name="product_desc">
+                                                    <span t-field="move.ourname" style="color:black" t-options="{'widget': 'text'}"/>
+                                            </td>
+                                            <td style="text-align:center;vertical-align:middle;width:7%" name="quantity_done">
+                                                <span t-field="move.qty_done" style="color:black"/>
+                                            </td>
+                                            <td style="text-align:center;vertical-align:middle;width:6%" name="product_uom">
+                                                <span t-field="move.product_uom_id.name" style="color:black"/>
+                                            </td>
+                                            <td style="text-align:center;vertical-align:middle;width:11%" name="price_unit">
+                                                <span t-field="move.move_id.price_unit" style="color:black"/>
+                                            </td>
+                                            <td style="text-align:center;vertical-align:middle;width:11%" name="price_subtotal">
+                                                <!--<span t-esc="str('%.2f'% move.move_id.price_subtotal).replace('.', ',')" style="color:black"/>-->
+                                                <span t-esc="str('{0:,.2f}'.format(float(move.move_id.price_subtotal)).replace(',', ' ')).replace('.', ',')" style="color:black"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                        <!-- Relicat a annuler l'affichage  -->
+                        <!--
+                        <t t-set="backorders" t-value="o.backorder_ids.filtered(lambda x: x.state not in ('done', 'cancel'))"/>
+                        <t t-if="o.backorder_ids and backorders">
+                            <p>
+                                <span>Tous les articles n'ont pas pu être expédiés, les articles suivants seront expédiés dès qu'ils seront disponibles.</span>
+                            </p>
+                            <table class="table table-sm rows_color" name="stock_backorder_table">
+                                <thead>
+                                    <tr>
+                                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_line_num" class="text-center">N°Ligne</th>
+                                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_sb_product"><strong>Product</strong></th>
+                                        <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_sb_quantity" class="text-center"><strong>Quantité Commandée</strong></th>
+                                        <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_sm_quantity_done"><strong>Quantité Livrée</strong></th>
+                                        <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_sm_udm"><strong>Conditionnement</strong></th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="backorders" t-as="backorder">
+                                        <t t-set="bo_lines" t-value="backorder.move_lines.filtered(lambda x: x.product_uom_qty)"/>
+                                        <tr t-foreach="bo_lines" t-as="bo_line">
+
+                                            <td style="color:black;vertical-align:middle" name="td_line_num" class="text-center">
+                                                <span t-field="bo_line.sl_no" style="color:black"/>
+                                             </td>
+                                            <td>
+                                                <t t-if="bo_line.name">
+                                                    <span t-field="bo_line.name" style="color:black"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-field="bo_line.product_id" style="color:black"/>
+                                                </t>
+                                            </td>
+                                            <td style="text-align:center;vertical-align:middle">
+                                                <span t-field="bo_line.product_uom_qty" style="color:black"/>
+                                            </td>
+                                            <td style="text-align:center;vertical-align:middle">
+                                                <span t-field="bo_line.quantity_done" style="color:black"/>
+                                            </td>
+                                            <td style="text-align:center;vertical-align:middle">
+                                                <span t-field="bo_line.product_uom" style="color:black"/>
+                                            </td>
+
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>-->
+
+
+                        <div class="clearfix" name="so_total_summary">
+                            <div id="total" class="row" name="total">
+                                <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
+                                    <table class="table table-sm" style="page-break-inside: avoid;">
+                                        <tr class="border-black o_subtotal" style="">
+                                            <td name="td_amount_untaxed_label"><strong>Total HT<!--Subtotal--></strong></td>
+                                            <td name="td_amount_untaxed" class="text-right">
+                                                <!-- <span style="color:black" t-esc="str('%.2f'% o.amount_untaxed).replace('.', ',')"/> -->
+                                                <span style="color:black" t-esc="str('{0:,.2f}'.format(float(o.amount_untaxed)).replace(',', ' ')).replace('.', ',')"/>
+                                            </td>
+                                        </tr>
+                                        <t t-foreach="o.amount_by_group" t-as="amount_by_group">
+                                            <tr style="color:black">
+                                                <t t-if="amount_by_group[5] == 1 and o.amount_untaxed == amount_by_group[2]">
+                                                    <td name="td_amount_by_group_label_3">
+                                                        <span t-esc="amount_by_group[0]"/>
+                                                    </td>
+                                                    <td name="td_amount_by_group_3" class="text-right o_price_total">
+                                                        <!--remove currency-->
+                                                        <!-- <span t-esc="str('%.2f'% amount_by_group[1]).replace('.', ',')"/> -->
+                                                        <span t-esc="str('{0:,.2f}'.format(float(amount_by_group[1])).replace(',', ' ')).replace('.', ',')"/>
+                                                    </td>
+                                                </t>
+                                                <t t-else="">
+                                                    <td name="td_amount_by_group_label">
+                                                        <span t-esc="amount_by_group[0]"/>
+                                                    </td>
+                                                    <td name="td_amount_by_group" class="text-right o_price_total">
+                                                        <!--remove currency-->
+                                                        <!-- <span t-esc="str('%.2f'% amount_by_group[1]).replace('.', ',')"/> -->
+                                                        <span t-esc="str('{0:,.2f}'.format(float(amount_by_group[1])).replace(',', ' ')).replace('.', ',')"/>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </t>
+                                        <tr class="border-black o_total">
+                                            <td name="td_amount_total_label"><strong style="color:white">Total TTC</strong></td>
+                                            <td name="td_amount_total" class="text-right">
+                                                <!-- <span t-esc="str('%.2f'% o.amount_total).replace('.', ',')" style="color:white"/> -->
+                                                <span t-esc="str('{0:,.2f}'.format(float(o.amount_total)).replace(',', ' ')).replace('.', ',')" style="color:white"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div><br/>
+
+                        <table style="border: 1px solid black;color:black;width:60%;margin-left:200px;page-break-inside: avoid;">
+                            <tr style="color:black;"><td colspan="2"><center><strong>Visa</strong></center></td></tr>
+                            <tr style="border: 1px solid black">
+                                <td style="width:40%;color:black;"><center><strong>Service Livraison</strong></center></td>
+                                <td style="width:40%;color:black;"><center><strong>Client</strong></center></td>
+                            </tr>
+                            <tr style="border:1px solid black">
+                                <td style="width:40%;height:200px;color:black;"></td>
+                                <td style="width:40%;height:200px;color:black;"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,41 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* os_price_unit_readonly
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-12 01:59+0000\n"
+"PO-Revision-Date: 2020-10-12 01:59+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: os_price_unit_readonly
+#: model:ir.model.fields,field_description:os_price_unit_readonly.field_sale_order_line__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: os_price_unit_readonly
+#: model:ir.model.fields,field_description:os_price_unit_readonly.field_sale_order_line__id
+msgid "ID"
+msgstr ""
+
+#. module: os_price_unit_readonly
+#: model:ir.model.fields,field_description:os_price_unit_readonly.field_sale_order_line____last_update
+msgid "Last Modified on"
+msgstr "Dernière modification le"
+
+#. module: os_price_unit_readonly
+#: model:ir.model,name:os_price_unit_readonly.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Ligne de bons de commande"
+
+#. module: os_price_unit_readonly
+#: model:ir.model.fields,field_description:os_price_unit_readonly.field_sale_order_line__price_unit_stored
+msgid "Unit price"
+msgstr "Prix ​​unitaire"

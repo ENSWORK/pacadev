@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_ourpurchasequotation_document_inherit" inherit_id="purchase.report_purchasequotation_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <div class="article o_report_layout_boxed" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"><!--To ignore the default layout(remove header+footer)-->
+                <t t-call="ourcustom_impression.ourcustom_header_footerdp" />
+                <style>
+                    strong,p,span{
+                        color:black;
+                        }
+                    .m-0{
+                        display:inline;
+                         }
+                    .rows_color tr:nth-child(even){
+		                background: #B1B7BF;
+                    }
+                    /*Border Cornerred*/
+                    #content {
+                          position:relative;
+                          width:420px;
+                          align-items: center;
+                          /*min-height:180px;*/
+                          min-height:145px;
+                          overflow:auto;
+                          padding-bottom:20px;
+
+                    }
+
+                    #content:before,
+                    #content:after,
+                    #content>:last-child:before,
+                    #content>:last-child:after {
+                        position: absolute;
+                        width: 60px;
+                        height: 50px;
+                        border-color: black;
+                        border-style: solid;
+                        content: ' ';
+                    }
+
+                    #content:before {
+                        top: 10px;
+                        left: 10px;
+                        width:20%;
+                        border-right:0px;
+                        border-bottom:0px;
+                        border-width: 1px 0px 0px 1px;
+                    }
+
+                    #content:after {
+                        top: 10px;
+                        right: 10px;
+                        width:20%;
+                        border-left:0px;
+                        border-bottom:0px;
+                        border-width: 1px 1px 0px 0px;
+                    }
+
+                    #content>:last-child:before {
+                        bottom: 10px;
+                        right: 10px;
+                        width:20%;
+                        border-left:0px;
+                        border-top:0px;
+                        border-width: 0px 1px 1px 0px;
+                    }
+
+                    #content>:last-child:after {
+                        bottom: 10px;
+                        left: 10px;
+                        width:20%;
+                        border-right:0px;
+                        border-top:0px;
+                        border-width: 0px 0px 1px 1px;
+                    }
+                </style>
+                <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+
+        <div class="ourpage">
+            <div class="oe_structure"/>
+
+            <table style="width:100%;border:0px" class="mod">
+                <tr>
+                    <td style="width:50%;border:0px">
+                        <div style="font-size:20px"><strong>Demande de prix N° : </strong><span t-field="o.name"/></div>
+                        <div><strong>Date : </strong><span t-field="o.date_order" t-options='{"format" : "dd/MM/yyyy"}'/></div>
+                    </td>
+                    <td  style="width:50%;border:0px">
+                        <div id="content" style="padding-left:20px;padding-right:20px">
+                            <div class="mod1"><center><strong>Fournisseur N° : </strong><p class="m-0" t-field="o.partner_id.ref"/></center></div>
+                            <div class="mod2" style="padding-top:2px;"><p class="m-0" t-field="o.partner_id"/></div>
+                            <div><!--<p class="m-0" t-field="o.partner_id.contact_address"/>-->
+                                <span t-field="o.partner_id.street"></span>&#032;<span t-field="o.partner_id.street2"></span>&#032;
+                                <span t-field="o.partner_id.city"></span>&#032;<span t-field="o.partner_id.state_id"></span>&#032;
+                                    <span t-field="o.partner_id.zip"></span>&#032;<span t-field="o.partner_id.country_id"></span></div>
+                            <div>
+                                <strong>Tél :</strong>
+                                <t t-if="o.partner_id.company_type == 'person'">
+                                    <p t-if="o.partner_id.phone_required" class="m-0" t-esc="str(o.partner_id.phone_required).replace('.',' ')"/>
+                                 </t>
+                                <t t-else="">
+                                    <p class="m-0" t-field="o.partner_id.phone"/>
+                                </t>
+                            </div>
+                            <div t-if="o.ourcontact"><strong>Contact : </strong><p class="m-0" t-field="o.ourcontact.name"/></div>
+                            <div t-if="o.partner_id.email"><strong>E-mail :</strong><p class="m-0" t-field="o.partner_id.email"/></div>
+                            <div><strong>ICE :</strong><p class="m-0" t-field="o.partner_id.vat"/></div>
+                        </div>
+                    </td>
+                </tr>
+            </table><br/>
+            <table style="width:100%;" >
+                <tr>
+                    <td>
+                        <div class="col-auto col-3 mw-100 mb-2"  style="padding-top:10px;">
+                                <strong>Demandeur :</strong>
+                                <p class="m-0" t-field="o.user_id"/>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="col-auto col-3 mw-100 mb-2"  style="padding-top:10px;">
+                             <strong>Téléphone :</strong>
+                            <t t-if="o.user_id.company_type == 'person'">
+                                <p t-if="o.user_id.phone_required" class="m-0" t-esc="str(o.user_id.phone_required).replace('.',' ')"/>
+                             </t>
+                            <t t-else="">
+                                <p class="m-0" t-field="o.user_id.phone"/>
+                            </t>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="col-auto col-3 mw-100 mb-2"  style="padding-top:10px;">
+                             <strong>E-mail :</strong>
+                            <p class="m-0" t-field="o.user_id.email"/>
+                        </div>
+                    </td>
+                </tr>
+            </table><br/>
+            <p>Prière de nous transmettre votre meilleure offre de prix et délai de livraison pour la fourniture citée ci-après :</p>
+
+                <!--TABLE PRINCIPALE-->
+
+            <t t-set="display_sl" t-value="sum([(1 if l.sl_no!=0 else 0) for l in o.order_line])"/>
+            <table class="table table-sm rows_color">
+                <thead>
+                    <tr>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:4%" name="th_line_num" t-if="display_sl != 0"  class="text-center">N°</th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_ref"><strong>Référence</strong></th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_description"><strong>Désignation</strong></th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_quantity" class="text-center"><strong>Qté</strong></th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_udm" groups="uom.group_uom" class="text-center"><strong>UdM</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="o.order_line.sorted(key=lambda l: l.sl_no)" t-as="order_line">
+                        <tr t-att-class="'bg-200 font-weight-bold o_line_section' if order_line.display_type == 'line_section' else 'font-italic o_line_note' if order_line.display_type == 'line_note' else ''">
+                            <t t-if="not order_line.display_type">
+
+                                <td t-if="display_sl != 0" style="color:black;vertical-align:middle;width:4%" name="td_line_num" class="text-center">
+                                    <span t-field="order_line.sl_no"/>
+                                </td>
+                                <td class="text-left;vertical-align:middle" style="width:11%">
+                                    <span t-if="order_line.product_id.default_code" t-esc="str(order_line.product_id.default_code).replace('-', '⁻')"/>
+                                </td>
+                                <td name="td_line_name" style="vertical-align:middle;"> <!--id="product"-->
+                                    <span t-field="order_line.name"/>
+                                </td>
+                                <td style="vertical-align:middle;width:7%" class="text-center">
+                                    <span t-field="order_line.product_qty"/>
+                                </td>
+                                 <td groups="uom.group_uom" style="vertical-align:middle;width:7%" class="text-center">
+                                    <span t-field="order_line.product_uom" groups="uom.group_uom"/>
+                                </td>
+                            </t>
+                            <t t-else="">
+                                <td colspan="99" id="section">
+                                    <span t-field="order_line.name"/>
+                                </td>
+                            </t>
+                        </tr>
+                    </t>
+                </tbody>
+            </table><br/>
+            <p t-field="o.notes"/><br/>
+            <div style="float:right;color:black"><strong>Service Achat</strong></div>
+
+        </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

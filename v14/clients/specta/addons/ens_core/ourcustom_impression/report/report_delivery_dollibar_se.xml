@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_delivery_dollibar_se">
+        <t t-call="web.html_container">
+             <t t-foreach="docs" t-as="o">
+                 <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                 <div class="article o_report_layout_boxed" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"><!--To ignore the default layout(remove header+footer)-->
+                    <t t-call="ourcustom_impression.report_delivery_dollibar_headfoot_se" />
+                     <style>
+                       #informations {
+                            display: block;
+                            }
+                       .m-0{
+                            display:inline;
+                             }
+                       strong,p,span{
+                            color:black;
+                            }
+                        /*  Define the background color for all the EVEN background rows  */
+                        .rows_color tr:nth-child(even){
+                            background: #EEEDED;
+                        }
+                        #content {
+                                border:1px solid #ABABAB;
+                        }
+
+                   </style>
+                    <div class="ourpage">
+                        <br/>
+                        <table style="width:100%;border:0px;margin-top:0px" class="mod" >
+                            <tr>
+                                <td style="width:45%;border:0px;color:black">Émetteur</td>
+                                <td style="width:5%;border:0px;"> </td>
+                                <td style="width:50%;border:none;color:black">Adressé à</td>
+                            </tr>
+                            <tr>
+                                <td style="width:45%;border:0px;background-color:#EEEDED;">
+                                        <div class="col-auto col-3 mw-100 mb-2">
+                                            <strong><p class="m-0" t-field="o.company_id.name" style="color:#0D0446"/></strong><br/>
+                                            <p class="m-0" t-field="o.company_id.street" style="color:#0D0446"/>
+                                            <p class="m-0" t-field="o.company_id.street2" style="color:#0D0446"/>
+                                            <p class="m-0" t-field="o.company_id.city" style="color:#0D0446"/>
+                                            <p class="m-0" t-field="o.company_id.state_id" style="color:#0D0446"/>
+                                            <p class="m-0" t-field="o.company_id.country_id" style="color:#0D0446"/>
+                                            <br/>
+                                            <strong style="color:#0D0446">Tél: </strong>
+                                            <p class="m-0" t-field="o.company_id.phone" style="color:#0D0446"/><br/>
+                                            <strong style="color:#0D0446">Email: </strong>
+                                            <p class="m-0" t-field="o.company_id.email" style="color:#0D0446"/><br/>
+                                            <strong style="color:#0D0446">Web: </strong>
+                                            <p class="m-0" t-field="o.company_id.website" style="color:#0D0446"/><br/>
+
+                                        </div>
+                                </td>
+                                <td style="width:5%;border:0px;"> </td>
+                                <td style="width:50%;border:none;">
+                                    <div id="content" style="padding-left:15px;padding-right:20px;padding-bottom:6px;min-height:160px">
+                                        <p style="color:black;">
+                                            <div class="mod3"><strong><p class="m-0" t-field="o.sale_id.partner_id"/></strong></div>
+                                            <div>
+                                                <span  t-field="o.sale_id.partner_id.street"></span>&#032;<span t-field="o.sale_id.partner_id.street2"></span>&#032;
+                                                <span  t-field="o.sale_id.partner_id.city"></span>&#032;<span t-field="o.sale_id.partner_id.state_id"></span>&#032;
+                                                <span  t-field="o.sale_id.partner_id.zip"></span>&#032;<span t-field="o.sale_id.partner_id.country_id"></span><br/></div>
+                                            <div><strong>Tél :</strong>
+                                                <t t-if="o.partner_id.company_type == 'person'">
+                                                    <p t-if="o.partner_id.phone_required" class="m-0" t-esc="str(o.partner_id.phone_required).replace('.',' ')"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <p class="m-0" t-field="o.partner_id.phone"/>
+                                                </t>
+                                            </div>
+                                            <div><strong>E-mail :</strong><p class="m-0" t-field="o.sale_id.partner_id.email"/></div>
+                                            <div><strong>ICE :</strong><p class="m-0" t-field="o.sale_id.partner_id.vat"/></div>
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <br/>
+
+                        <!--Table Principale -->
+                        <table class="table table-sm" t-if="o.state!='done'" name="stock_move_table" style="height:135mm;border-color:#ABABAB">
+                            <thead style="border-color:#ABABAB">
+                                <tr style="border-color:#ABABAB">
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:4%" name="th_line_num" class="text-center">N°</th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:11%" class="text-left" name="th_sm_ref"><strong>Référence</strong></th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB" class="text-left" name="th_sm_product"><strong>Désignation</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:9%" name="th_sm_quantity"><strong>Qté Commandée</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:9%" name="th_sm_quantity_done"><strong>Qté Livrée</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:13%" name="th_sm_udm"><strong>Conditionnement</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody style="border-color:#ABABAB">
+                                <t t-set="lines" t-value="o.move_lines.filtered(lambda x: x.product_uom_qty)"/>
+                                <tr t-foreach="lines" t-as="move" style="border-color:#ABABAB;height:8mm">
+
+                                    <td style="color:black;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:4%" name="td_line_num" class="text-center">
+                                        <span t-field="move.sl_no"/>
+                                    </td>
+                                    <td style="border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:11%"  name="td_ref" class="text-left"><span t-if="move.product_id.default_code" t-esc="str(move.product_id.default_code).replace('-', '⁻')"/></td>
+                                    <td style="border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB">
+                                        <!--<span t-field="move.product_id"/>
+                                        <p t-if="move.description_picking != move.product_id.name">
+                                            <span t-field="move.description_picking"/>
+                                        </p>-->
+                                        <!-- Impression de La désignation au lieu du nom de l'article -->
+                                       <!-- <t t-if="move.sale_line_id.name and move.sale_line_id.name != ''">
+                                            <span t-field="move.sale_line_id.name"/>
+                                        </t>-->
+                                        <t t-if="move.name">
+                                            <span t-field="move.name"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-field="move.product_id"/>
+                                        </t>
+                                    </td>
+                                    <td style="text-align:center;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:9%">
+                                        <span t-field="move.product_uom_qty"/>
+                                    </td>
+                                    <td style="text-align:center;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:9%">
+                                        <span t-field="move.quantity_done"/>
+                                    </td>
+                                    <td style="text-align:center;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:13%">
+                                        <span t-field="move.product_uom"/>
+                                    </td>
+                                </tr>
+                                <tr style="background-color:white !important">
+                                    <td style="border-color:#ABABAB;"> </td>
+                                    <td style="border-color:#ABABAB;"> </td>
+                                    <td style="border-color:#ABABAB;"> </td>
+                                    <td style="border-color:#ABABAB;"> </td>
+                                    <td style="border-color:#ABABAB;"> </td>
+                                    <td style="border-color:#ABABAB;"> </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="table table-sm mt48" t-if="o.move_line_ids and o.state=='done'" name="stock_move_line_table"  style="height:135mm;border-color:#ABABAB">
+                            <t t-set="has_serial_number" t-value="False"/>
+                            <t t-set="has_serial_number" t-value="o.move_line_ids.mapped('lot_id')" groups="stock.group_lot_on_delivery_slip"/>
+                            <thead style="border-color:#ABABAB">
+                                <tr style="border-color:#ABABAB">
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:4%" name="th_line_num"><strong>N°</strong></th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:11%" name="th_sml_ref"><strong>Référence</strong></th>
+                                    <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB" name="th_sml_product"><strong>Désignation</strong></th>
+                                    <t name="lot_serial" t-if="has_serial_number">
+                                        <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:13%">
+                                            Lot/Serial Number
+                                        </th>
+                                    </t>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:9%" name="th_sm_quantity"><strong>Qté</strong></th>
+                                    <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB;width:13%" name="th_sm_udm"><strong>Conditionnement</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody style="border-color:#ABABAB">
+                            <!-- This part gets complicated with different use cases (additional use cases in extensions of this report):
+                                    1. If serial numbers are used and set to print on delivery slip => print lines as is, otherwise group them by overlapping
+                                        product + description + uom combinations
+                                    2. If any packages are assigned => split products up by package (or non-package) and then apply use case 1 -->
+                                <!-- If has destination packages => create sections of corresponding products -->
+                                <t t-if="o.has_packages" name="has_packages">
+                                    <t t-set="packages" t-value="o.move_line_ids.mapped('result_package_id')"/>
+                                    <t t-foreach="packages" t-as="package">
+                                        <t t-call="stock.stock_report_delivery_package_section_line"/>
+                                        <t t-set="package_move_lines" t-value="o.move_line_ids.filtered(lambda l: l.result_package_id == package)"/>
+                                        <!-- If printing lots/serial numbers => keep products in original lines -->
+                                        <t t-if="has_serial_number">
+                                            <tr t-foreach="package_move_lines" t-as="move_line" style="border-color:#ABABAB;height:8mm">
+                                                <t t-call="ourcustom_impression.report_delivery_dollibar_has_serial_move_line"/>
+                                            </tr>
+                                            <tr style="background-color:white !important;">
+                                                <td style="border-color:#ABABAB;"> </td>
+                                                <td style="border-color:#ABABAB;"> </td>
+                                                <td style="border-color:#ABABAB;"> </td>
+                                                <td style="border-color:#ABABAB;"  t-if="has_serial_number" > </td>
+                                                <td style="border-color:#ABABAB;"> </td>
+                                                <td style="border-color:#ABABAB;"> </td>
+                                            </tr>
+                                        </t>
+                                        <!-- If not printing lots/serial numbers => merge lines with same product+description+uom -->
+                                        <t t-else="">
+                                            <t t-set="aggregated_lines" t-value="package_move_lines._get_aggregated_product_quantities_pr()"/>
+                                            <t t-call="ourcustom_impression.report_delivery_dollibar_aggregated_move_lines"/>
+                                        </t>
+                                    </t>
+                                    <!-- Make sure we do another section for package-less products if they exist -->
+                                    <t t-set="move_lines" t-value="o.move_line_ids.filtered(lambda l: not l.result_package_id)"/>
+                                    <t t-if="move_lines" name="no_package_move_lines">
+                                        <t t-call="stock.stock_report_delivery_no_package_section_line" name="no_package_section"/>
+                                        <t t-if="has_serial_number">
+                                            <tr t-foreach="move_lines" t-as="move_line" style="height:8mm">
+                                                <t t-call="ourcustom_impression.report_delivery_dollibar_has_serial_move_line"/>
+                                            </tr>
+                                            <tr style="background-color:white !important;">
+                                                <td style="border-color:#ABABAB;"> </td>
+                                                <td style="border-color:#ABABAB;"> </td>
+                                                <td style="border-color:#ABABAB;"> </td>
+                                                <td style="border-color:#ABABAB;"  t-if="has_serial_number" > </td>
+                                                <td style="border-color:#ABABAB;"> </td>
+                                                <td style="border-color:#ABABAB;"> </td>
+                                            </tr>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-set="aggregated_lines" t-value="move_lines._get_aggregated_product_quantities_pr()"/>
+                                            <t t-if="aggregated_lines">
+                                                <t t-call="ourcustom_impression.report_delivery_dollibar_aggregated_move_lines"/>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </t>
+                                <!-- No destination packages -->
+                                <t t-else="">
+                                    <!-- If printing lots/serial numbers => keep products in original lines -->
+                                    <t t-if="has_serial_number">
+                                        <tr t-foreach="o.move_line_ids" t-as="move_line" style="height:8mm">
+                                            <t t-call="ourcustom_impression.report_delivery_dollibar_has_serial_move_line"/>
+                                        </tr>
+                                        <tr style="background-color:white !important;">
+                                            <td style="border-color:#ABABAB;"> </td>
+                                            <td style="border-color:#ABABAB;"> </td>
+                                            <td style="border-color:#ABABAB;"> </td>
+                                            <td style="border-color:#ABABAB;"  t-if="has_serial_number" > </td>
+                                            <td style="border-color:#ABABAB;"> </td>
+                                            <td style="border-color:#ABABAB;"> </td>
+                                        </tr>
+                                    </t>
+                                    <!-- If not printing lots/serial numbers => merge lines with same product -->
+                                    <t t-else="" name="aggregated_move_lines">
+                                        <t t-set="aggregated_lines" t-value="o.move_line_ids._get_aggregated_product_quantities_pr()"/>
+                                            <t t-call="ourcustom_impression.report_delivery_dollibar_aggregated_move_lines"/>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                           <!-- Reliquat
+                           <t t-set="backorders" t-value="o.backorder_ids.filtered(lambda x: x.state not in ('done', 'cancel'))"/>
+                            <t t-if="o.backorder_ids and backorders">
+                            <p>
+                                <span>Tous les articles n'ont pas pu être expédiés, les articles suivants seront expédiés dès qu'ils seront disponibles.</span>
+                            </p>
+                            <table class="table table-sm" name="stock_backorder_table"  style="height:135mm;border-color:#ABABAB">
+                                <thead>
+                                    <tr>
+                                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB" name="th_line_num" class="text-center">N°Ligne</th>
+                                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB" name="th_sb_product"><strong>Produit</strong></th>
+                                        <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB" name="th_sb_quantity" class="text-center"><strong>Quantité Commandée</strong></th>
+                                        <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB" name="th_sm_quantity_done"><strong>Quantité Livrée</strong></th>
+                                        <th style="text-align:center;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;border-color:#ABABAB" name="th_sm_udm"><strong>Conditionnement</strong></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="backorders" t-as="backorder">
+                                        <t t-set="bo_lines" t-value="backorder.move_lines.filtered(lambda x: x.product_uom_qty)"/>
+                                        <tr t-foreach="bo_lines" t-as="bo_line" style="border-color:#ABABAB;height:8mm">
+
+                                            <td style="color:black;border-color:#ABABAB;vertical-align:middle;" name="td_line_num" class="text-center">
+                                                <span t-field="bo_line.sl_no"/>
+                                             </td>
+                                            <td style="border-color:#ABABAB;vertical-align:middle;">
+                                                <span t-field="bo_line.product_id"/>
+                                                <p t-if="bo_line.description_picking != bo_line.product_id.name">
+                                                    <span t-field="bo_line.description_picking"/>
+                                                </p> If you want to use reliquat -> Change description
+                                            </td>
+                                            <td style="text-align:center;border-color:#ABABAB;vertical-align:middle;">
+                                                <span t-field="bo_line.product_uom_qty"/>
+                                            </td>
+                                            <td style="text-align:center;border-color:#ABABAB;vertical-align:middle;">
+                                                <span t-field="bo_line.quantity_done"/>
+                                            </td>
+                                            <td style="text-align:center;border-color:#ABABAB;vertical-align:middle;">
+                                                <span t-field="bo_line.product_uom"/>
+                                            </td>
+
+                                        </tr>
+                                    </t>
+                                    <tr style="background-color:white !important">
+                                        <td style="border-color:#ABABAB;"> </td>
+                                        <td style="border-color:#ABABAB;"> </td>
+                                        <td style="border-color:#ABABAB;"> </td>
+                                        <td style="border-color:#ABABAB;"> </td>
+                                        <td style="border-color:#ABABAB;"> </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>-->
+                        <table style="border: 1px solid #ABABAB;color:#ABABAB;width:60%;margin-left:200px;page-break-inside: avoid;" name="table_visa">
+                            <tr style="color:black;">
+                                <td colspan="2" style="border-color:#ABABAB"><center><strong>Visa</strong></center></td>
+                            </tr>
+                            <tr style="border: 1px solid #ABABAB">
+                                <td style="width:40%;color:black;border-color:#ABABAB"><center><strong>Service Livraison</strong></center></td>
+                                <td style="width:40%;color:black;border-color:#ABABAB"><center><strong>Client</strong></center></td>
+                            </tr>
+                            <tr style="border:1px solid #ABABAB">
+                                <td style="width:40%;height:200px;color:black;border-color:#ABABAB"></td>
+                                <td style="width:40%;height:200px;color:black;border-color:#ABABAB"></td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+             </t>
+        </t>
+    </template>
+</odoo>
