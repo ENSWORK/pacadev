@@ -1,0 +1,117 @@
+## 📄 **Descriptif Technique Final – Module Odoo : Création de Tâche depuis CRM (Version Avancée avec Choix de Fusion)**
+
+---
+
+### 🔹 **Objectif global**
+Créer un module qui permet, **depuis une opportunité ou un lead CRM**, d’ouvrir un **formulaire modale complet pour créer une tâche projet**, avec tous les champs visibles, pré-remplis, **et un choix clair entre deux options** :
+1. Créer une **nouvelle tâche**.
+2. **Ajouter/lier** l’opportunité à une **tâche existante** (via recherche dans une liste).
+
+Après validation :
+- L’historique du lead est copié dans la tâche.
+- Le lead/opportunité est **archivé automatiquement**.
+- Une notification est ajoutée dans le chatter de la tâche.
+
+---
+
+### 🔹 **Comportement attendu**
+
+1. **Bouton “Create Task” visible sur le formulaire d’opportunité/lead**.
+2. Au clic → ouverture d’une **popup modale intitulée “Create Task from CRM Pipeline/Lead”**.
+3. Dans cette popup :
+   - **Deux onglets ou boutons radio** (à choisir selon UX) :
+     - ✅ **“Create New Task”** → affiche tous les champs de création (comme dans votre capture).
+     - 🔗 **“Link to Existing Task”** → affiche un champ de recherche (many2one) pour sélectionner une tâche existante.
+   - Si “Create New Task” est sélectionné → tous les champs sont visibles, pré-remplis, éditables.
+   - Si “Link to Existing Task” est sélectionné → seul un champ de recherche “Task” est affiché, avec filtre par projet/client si possible.
+4. À la validation :
+   - Si nouvelle tâche → créée + historique copié + lead archivé.
+   - Si tâche existante → lien bidirectionnel créé (`opportunity_id` sur la tâche), historique copié, lead archivé.
+5. Après action → redirection vers la vue formulaire de la tâche concernée.
+
+---
+
+### 🔹 **Champs à afficher dans la popup modale (pour “Create New Task”)**
+
+| Champ | Source / Pré-remplissage |
+|-------|---------------------------|
+| **Name** | Nom de l’opportunité (`crm.lead.name`) |
+| **Project** | Projet par défaut configurable |
+| **Assigned to** | Utilisateur assigné à l’opportunité |
+| **Deadline** | Date d’échéance par défaut (+7 jours) |
+| **Tags** | Tags liés à l’opportunité |
+| **Partner** | Client associé |
+| **Assigning Date** | Date de création auto |
+| **Company** | Société associée |
+| **Description** | Description de l’opportunité |
+| **Stage** | Étape par défaut (“In Progress”) |
+
+> ✅ Tous ces champs doivent être **visibles, éditables, et pré-remplis** — comme dans votre capture d’écran.
+
+---
+
+### 🔹 **Option “Link to Existing Task”**
+
+- Champ de recherche : `Task` (many2one vers `project.task`)
+- Filtres utiles (optionnels mais recommandés) :
+  - Par projet
+  - Par client
+  - Par statut (“In Progress”, “To Do”)
+- Lors de la sélection :
+  - La tâche existante reçoit :
+    - Un lien vers l’opportunité source (`opportunity_id`)
+    - L’historique du lead (messages, notes, pièces jointes) copié dans son chatter
+  - Le lead est archivé.
+
+---
+
+### 🔹 **Fonctionnalités supplémentaires requises**
+
+- **Pas de popup de confirmation ni de choix multiples superflus** → Comportement fluide et intuitif.
+- **Archivage du lead/opportunité après création ou liaison** → `active = False`.
+- **Copie de l’historique (chatter)** → tous les messages, notes, pièces jointes du lead sont copiés dans la tâche.
+- **Redirection vers la tâche** → après action, ouvrir la vue formulaire de la tâche concernée.
+- **Sécurité** → Seuls les utilisateurs ayant le droit “Créer des tâches depuis le CRM” peuvent accéder au bouton.
+
+---
+
+### 🔹 **Dépendances techniques**
+
+- Modules requis :
+  - `crm`
+  - `project`
+  - `mail`
+  - `contacts`
+- Version cible : **Odoo 17.0**
+- Licence : **OPL-1**
+
+---
+
+### 🔹 **Interface utilisateur (UI)**
+
+- Titre de la popup : **“Create Task from CRM Pipeline/Lead”**
+- Deux options claires :
+  - Bouton radio ou onglets :
+    - **“Create New Task”**
+    - **“Link to Existing Task”**
+- Pour “Create New Task” → layout colonnes gauche/droite, alignement propre, icônes de lien.
+- Pour “Link to Existing Task” → champ de recherche avec suggestions intelligentes.
+- Bouton principal : **“Create Task”** (en violet ou bleu, comme dans votre capture)
+- Bouton secondaire : **“Cancel”**
+
+---
+
+### 🔹 **Exigences non fonctionnelles**
+
+- Ne pas modifier les modules natifs.
+- Respecter les conventions Odoo.
+- Compatible avec les futures mises à jour.
+- Code clair, documenté, facilement maintenable.
+
+---
+
+📌 **Note finale pour le développeur :**
+
+> Vous devez reproduire exactement le comportement visible dans la capture d’écran fournie, **mais en ajoutant un choix clair entre “créer une nouvelle tâche” ou “lier à une tâche existante”**.
+> Tout doit être automatisé, fluide, et intuitif.
+> Pas de popup de sélection complexe — juste deux options simples, avec un formulaire complet pour la création, et un champ de recherche pour la liaison.

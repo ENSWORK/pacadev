@@ -10,6 +10,7 @@ build/
 
 # Venv
 .pacadev-venv/
+.venv/
 venv/
 env/
 
@@ -41,4 +42,21 @@ v*/clients/*/addons/oca/
 
 # État local (spécifique machine)
 v*/clients/*/.pacadev/
+.pacadev/
 .claude/
+
+# Clés age privées — JAMAIS commiter
+core/secrets/age/
+*.age
+key.txt
+
+# Archives & dumps (gros, jamais en repo)
+core.zip
+*.tar.gz
+download-*/
+v*/clients/*/download-*/
+erpdata_*.zip
+v*/clients/*/erpdata_*
+
+# Caches Python compilés
+**/__pycache__/

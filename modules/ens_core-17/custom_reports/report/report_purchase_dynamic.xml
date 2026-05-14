@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_purchase_dynamic">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <!-- Sélection du layout en fonction des options (template de la société, options du document) -->
+                <t t-if="o.company_id.print_template == 'odoo'">
+                    <!-- Utiliser le template natif d'Odoo -->
+                    <t t-call="web.external_layout">
+                        <t t-call="purchase.report_purchaseorder_document"/>
+                    </t>
+                </t>
+                <t t-elif="o.company_id.print_template == 'ens'">
+                    <t t-call="custom_reports.external_layout_purchase_order_ens">
+                        <t t-call="custom_reports.report_purchase_order_ens_document"/>
+                    </t>
+                </t>
+                <t t-elif="o.company_id.print_template == 'mec'">
+                    <t t-call="custom_reports.external_layout_purchase_order_mec">
+                        <t t-call="custom_reports.report_purchase_order_mec_document"/>
+                    </t>
+                </t>
+                <t t-else="">
+                    <!-- Template DB - toujours avec layout, le header gère l'affichage du logo -->
+                    <t t-call="custom_reports.external_layout_purchase">
+                        <t t-call="custom_reports.report_purchase_db_document"/>
+                    </t>
+                </t>
+            </t>
+        </t>
+    </template>
+
+<record id="action_report_purchase_dynamic" model="ir.actions.report">
+    <field name="name">Print Bon de Commande</field>
+    <field name="model">purchase.order</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">custom_reports.report_purchase_dynamic</field>
+    <field name="report_file">custom_reports.report_purchase_dynamic</field>
+    <field name="print_report_name">'BC - %s' % (object.name)</field>
+    <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+    <field name="binding_type">report</field>
+</record>
+
+<!-- Désactiver les rapports individuels - ils sont appelés par le rapport dynamique -->
+<record id="action_report_purchase_order_ens" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
+<record id="action_report_purchase_order_mec" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
+<record id="action_report_purchase_db" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
+
+</odoo>

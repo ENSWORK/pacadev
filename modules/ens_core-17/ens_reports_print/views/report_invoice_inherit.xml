@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ================================================================= -->
+        <!-- HÉRITAGE TEMPLATE FACTURE - Impression Flexible                   -->
+        <!-- Template natif: account.report_invoice_document                   -->
+        <!-- ================================================================= -->
+
+        <template id="report_invoice_document_inherit" inherit_id="account.report_invoice_document">
+
+            <!-- SAFE: v17 - Ajout classe CSS dynamique pour layout sur div principal -->
+            <xpath expr="//div[@class='mt-5 clearfix']" position="attributes">
+                <attribute name="t-att-class">
+                    'mt-5 clearfix layout-' + str(o.env.context.get('print_config', {}).get('layout') or o.company_id.print_inv_layout or 'standard')
+                </attribute>
+            </xpath>
+
+            <!-- SAFE: v17 - Ajout colonne "Référence" dans en-tête tableau -->
+            <xpath expr="//table[@name='invoice_line_table']//thead//tr//th[@name='th_description']" position="after">
+                <th name="th_product_ref"
+                    t-if="o.env.context.get('print_config', {}).get('show_product_ref', o.company_id.print_inv_show_product_ref)"
+                    class="text-start">
+                    <span>Reference</span>
+                </th>
+            </xpath>
+
+            <!-- SAFE: v17 - Ajout colonne "Référence" dans corps tableau (lignes produit) -->
+            <xpath expr="//table[@name='invoice_line_table']//tbody//td[@name='account_invoice_line_name']" position="after">
+                <td name="td_product_ref"
+                    t-if="o.env.context.get('print_config', {}).get('show_product_ref', o.company_id.print_inv_show_product_ref)">
+                    <span t-if="line.product_id" t-field="line.product_id.default_code"/>
+                </td>
+            </xpath>
+
+            <!-- SAFE: v17 - Masquage conditionnel conditions de paiement -->
+            <xpath expr="//div[@id='payment_term']" position="attributes">
+                <attribute name="t-if">
+                    o.env.context.get('print_config', {}).get('show_payment_terms', o.company_id.print_inv_show_payment_terms)
+                </attribute>
+            </xpath>
+
+            <!-- SAFE: v17 - Ajout zone signature conditionnelle -->
+            <xpath expr="//div[@id='payment_term']" position="after">
+                <div id="signature_zone"
+                     class="mt-5 text-center"
+                     t-if="o.env.context.get('print_config', {}).get('show_signature', o.company_id.print_inv_show_signature)">
+                    <div class="row">
+                        <div class="col-6">
+                            <p><strong>Pour l'entreprise</strong></p>
+                            <br/><br/>
+                            <p>_______________________</p>
+                            <p>Signature et cachet</p>
+                        </div>
+                        <div class="col-6">
+                            <p><strong>Pour le client</strong></p>
+                            <br/><br/>
+                            <p>_______________________</p>
+                            <p>Bon pour accord</p>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+
+        </template>
+
+    </data>
+</odoo>

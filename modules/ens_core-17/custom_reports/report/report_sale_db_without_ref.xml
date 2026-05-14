@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- Document Template -->
+<template id="report_saleorder_db_without_ref_document">
+    <!-- Émetteur/Destinataire Section -->
+                    <div class="mt-4">
+<table class="mb-4" style="width:100%;border-collapse: separate; border-spacing: 0;">
+    <tr>
+        <td style="width:45%;border:none;padding-bottom:5px;border-top:none;border-left:none;border-right:none;">
+            <span style="color:black">Émetteur</span>
+        </td>
+        <td style="width:5%;border:none;padding-bottom:5px;border-top:none;border-left:none;border-right:none;">
+        </td>
+        <td style="width:50%;border:none;padding-bottom:5px;border-top:none;border-left:none;border-right:none;">
+            <span style="color:black">Adressé à</span>
+        </td>
+    </tr>
+                            <tr>
+                                <td style="width:45%;border:0px;background-color:#EEEDED;padding:10px;">
+                                    <div style="line-height: 1.5;">
+                                        <strong t-field="o.company_id.name" t-attf-style="color: #{o.company_id.primary_color}"/><br/>
+                                        <t t-if="o.company_id.street">
+                                            <span t-field="o.company_id.street" t-attf-style="color: #{o.company_id.primary_color}"/><br/>
+                                        </t>
+                                        <t t-if="o.company_id.street2">
+                                            <span t-field="o.company_id.street2" t-attf-style="color: #{o.company_id.primary_color}"/><br/>
+                                        </t>
+<t t-if="o.company_id.city or o.company_id.country_id">
+    <span t-field="o.company_id.city" t-attf-style="color: #{o.company_id.primary_color}"/>
+    <t t-if="o.company_id.city and o.company_id.country_id"> - </t>
+    <span t-field="o.company_id.country_id" t-attf-style="color: #{o.company_id.primary_color}"/>
+</t>
+
+                                          <div class="mt-2">
+                                            <t t-if="o.company_id.phone">
+                                                <div>
+                                                    <strong t-attf-style="color: #{o.company_id.primary_color}" >Tél: </strong>
+                                                    <span t-field="o.company_id.phone"  t-attf-style="color: #{o.company_id.primary_color}"/>
+                                                </div>
+                                            </t>
+                                            <t t-if="o.company_id.email">
+                                                <div>
+                                                    <strong  t-attf-style="color: #{o.company_id.primary_color}">Email: </strong>
+                                                    <span t-field="o.company_id.email" t-attf-style="color: #{o.company_id.primary_color}"/>
+                                                </div>
+                                            </t>
+                                            <t t-if="o.company_id.website">
+                                                <div>
+                                                    <strong t-attf-style="color: #{o.company_id.primary_color}">Web: </strong>
+                                                    <span t-field="o.company_id.website" t-attf-style="color: #{o.company_id.primary_color}"/>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="width:5%;border:0px;"> </td>
+                                <td style="width:50%;border:1px solid #ABABAB;padding:15px;">
+                                    <div style="line-height: 1.5;">
+                                        <strong t-field="o.partner_id"/><br/>
+                                        <div style="margin-top:5px;">
+                                            <t t-if="o.partner_id.street">
+                                                <span t-field="o.partner_id.street"/><br/>
+                                            </t>
+                                            <t t-if="o.partner_id.street2">
+                                                <span t-field="o.partner_id.street2"/><br/>
+                                            </t>
+                                            <t t-if="o.partner_id.city">
+                                                <span t-field="o.partner_id.city"/><br/>
+                                            </t>
+                                            <t t-if="o.partner_id.country_id">
+                                                <span t-field="o.partner_id.country_id"/>
+                                            </t>
+                                        </div>
+                                        <div style="margin-top:10px;">
+                                            <t t-if="o.partner_id.phone">
+                                                <strong>Tél : </strong>
+                                                <span t-field="o.partner_id.phone"/><br/>
+                                            </t>
+                                            <t t-if="o.partner_id.email">
+                                                <strong>E-mail : </strong>
+                                                <span t-field="o.partner_id.email"/><br/>
+                                            </t>
+                                            <t t-if="o.partner_id.ice">
+                                                <strong>ICE : </strong>
+                                                <span t-field="o.partner_id.ice"/>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Check for discount and délai -->
+                        <t t-set="display_discount" t-value="any(l.discount for l in o.order_line)"/>
+                        <t t-set="display_delai" t-value="any(l.ourdelai for l in o.order_line)"/>
+
+<!-- Main Table -->
+<table class="table table-sm" style="margin-top:20px;border:1px solid #ABABAB; font-size: 14px;">
+    <thead>
+        <tr>
+            <th class="text-center" style="width:4%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;">N°</th>
+            <th class="text-left" style="padding:8px;border:1px solid #ABABAB;vertical-align:middle;">Désignation</th>
+            <th class="text-center" style="width:8%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;">Unité</th>
+            <th class="text-center" style="width:8%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;">Qté</th>
+            <th t-if="display_delai" class="text-center" style="width:10%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;">Délai</th>
+            <th class="text-right" style="width:15%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;">P.U. HT</th>
+            <th t-if="display_discount" class="text-right" style="width:8%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;">Remise</th>
+            <th class="text-right" style="width:15%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;">Total HT</th>
+        </tr>
+    </thead>
+    <tbody>
+        <t t-set="current_subtotal" t-value="0"/>
+        <t t-foreach="o.order_line" t-as="line">
+            <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+            <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''" style="height:30px;">
+                <t t-if="not line.display_type">
+                    <td class="text-center" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+                        <span t-esc="line_index + 1"/>
+                    </td>
+                    <td style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+                        <span t-field="line.name"/>
+                    </td>
+                    <td class="text-center" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+                        <span t-field="line.product_uom.name"/>
+                    </td>
+                    <td class="text-center" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+                        <span t-field="line.product_uom_qty"/>
+                    </td>
+                    <td t-if="display_delai" class="text-center" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+                        <span t-field="line.ourdelai"/>
+                    </td>
+                    <td style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px solid #ABABAB;text-align:right !important;">
+                        <span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}'/>
+                    </td>
+                    <td t-if="display_discount" class="text-right" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+                        <span t-esc="str('{0:,.2f}'.format(float(line.discount)).replace(',', ' ')).replace('.', ',')"/>%
+                    </td>
+                    <td style="padding:8px;border:1px solid #ABABAB;text-align:right !important;">
+                        <span t-field="line.price_subtotal" t-options='{"widget": "float", "precision": 2}'/>
+                </td>
+                </t>
+                <t t-if="line.display_type == 'line_section'">
+                    <td colspan="99" style="padding:8px;border-bottom:1px solid #ABABAB;">
+                        <span t-field="line.name"/>
+                    </td>
+                </t>
+                <t t-if="line.display_type == 'line_note'">
+                    <td colspan="99" style="padding:8px;border-bottom:1px dotted #ABABAB;font-style:italic;">
+                        <span t-field="line.name"/>
+                    </td>
+                </t>
+            </tr>
+        </t>
+<!-- Lignes vides avec uniquement les séparations verticales -->
+<t t-set="empty_lines" t-value="max(10 - len(o.order_line), 0)"/>
+<t t-foreach="range(empty_lines)" t-as="i">
+    <tr style="height:25px; border: none;">
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td t-if="display_delai" style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td t-if="display_discount" style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+    </tr>
+</t>
+    </tbody>
+</table>
+
+<!-- Conditions and Totals -->
+<div class="row" style="margin-top:10px;">
+    <div class="col-7">
+        <div style="margin-bottom:5px;">
+            <strong>Conditions de paiement : </strong>
+            <span t-field="o.payment_term_id"/>
+        </div>
+        <div style="margin-bottom:5px;">
+            <strong>Conditions de livraison : </strong>
+            <span t-field="o.incoterm"/>
+        </div>
+        <div style="margin-bottom:5px;">
+            <strong>Date de validité : </strong>
+            <span t-field="o.validity_date" t-options='{"format": "dd/MM/yyyy"}'/><br/>
+        </div>
+        <div t-if="o.note" style="margin-bottom:5px;">
+            <strong>Note : </strong>
+            <span t-field="o.note"/>
+        </div>
+    </div>
+    <div class="col-5">
+        <table class="table table-sm" style="margin-top:5px; margin-bottom:0; width:100%; font-size: 14px; border-collapse: collapse;">
+            <tr style="font-weight: bold; background-color:#F5F5F5;">
+                <td style="padding:2px; border:none;">Total HT</td>
+                <td style="padding:2px; text-align:right; background-color:#F5F5F5; min-width:120px; font-weight: bold; border:none;">
+                    <span t-field="o.amount_untaxed" t-options='{"widget": "float", "precision": 2}'/>
+                    <span t-field="o.pricelist_id.currency_id.symbol"/>
+                </td>
+            </tr>
+            <tr style="background-color:#FAFAFA;">
+                <td style="padding:2px; border:none;">TVA 20%</td>
+                <td style="padding:2px; text-align:right; background-color:#FAFAFA; min-width:120px; border:none;">
+                    <span t-field="o.amount_tax" t-options='{"widget": "float", "precision": 2}'/>
+                    <span t-field="o.pricelist_id.currency_id.symbol"/>
+                </td>
+            </tr>
+            <tr style="font-weight: bold; background-color:#EEEDED;">
+                <td style="padding:2px; border:none;">Total TTC</td>
+                <td style="padding:2px; text-align:right; background-color:#EEEDED; min-width:120px; font-weight: bold; border:none;">
+                    <span t-field="o.amount_total" t-options='{"widget": "float", "precision": 2}'/>
+                    <span t-field="o.pricelist_id.currency_id.symbol"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+                        </div>
+</template>
+
+<!-- Main Template -->
+<template id="report_saleorder_db_without_ref">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+            <t t-call="custom_reports.external_layout_custom">
+                <div class="page">
+                    <t t-call="custom_reports.report_saleorder_db_without_ref_document"/>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+
+    <!-- Report Action -->
+    <record id="action_report_saleorder_db_without_ref" model="ir.actions.report">
+        <field name="name">Offre DB sans ref</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_reports.report_saleorder_db_without_ref</field>
+        <field name="report_file">custom_reports.report_saleorder_db_without_ref</field>
+        <field name="print_report_name">'Devis_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

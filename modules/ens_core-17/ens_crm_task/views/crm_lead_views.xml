@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add "Create Task" button to CRM Lead form -->
+    <record id="view_crm_lead_form_inherit_create_task" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.create.task</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add button in header -->
+            <xpath expr="//header/button[@name='action_set_won_rainbowman']" position="before">
+                <button name="action_create_task_wizard"
+                        string="Create Task"
+                        type="object"
+                        class="oe_highlight"
+                        groups="ens_crm_task.group_crm_task_creator"
+                        invisible="not active or probability == 100"/>
+            </xpath>
+
+            <!-- Add smart button for tasks -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_tasks"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-tasks"
+                        invisible="task_count == 0">
+                    <field name="task_count" widget="statinfo" string="Tasks"/>
+                </button>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

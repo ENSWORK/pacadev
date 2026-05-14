@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Héritage de la vue formulaire société pour ajouter onglets impression -->
+        <record id="view_company_form_print_options" model="ir.ui.view">
+            <field name="name">res.company.form.print.options</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <!-- SAFE: v17 - Ajout onglets impression après l'onglet Partner -->
+                <xpath expr="//notebook" position="inside">
+
+                    <!-- ============================================ -->
+                    <!-- ONGLET IMPRESSION FACTURES                   -->
+                    <!-- ============================================ -->
+                    <page string="Impression Factures" name="print_invoices">
+                        <group>
+                            <group string="Options générales">
+                                <field name="print_inv_layout" widget="radio"/>
+                                <field name="print_inv_show_header"/>
+                                <field name="print_inv_show_signature"/>
+                                <field name="print_inv_show_sequence"/>
+                            </group>
+
+                            <group string="Colonnes et informations">
+                                <field name="print_inv_show_product_ref"/>
+                                <field name="print_inv_show_brand"/>
+                                <field name="print_inv_show_lot_serial"/>
+                                <field name="print_inv_show_payment_terms"/>
+                            </group>
+                        </group>
+
+                        <group>
+                            <group>
+                                <p class="text-muted">
+                                    Configuration par défaut pour l'impression des factures clients, avoirs et factures proforma.
+                                    Ces réglages peuvent être temporairement modifiés via le menu "Imprimer avec options...".
+                                </p>
+                            </group>
+                        </group>
+                    </page>
+
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

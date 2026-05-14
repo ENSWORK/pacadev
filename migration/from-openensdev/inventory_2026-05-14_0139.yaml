@@ -1,0 +1,1009 @@
+metadata:
+  generated_at: '2026-05-14T01:39:17.307454'
+  openensdev_root: /home/abdelali/OpenEnsdev
+  pacadev_root: /home/abdelali/pacadev
+  host: DG-ENSWORK-Ubuntu
+  user: abdelali
+summary:
+  total_clients_with_compose: 16
+  total_filestore_bytes: 146507460
+  total_filestore: 139.7MB
+  secrets_in_clear_count: 14
+  running_containers: 4
+  all_containers: 35
+docker:
+  running_containers:
+  - name: afrequip_odoo_1
+    image: odoo:17
+    status: Up About an hour (healthy)
+    ports: 8071-8072/tcp, 0.0.0.0:8070->8069/tcp, [::]:8070->8069/tcp
+  - name: afrequip_postgres_1
+    image: postgres:15
+    status: Up 5 hours (healthy)
+    ports: 0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp
+  - name: afrequip_redis_1
+    image: redis:7-alpine
+    status: Up 5 hours (healthy)
+    ports: 0.0.0.0:6380->6379/tcp, [::]:6380->6379/tcp
+  - name: traefik
+    image: traefik:v2.11
+    status: Up 5 hours
+    ports: 0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+  all_containers:
+  - name: afrequip_odoo_1
+    image: odoo:17
+    status: Up About an hour (healthy)
+  - name: afrequip_postgres_1
+    image: postgres:15
+    status: Up 5 hours (healthy)
+  - name: afrequip_redis_1
+    image: redis:7-alpine
+    status: Up 5 hours (healthy)
+  - name: d6db287074b7_pacadev_grafana
+    image: grafana/grafana:10.2.0
+    status: Created
+  - name: 54293fc07491_pacadev_promtail
+    image: grafana/promtail:2.9.0
+    status: Created
+  - name: 557b5fb77627_pacadev_prometheus
+    image: prom/prometheus:v2.48.0
+    status: Created
+  - name: 3ece34b6de37_pacadev_loki
+    image: grafana/loki:2.9.0
+    status: Created
+  - name: pacadev_grafana
+    image: grafana/grafana:10.2.0
+    status: Exited (255) 5 hours ago
+  - name: pacadev_prometheus
+    image: prom/prometheus:v2.48.0
+    status: Exited (255) 5 hours ago
+  - name: acmecorp_odoo_dev
+    image: odoo:17
+    status: Exited (255) 5 hours ago
+  - name: acmecorp_db_dev
+    image: postgres:15
+    status: Exited (128) 5 hours ago
+  - name: pacadev_promtail
+    image: grafana/promtail:2.9.0
+    status: Exited (255) 5 hours ago
+  - name: pacadev_loki
+    image: grafana/loki:2.9.0
+    status: Exited (255) 5 hours ago
+  - name: pacadev_afrequip
+    image: odoo:17
+    status: Exited (255) 3 days ago
+  - name: pacadev_client_actif
+    image: odoo:17
+    status: Exited (255) 3 days ago
+  - name: pacadev_client_calme
+    image: odoo:17
+    status: Exited (255) 3 days ago
+  - name: pacadev_postgres
+    image: postgres:14
+    status: Exited (255) 3 days ago
+  - name: afrequip-odoo17
+    image: odoo:17
+    status: Exited (1) 6 days ago
+  - name: odoo_postgres_shared
+    image: postgres:14
+    status: Exited (255) 3 days ago
+  - name: traefik
+    image: traefik:v2.11
+    status: Up 5 hours
+  - name: specta_odoo
+    image: odoo:14.0
+    status: Exited (255) 3 days ago
+  - name: mecafric_odoo
+    image: odoo:17.0
+    status: Exited (255) 3 days ago
+  - name: pacadai_odoo
+    image: odoo:19.0
+    status: Exited (255) 3 days ago
+  - name: sofilair_odoo
+    image: odoo:14.0
+    status: Exited (255) 3 days ago
+  - name: innovation_electrique_odoo
+    image: odoo:14.0
+    status: Exited (255) 3 days ago
+  - name: fime_odoo
+    image: odoo:14.0
+    status: Exited (255) 3 days ago
+  - name: ex_connect_odoo
+    image: odoo:14.0
+    status: Exited (255) 3 days ago
+  - name: enzo_industrie_odoo
+    image: odoo:14.0
+    status: Exited (255) 3 days ago
+  - name: mecafric_water_odoo
+    image: odoo:17.0
+    status: Exited (255) 3 days ago
+  - name: elecap_odoo
+    image: odoo:17.0
+    status: Exited (255) 3 days ago
+  - name: aquaplanet_odoo
+    image: odoo:17.0
+    status: Exited (255) 3 days ago
+  - name: ibtech_odoo
+    image: odoo:17.0
+    status: Exited (255) 3 days ago
+  - name: enswork_odoo
+    image: odoo:17.0
+    status: Exited (255) 3 days ago
+  - name: maxelec_odoo
+    image: odoo:17.0
+    status: Exited (255) 3 days ago
+  - name: portainer
+    image: portainer/portainer-ce:latest
+    status: Exited (128) 25 hours ago
+  networks:
+  - acmecorp_pacadev_net
+  - afrequip_dev_network
+  - bridge
+  - env_default
+  - host
+  - monitoring_default
+  - monitoring_pacadev_monitoring
+  - none
+  - odoo-network
+  - pacadev_shared-network
+  - traefik_traefik-net
+  volumes:
+  - 0a486a11d811a49b91b3ab90458a8cfa85f0f0aa20f3bc12dae5156e80a4740a
+  - 0b8aae2e239d85376f61f540d5af52d5bdd60292feb2861bd9ba98cbd76bd096
+  - 0c2c5c0fd135e8b2819c12130c28457888e5cc2d1808385776c525a8ce0b365a
+  - 0d99551724c7d37512da9fe225dc98607c0eaed1c2251f1d3ac238c06b9e9d1a
+  - 0e5a7c11f44fea2b2a0eef6f63bdcb5215783501d0961b27f2c55006adbe1d2c
+  - 0e9e13688ce94524f0df10aba68af119e6662d4a80d3277ce7de9ca25318c4b4
+  - 0ede503f30f45e04242d81cc10f6578602881a30e0ac0bdfc33c155db26609af
+  - 0fc0b07f8638d5690277e757306d18b7cc2b7dbb665215192e3b6ec38597f36f
+  - 1a0ad3919ddc5f102f54352dc923db3956906a90bf28beddd83278c49b7ee436
+  - 1b38519856119ffeba0eb2028d36f347d9001346e865710e488027cb2e9c39ce
+  - 1e0da796193f4f63a7af16a191e54e443c8f2acaaa995560e881cf579862e76f
+  - 1fb163028403485d097ea49760a987c342ecb49ac60a98d06467dc758f4bce77
+  - 01a693b8b55b9457c53ede9a71e69731435ea14e278f45d4d67edef510eba92e
+  - 2a4cfe6274d712b93752bf7aa1da4ffdee37f12a3e533ea433c1d3b9928497d6
+  - 2a7fd740eb84df175528c3d476703e445172edf56a7d005df8633eb8172037cf
+  - 2a32be90b49ce310fffa0696f3b9d665a9bf1cc6ea45cb3593c7825b382064e0
+  - 2bcbdfd836032c83c3a6529803d53c8c56e111f988830c7a40a64a89dc540de9
+  - 3cd4becc6492b2ac4d69c138e46e04901def74585b946f016c13118e3d14d157
+  - 3d24c51a762f10999c3c74f5054044fb3b6aef38434c1d856894e0ef287c2985
+  - 3d076920c80aa6a229e49611c843d4150aa3ac29df94934bc05baa8643b4f5fb
+  - 3de0df4b583472d9dc32e5714379b93cc2f746fea98eaef90939aa7ff4725bba
+  - 3f504be23d00cbfce39a39a4ea3a597e311702918eddc87c95d70bac8e25d053
+  - 4afce040b67894b37835dd2b544742b8f2ae6bdf06d0fa5639ff9898e8ff08ac
+  - 4ee8fcb86d897a88d13034bf1b20c5aa108fc8f2fe01a5eee1f2fa102797e901
+  - 4ee722b3ae6763b1bfe554a5e7f03b1da665a951d3d83a1ca7586d0a07932a33
+  - 4eee5327380840c3ed0f8f42b398043183b3e2cfe976da806b24c76bfbb5d911
+  - 5ad5e312576848c263706a93a9d4ba5410adc6d302e3063c85017324d3c647d8
+  - 5ad74bc02b7415c184b3c320b0f8ffb7d4b4bb82d0bf6c6253a72dbbd91cfffb
+  - 5e4b87b403cf5f34aa286ae497ef150ea58a4187f95e3a5e4b3a1828f243c02b
+  - 6a34eedff77608bdc7bf249f2ecab9af5549b12536902730a43f7b8416ad6386
+  - 6b3ef786aedae9ef167eb7d710dd61c48df59769961cad6079e644e202d28fe9
+  - 6b58ce71dcb460958f73d81f8b90ac62f7afc9e113336f7d6e5216a43a62213b
+  - 6c3b7b13851422af9c1958aa533ba5ccc5fe5edbe4569abe11ee1f515ac3d545
+  - 6d3fd518ff95f688cf5a99654b4a5498736e1db7374e498f8e05e9839f419c42
+  - 6d29dcd06ea2b72f7164ddfe3e1061676d3edf48ac32c43a67cd3ac702e81675
+  - 6e5eb39889359f86db3c7b2288780c4f7341b52069b8b9ae3269487effd30bc6
+  - 6ed76df65cc0a364aed885bcb3acc8b8d01dd6b37b4f0a338cf57caf78cbc083
+  - 06f31c19a244fff28f9ac6a0c75caf90c0ad5c88a8daf474dafd87b0fe1b51e1
+  - 7ab9cf3b6d676a60bda75b6f2c6c46562f9b922e853d6069b6ed14bd35efb394
+  - 7b7e288353264f6a7751019aecb2f8a59bf49a6a4e879130221b7e7176fd9341
+  - 7cf8f14381daace5005cecad74174101170af49e6434c99b093b9507b9236f43
+  - 7f2b792e31990fe000d5b43a8082e67fbb348a25a502b8613377cf0b8de8ca9d
+  - 7f05e213e4775606be89a2470f9cfe285dda9701d787e718d2c7b149600add54
+  - 7f54ff5e22b5e27ac264614b577859fd6b514cd90f393fa9c795873beb76215b
+  - 8b060b8fe73401063927caf6ca19db9950751820f78e6f6c55d084d31c5d5258
+  - 8c99ac3572636734c8effd7d477918f99fa1945038aa04e0d2995e175a4e5ea7
+  - 8e5f2ed687f1944686b98df5796b868353a3d6c7b81bcee7ded75057389cb027
+  - 9a1a6e857bd4b253620b612b784c3672731b778449fe5eb6f245c282cd47a73a
+  - 9bcff080f7159166708504c19d0dd174e553652370ba1b37cfa71f0ca28d7df5
+  - 9ca6c47dd0d7238b2d81be666b6f14714b086ed41b183c7bb68dc285d4f5b405
+  - 9de292e16223a83606ed6c5a2dd49ca41d7f3196bdf59ad2bf54930ef87f5b0e
+  - 9e956ec8ce131ffbb0078bfd69876cb13537370b4d3754de3d70484719308b50
+  - 9fadd5a7e819c6fbefcd8d0ab3372a1f448bd0b5fdbc1c29ab5ccae9888af3bf
+  - 09ca96f665118f603efe1ca6ab0a92b5c253f4849b4d9100755d9b27167e35ca
+  - 11cb5bb45a865b2ad1159e207bf9823559e6f0bc11155cd6aecb3bb56dde467a
+  - 12e4d0063142a35f5471fe8cc3abc967f3285aa03d665a7371392cde2693fe82
+  - 14d3077fcaeb4511e1b3dafb62045404e0d03cc0f0b08780ddb934cad697469e
+  - 014bd61f445c30022c30a5616e77496702de2e9d46cefdc75015528c3763f2f0
+  - 15ca1bcf65cdccfc82d8df929311c5490642fcbcf4316dd46171da76a6191a25
+  - 18cf04cf1debb2a17b9144d3909386ba2c3e5e865dc9daf1f9e406ab85438e7a
+  - 18dd6836cdef4849815508f9885db2852c5c8251ebcca6bee8d39915bdc1bb82
+  - 19d57f8709cf97ab5f5112fa3df81d4021c759467a2f16a9cf8d816b353de218
+  - 24c5fd0f65c11de4be78faf0ce6b60a6dac8e6780d4132d921cb1750e6230a46
+  - 026fd6ecf43e6d46b2a261c19db1a5aa7d56193ea25ae68154b7a3bb842d919d
+  - 30b70b4fedca02a3c1b76087077670279a585d5f1c89d8b0d5313b3f1c423c7a
+  - 31d5a59d3ba19d597d1137f27c99f9b1cd5a72c3d97c02b534c5c8e1df32383e
+  - 34f3594afb3278befd72dd021d30d901dedc84b68c7c0175dfe40f63a730d3ae
+  - 38c1f143e90b1343bf8471640f203a895256ea0cfa9b6d4c72ddcbc7886f2ef6
+  - 39f2851448185ec2a6b5d3e64ec5eb51e7fadff72c9705bc46b24651be82c06f
+  - 039eb3d4e64926cda2c1df56de30779579de3d5812afd843c84d3d5a73a5e170
+  - 47cf22dcb17b3430dab50c728748aa72326cd8adcc538ced208afc6b4c41bcc1
+  - 49e440e5f882609854e667b90f3d3482f3a61f3f635f04a837a0df593b10f59a
+  - 61c1bc753cdbe3a2d22bfa9914d64ce624befbc0b540ed5e4a3db9dcafdc902f
+  - 62abc6bf44bc69dd67255ff2af0f82e886fef28ac0f381302f552c52cfe1c4d8
+  - 63a1d9cff446e720490c6efb0dc143a9bf6db4b2b5b5b2f631643c0618821101
+  - 66edf0f625a1e684b4ca518c4c2559848b3d6f47bee29fab0b1b3031a4629906
+  - 71eefa2f82567887b2bac6598b5fa9028b168a250caf1d9c729c868351430bef
+  - 75a4eff0d9cea6b7206cbb49a7b84955c5081ebc8bc1622cd862860ad1b2ae1d
+  - 76d6c5a71e3bdb1aadae8026526f08fe478582f5ced915473db91e86ab3cf511
+  - 80cd745deaf26fd419b96bb432f9d96be8e801eb3d6e5f8afc807a9cb40e7376
+  - 82bfba71ce0c2d3658640654d5aaad76324feae0b33ee51a2cd5dcac82650628
+  - 83b1e1d5fb4572990ae9ff167819d1c5c6847df7dcf4a66740cac1f895bef670
+  - 83df8c908d591b970428d965998467561fa3d7e70196d24bd34677c1967b99ff
+  - 87e1dd71f1e0890a2cb06e2bb909a2dad63553b93041db8a384e8532ac05ac97
+  - 91b39d40cd7203daa98da348778c061a00752b82cafeac4e1cb4b0b06db1a8cf
+  - 93ed9a10e6d6578d993681b4eef2f1d3152fd94327926764673e0b24468cee8d
+  - 94a35219c1a426bd567bcb891ceea2546c6b6c8fe0bbf13052729d5bd71e5c91
+  - 136d878f6df13afaac76cd15c7fa48208aebf25bf22d5103225f50d3c595bf4d
+  - 217e6c6137306e04e885145e68d0a50ce21fe9870e397b4b8c93939787659376
+  - 224ae92183fc77e0257881e5a4c25d84ae4a9bf31c22bc0d2f17635973bef255
+  - 268d3ef054e40df531a92e5357645a4b2f1a8c8742c5d5388b50f2ef525b61e2
+  - 0318aaefa2ef11927a5bbe9c1797a8215730d1436e703230defc4194cdc8920b
+  - 332ea78366c56c6a3f27a38b1e304ce4f6a3bee33a59c4e8608d422576a32ff7
+  - 0342f0bb4602656a11713ce0e07f3d3cade7f18cc02c8d66b0b0343eae332f40
+  - 387bab3988fe2a64ff76c95b9e342509411e219a5359f8b5ee4d5358b1b9883f
+  - 00404ea2f56b5055eee44ac0706a74f1170f263403dca54f5825f551e911c446
+  - 437b231cf2e68223b423264209176bb6ac623d54414bc6684e1bbe97de6d8cf0
+  - 463ef579bfa2f2a5e8e381b5254d60c19498bb6733d5524b4809ba2aff3597c3
+  - 571e39027e650add5b3f0ec57dd05e30b6381b371ea86ac8bf770bc64e73059e
+  - 662ca1407cce289e39201a944f0c0ac7272c66dfe8a0270405f72e3b6d3630b3
+  - 695d4db43de55495406f226a323e3f392ea368152546a89d73a5820cb7346a48
+  - 752af674a51fcaf16d826eec1e0a26dd4ba4ea062c3183d395b2525980c47228
+  - 864c0e9400e3f4c7e80a0d88e1d656e21159515de7337d70d1179c998f918335
+  - 865a7e5dd94d2259aff6d79a41dc08d303f596d481443610bea975338fbf931d
+  - 0896ec57562f2cecb8840324b0a98a41dcb9e8a5f0e1610477223cd91b1d7883
+  - 911f0a50219b28c6ee0f02e5e3c612203f5908afa222176aec57ce0ea27c49ee
+  - 984d0dd09cd6816ce2297a66f9857b186b63c6a40554f15287f672ab190b0c23
+  - 999d4760b099cf5506ec9d069e95a070bc22d4f7dc2142a269bb800ea3883366
+  - 1073bb8224c8363d0cc2905e207870d17c3e85c244fe26931e00770ecbaf2246
+  - 1497dda069554c7f2dab99ef900af60ecfe9923523144dfa48b561ababeb115a
+  - 2243c26df4e0a2a56a8c7f51f97c668f5521efce3e61fd1e2c010759a72975b2
+  - 2642a11775ced0f5cd599102f97c9623553c23dd071f3335405dfad8b40d250e
+  - 4133ce412d8e8f9517731123d0108b813064d84a5638183d94791cc1c3ed0eb0
+  - 4204b847d7822422450d97ceb5d6f7a0bb275c3be8d36609850492f4d038ca6e
+  - 4964f661fdbea494b9892083cfd954780739bb4045a71fafc981de79a120473a
+  - 6602b957b89a3d14d2a59c9907fea0324de1ae2bfda6f8d43acd2bf0c1314b0b
+  - 6801c474b3636b6aa263f4105068cf7dc59a56881bcb6db384ddf97a7669c9e7
+  - 8336fa6655341b140be522bac7e0f1ca5cdc5a7c5b202dbcbc7246ba0cf88eb0
+  - 13587f55cf54cfd866f19b48d81bc03c08305d9eac95177b27796f524383a69c
+  - 62532b12078e5f3d6656574e32f817e43c0e356ced5187cce27aad66f276fe5a
+  - 63656d68adf880f3f938a2df1eec9376c425acf9b2caea139621bf88e0d6aa87
+  - 71020c95a51a315acba7b3c449cb351f90b3769d0178baa3cee9b5f3e24779ef
+  - 79250fa8949fb6bb42f98ce644ae5e868343bc904d8b38bf0609f375011abfe1
+  - 080779d87e19bd6b3155b6bd964350350d853f590b2c27f0193bf9299da5a99d
+  - 81233dc34b9fea93497d28f3905c4eefa7899af666119385ab48b6f96b4d78f8
+  - 177705af6e4bc1b57e04d4f34ba8f490400829374219a7cde39fd987a5974b08
+  - 597457bffc62dfc85382090bf39a7c946fee26bbaec30c0163e9378c942fb5c0
+  - 612519fe22acc9c6bdac58dd5c8dd91713127e44c48ab206107e2df82125967c
+  - 664952ff32e9ad7fa92adff74db62f4159a9c5fd006703b5f59efc6db7259802
+  - 2185487d3915e1d30d400dda3a9971b2c673e4fb401b597531984074b2427b1d
+  - 2859793eb8ce088950640db4b2b3011d43f3a76532a0e10905beaa811e015a86
+  - 2944789add11365cbf114fbfd7686fc26c9ed7f32261b1d8e0a5244c3cdd075b
+  - 7752558f96c6a470382be327968d1f18a5a8738f27d26370c0e8b15dec590cd9
+  - 76744971d5cc549b9270bcf59b181657b7a36b0bddc03ebd4fb869154d3bbb5e
+  - 803170476fbcfbe78c52b0772eb51bbdf1f03885a1d127d383a8180fff8ef73a
+  - a4c2b64312cc2dc1f587ded88e586b8c57d3f8aaf7babc98ab3cbbc544030797
+  - a33e6345dc84c94d6ff008a858957f919fb33196f283a7262eff9053cd8c5982
+  - a49a3c252500f8858127d53fa56f0bf3d664477affcb62cb4f677dd1a4593642
+  - a59e02a34ad2c9472386884b65cb28ec99e238b6d5f336af6abdd4307002e2fe
+  - a218ed174208a8700385ddc715efb88268fe3c098d01ba9c17768a625ddc16a1
+  - a529aab9679c77dc9ff05d7fa4271db27c391b99a5b0481cf6372c66ad11fe38
+  - a5531f38c300b19383b266da21632851211bfacfbcce76b687dd7f1b802d74d5
+  - a9216ef1bb8e8fb9247390fcb02a7b5609347a8a65b28307e88d8cf4586fe181
+  - a62996bf15effebb03fe80e6a3d1742d0dcf674bb5e3a010a3bf3f422b9dc104
+  - a368465751a4e422a8b596ed880972cd05cfeb9e089f22158f32c93f667f9cfa
+  - aa852fe2b9133df2b65b4a24dabea84f4279e8816f678e87df5e61a412576205
+  - ac36e1b2c947bf794d34ddd1522a447211f38a9cf33c730bfff029710a80566d
+  - acf4b654a5eef8ee2982715441152655920de4c8cb4b1bf41c3e0b2a4e3cbc70
+  - acmecorp_odoo-web-data
+  - acmecorp_postgres-data
+  - ad485915f2a32164714e262b2b6a9f1a48612bc0feba9cf89818a87ad68ba42e
+  - afb1cbea11605e7a132a93adfa698ac845540160e3b4982a8a607e0f347a7679
+  - aff78b80b2e3ab47b9c7609f538c70b42eb191602dedb347975fa04ad369ffd6
+  - afrequip_afrequip_odoo_data
+  - afrequip_afrequip_postgres_data
+  - afrequip_afrequip_redis_data
+  - b1bb81afcbc3649f53739a99d842a9e64f3371a02273c8b30dbbe3d44ccb486b
+  - b01ef872fa43792b79a1c3a87fb6b8d165d1ee0154fe0d55ac4412e30623bc79
+  - b7f2717f25b50b6f52bb977c2e0aaa17eb5f4fa1f8a4a8fb1a6334e4c3b92fd2
+  - b63dfcc153083f0bf29ffcd8c39edb7f69a167cc295fcd8bba7d8f1b3107263c
+  - b79cb48de2842a2fd5d533b3c0514bf16d25677bd4cff5ee1db7c0533605d7ff
+  - b5406c3ad99503f45b5ca19481851341095644f350c67ffc4dbbb49323847901
+  - ba919596dd0c39f30c0e2b2471eea6d2564a6b48978d8677e2c2226b8160f050
+  - bc1fa6a22682dc89084b11a90a99ce45079e999a3f30d3277e1b5cb0667abf33
+  - bc533183baa4fd5c74f3daad1607d1aade527bd0251e25f0603aee050c6508bf
+  - bd0032d16158ca4c0a346b116ea6df25ac0321cf6da065d72a221b19d4144b03
+  - bd91af3c68163c62af050f3617d8430addd101050365943fe7b2739da97eb4d8
+  - be8a2410cdf81375249ef5adde58022a957ebbd5c25ffecf5d68d37aa4a25393
+  - bff450db4e153f5f0327c84e57d3dae74f40725a69af28786c3a9328cb4f34e8
+  - c1b0cfa418175eaf770c806361b67be42ff2dd4230437bfff73d41dac9a90ca5
+  - c5c4e977386a118348a75250a49749a656dc05e0f792c566e6b499cbcca28c65
+  - c7a0f146ae63d4b957bde283b38212a79d3e3cea91be10da92908fe79860e34f
+  - c7aa76e108410c621239c653d594e781a1858237f7f69b2435fa94fad1f6c3fe
+  - c07a49ecdb3a49e2ebb3ed74dccf6d04909bafa48a688d371b925e917dda9c9e
+  - c9ca16f8afbf0d24cc89201deb23df494abb75d7b7ed6aeca93db83b7cdc63f2
+  - c61cfc3ccc8d2b7c21d4d9e91d232d88c414da3486b2400930a0475f2e32ad1d
+  - c2135bfdd786d52f8afe628ec445c4ed7be406b1cd8b1adf1327a08303c5e672
+  - c7013419fc95a918c47b4dda241cbd34cb11a173952757a4462fad002d73f7fa
+  - cc317fa54f806b33d762d48abae524a4b75d7c56f059f860aef611def4acc3c7
+  - ccaa22d800ccc03fdfa69a16b04b645d44a670b024ac2a7fab353e2c189c200d
+  - ccb3c4bd380d4a7509722611ed7741a72bcbea5494f4e000cd3696f59bb54601
+  - ccf2242061ada65a318a12ac943a2dd5c2e5319214f5fa1d6a0867e5ccd0feb9
+  - d2f1e9f8cb550e5653c2184f1b6c78177b320c373b277fefe96fdd4994ce29c9
+  - d7e33d3565fe62319162701acbf01f504e6944c232fa0421df6d8af8c5dd211e
+  - d9f7306c6acd0103a3c646613dfcc18d02547229ba9db149b9371d198c190ee4
+  - d40ad3b07ed5d57fbb2f213518e70a2f8afd6ee69dd6f1402c427e2517d52d44
+  - d57a3880e23565ad541a787b6f76950d4b52243d820011ec1e2fb02d2aaff35b
+  - d63ce9d23f4131b4b9f6d0ab83eab4587dcf72446ff16b674a9f7beeae66f318
+  - d366d9e709f5eab5782dad5dbaa3ed6b8ecd70af6a259eca79eabb1d96ff0367
+  - d5126c1d541ed7570d2fe4252b27f4f6dcb57875efb8e05702ef702acd1fcfc9
+  - dab8370e488b2eaa6d19da6d5f0de75d6e03c79b5b63745a90e10e46c3bc4214
+  - db0d5273af857ff2901356985fdb1137d327cf7f81e53f82eef36586744990fc
+  - db115a1fc043333d49916936aeadc0d6563e9a786a26136bd160b24ed8c51252
+  - dd638b19778bc0d2d0c9616395f74c0e29144342d543c332e8be2944731a59e3
+  - dea3ec63eb0ec466da9513612fb02e4a4e747844997f06a9c8acfea735783208
+  - debabb6f04b401da02b2fc850eb6acd7593ecc047a3c200e34d000f263f55ea5
+  - ded62e6154185b324d0ef4422387516c96dcaf395559e6ab711afbbcd2ace1b5
+  - def625d24afbcb24af8a592df9306531054c4364afe111b246ecbefa5466cc44
+  - df3be119a2f2d684acbe9133dcccaf0cf622add39f540fa4df61a5927ab6e83f
+  - e4fb66f073e7c20b9f66e5124b7625380b36d626186a31219e94b93be213f1e2
+  - e6b9ce531a3920abe0c05360752eefe6fbcee5b303de6da9ee57ee6cea90effe
+  - e8f633a0c87718bb6b78f75aaed08c2dfaaf9c83aaebd9d1b6af89ea4e281544
+  - e9d143f4e83893ba24cd308b7afe57f2bb6fdfe4a88fe1316d81ae5d2ba27639
+  - e25a27c5d2a11dd85c2170447ed328132771eb58685afad7a021c056e259998f
+  - e146c56c8e44aa0a12807da49d2a05ece81877752d08d34cfc92e215e8878047
+  - eb6f8857b944742f0053b35fdadefac2f3ae76b04469cad87effa3814cbc492c
+  - eb76a608d44927c6de4a9c48a580216823c860a7717012c78675db33c91cc11f
+  - ebd8003f1107f43d18ccd5b27844479fcfed1458d4e60865c3e7e664cd3b91b1
+  - env_db-data
+  - f2bdd5028cda57383bbc4ee592dd6c400d1e77a059c61a2045ac0ff25d13ced3
+  - f2d6580540d9e4319dfd14e0e08e2ec5662d412ca49cc419a79a2d581090ecdf
+  - f2eeba1dc910728dde1afcd1930711bff82669e560df555b9c588a5072f98210
+  - f5af88e4c712223add3188f99336281b79fcf8374f4d88017c1b67c8b8c979b4
+  - f7feeaa8f10945a364daaa1c4ae69e787d1f6019c9531d0043b4cec814eddfd1
+  - f038c1b1c60affceeb13b29696df84f36fd0c52238ffd4d953d939c24ac8e4a0
+  - f99ea393f5e3cab286016c821f1251384a927ceae30226923de6aac935c71572
+  - f6933b700958d2d554e86a8e8675052149a6c82515d26634c582f2deeaf14390
+  - f78647651a752b389fdfb92d23cf9afac021240f41e461541832808bcc62894e
+  - f80172340e9ebccce94869e050ff1aa7201681498fbb4e7f10b7e06cdbe0c587
+  - f8565311401c4b19596f4a5299c656bb6462e7381ca9d95e1e82f199e9d434a1
+  - fa4313a1780bfc9b1340e411fd7188409f9b58b5badd4563d97c96b045b056a3
+  - fb357470815019cf446ac734da9d6286119ac88b8021e2c8301c229fbbea6a51
+  - fccc9f12e722ec3446cfb842fe11ff3e0888ff9ec3ba6bfc7d7bf90357fe1e4c
+  - fe2e1ce033860ba4d15687cdcc51ce5a54f50991d50779cf039771138027b41c
+  - feebe4a3d8df8a36a7bfd0c2128ae68d44912b23c27238e3f1b5e715d716607d
+  - fefa3a8c31ce6979003dbd68c67e9d90a4195c51fc46c5a557ee7dd580c3289a
+  - ff3bcae32baba888be9476e9f59e32383586de337369d868ce7a60321ab3777d
+  - monitoring_grafana_data
+  - monitoring_loki_data
+  - monitoring_prometheus_data
+  - pacadev_postgres_data
+  - portainer_data
+infra:
+  services:
+    postgres:
+      compose_path: /home/abdelali/OpenEnsdev/infra/postgres/docker-compose.yml
+      services:
+        db:
+          image: postgres:14
+          ports: []
+          networks:
+          - odoo-network
+          volumes_count: 1
+    traefik:
+      compose_path: /home/abdelali/OpenEnsdev/infra/traefik/docker-compose.yml
+      services:
+        traefik:
+          image: traefik:v2.11
+          ports:
+          - 80:80
+          - 8080:8080
+          networks:
+          - odoo-network
+          volumes_count: 2
+  scripts:
+    infra/scripts:
+    - configure-ufw-docker.sh
+    - recreate-containers.sh
+    - start-all-clients.sh
+    - verify-ufw-docker.sh
+    scripts:
+    - apply-openensdev-local.sh
+    - setup-orchestration.sh
+modules_ens:
+  v14: []
+  v17:
+  - name: custom_reports
+    version: 17.0.1.44
+    summary: Custom report templates by Enswork
+    depends:
+    - base
+    - web
+    - sale
+    - purchase
+    - stock
+    - account
+    - identifiants_fiscaux_maroc
+    installable: true
+    license: LGPL-3
+  - name: custom_sale_invoice
+    version: 17.0.1.0.0
+    summary: Enhance sale order with direct invoice creation and force sale options
+    depends:
+    - sale
+    - account
+    installable: true
+    license: LGPL-3
+  - name: ens_crm_task
+    version: 17.0.1.1.0
+    summary: Create project tasks from CRM leads/opportunities with history transfer
+    depends:
+    - crm
+    - project
+    - mail
+    installable: true
+    license: OPL-1
+  - name: ens_extra
+    version: 17.0.1.0.0
+    summary: ENS extra Module
+    depends:
+    - base
+    - sale
+    - product
+    installable: true
+    license: LGPL-3
+  - name: ens_reports_print
+    version: 17.0.1.0
+    summary: Impression flexible avec options configurables
+    depends:
+    - base
+    - account
+    installable: true
+    license: '?'
+  - name: enswork_config_center
+    version: '1.0'
+    summary: Centralisation des paramètres et configurations de système ENSWORK
+    depends:
+    - base_setup
+    - web
+    - base
+    - sale_management
+    - purchase
+    - stock
+    installable: true
+    license: LGPL-3
+  v19: []
+clients:
+  '14.0':
+  - name: fime
+    odoo_version: '14.0'
+    path: /home/abdelali/OpenEnsdev/clients/14.0/vps_partage/fime
+    compose:
+      fime_odoo:
+        image: odoo:14.0
+        ports:
+        - 8079:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf: {}
+    secrets_in_clear: []
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets: {}
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: enzo_industrie
+    odoo_version: '14.0'
+    path: /home/abdelali/OpenEnsdev/clients/14.0/vps_partage/enzo_industrie
+    compose:
+      enzo_industrie_odoo:
+        image: odoo:14.0
+        ports:
+        - 8086:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf: {}
+    secrets_in_clear: []
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets: {}
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: ex_connect
+    odoo_version: '14.0'
+    path: /home/abdelali/OpenEnsdev/clients/14.0/vps_partage/ex_connect
+    compose:
+      ex_connect_odoo:
+        image: odoo:14.0
+        ports:
+        - 8087:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf: {}
+    secrets_in_clear: []
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets: {}
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: innovation_electrique
+    odoo_version: '14.0'
+    path: /home/abdelali/OpenEnsdev/clients/14.0/local/innovation_electrique
+    compose:
+      innovation_electrique_odoo:
+        image: odoo:14.0
+        ports:
+        - 8088:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf:
+      addons_path: /mnt/extra-addons/ens_core,/mnt/extra-addons/oca,/mnt/extra-addons/oca_custom
+      data_dir: /var/lib/odoo
+      admin_passwd: <MASKED>
+      list_db: 'True'
+      db_host: odoo_postgres_shared
+      db_port: '5432'
+      db_user: odoo
+      db_password: <MASKED>
+      workers: '0'
+      max_cron_threads: '1'
+    secrets_in_clear:
+    - admin_passwd=<CLAIR>
+    - db_password=<CLAIR>
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets:
+      oca: []
+      ens_core: []
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: specta
+    odoo_version: '14.0'
+    path: /home/abdelali/OpenEnsdev/clients/14.0/local/specta
+    compose:
+      specta_odoo:
+        image: odoo:14.0
+        ports:
+        - 8089:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf:
+      addons_path: /mnt/extra-addons/ens_core,/mnt/extra-addons/oca
+      data_dir: /var/lib/odoo
+      list_db: 'True'
+      dbfilter: ^specta
+      admin_passwd: <MASKED>
+      db_host: odoo_postgres_shared
+      db_port: '5432'
+      db_user: odoo
+      db_password: <MASKED>
+      workers: '0'
+      max_cron_threads: '1'
+    secrets_in_clear:
+    - admin_passwd=<CLAIR>
+    - db_password=<CLAIR>
+    filestore_size_bytes: 7870288
+    filestore_size: 7.5MB
+    addons_buckets:
+      oca: []
+      ens_core:
+      - abs_sales_cancel_reason
+      - access_apps
+      - access_restricted
+      - account_invoice_fixed_discount
+      - account_reconciliation_widget
+      - accounting_pdf_reports
+      - advanced_session_management
+      - app_odoo_customize
+      - auto_backup
+      - auto_database_backup
+      - base_account_budget
+      - bi_convert_purchase_from_sales
+      - bi_crm_claim
+      - bi_professional_reports_templates
+      - bi_sale_purchase_advance_payment
+      - bi_sales_invoice_details
+      - bi_sales_security
+      - bulk_sales_order_confirmation
+      - cx_scheduled_actions_shortcuts
+      - deltatech_sale_commission
+      - deltatech_sale_margin
+      - deltatech_select_journal
+      - dvit_account_journal_restrict
+      - export_stockinfo_xls
+      - hrsft_droit_de_timbre_maroc
+      - hrsft_facture_montant_lettres_qweb
+      - individual_product_report
+      - inputmask_widget
+      - ir_rule_protected
+      - iwesabe_slno_in_sale_order_line
+      - iwesabe_unit_price_readonly
+      - ks_account_dashboard
+      - ks_crm_dashboard_ninja
+      - ks_dashboard_ninja
+      - ks_inventory_dashboard
+      - ks_pos_dashboard_ninja
+      - ks_sale_dashboard_ninja
+      - login_user_detail
+      - mass_cancel_purchase_order
+      - multicolor_backend_theme
+      - ob_customer_credit_limit
+      - om_account_accountant
+      - om_account_asset
+      - om_account_bank_statement_import
+      - om_account_budget
+      - os_price_unit_readonly
+      - ourcustom_commun
+      - ourcustom_commun_v2
+      - ourcustom_enswork
+      - ourcustom_impression
+      - ourcustom_menu_basic
+      - ourcustom_menu_plus_projet
+      - ourcustom_mnt_from_sale
+      - ourcustom_sale_details_in_delivery
+      - ourcustom_settings
+      - ourcustom_slno_in_line
+      - ourcustom_specta
+      - payment_status_in_sale
+      - pragma_customer_auto_ref
+      - product_barcode
+      - product_brand
+      - product_brand_purchase
+      - purchase_order_line_discount
+      - report_qweb_element_page_visibility
+      - rowno_in_tree
+      - sale_customer_product_history
+      - sale_delivery_state
+      - sale_discount_total
+      - sale_due_date_reminder_app
+      - sale_fixed_discount
+      - sale_order_price_list_recalculate
+      - sale_purchase_previous_product_cost
+      - sale_purchase_tax_splitup
+      - sale_revision_history
+      - sales_margin_percentage
+      - sales_quotations_sequences
+      - smile_access_control
+      - sr_discount_limit_for_user
+      - ss_whatsapp_connector
+      - stock_picking_invoice_link
+      - task_deadline_reminder
+      - web_responsive
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: sofilair
+    odoo_version: '14.0'
+    path: /home/abdelali/OpenEnsdev/clients/14.0/local/sofilair
+    compose:
+      sofilair_odoo:
+        image: odoo:14.0
+        ports:
+        - 8091:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf:
+      addons_path: /mnt/extra-addons/ens_core,/mnt/extra-addons/oca,/mnt/extra-addons/oca_custom
+      data_dir: /var/lib/odoo
+      admin_passwd: <MASKED>
+      list_db: 'True'
+      db_host: odoo_postgres_shared
+      db_port: '5432'
+      db_user: odoo
+      db_password: <MASKED>
+      workers: '0'
+      max_cron_threads: '1'
+    secrets_in_clear:
+    - admin_passwd=<CLAIR>
+    - db_password=<CLAIR>
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets:
+      oca: []
+      ens_core: []
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  '17.0':
+  - name: elecap
+    odoo_version: '17.0'
+    path: /home/abdelali/OpenEnsdev/clients/17.0/vps_partage/elecap
+    compose:
+      elecap_odoo:
+        image: odoo:17.0
+        ports:
+        - 8085:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf: {}
+    secrets_in_clear: []
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets: {}
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: ibtech
+    odoo_version: '17.0'
+    path: /home/abdelali/OpenEnsdev/clients/17.0/vps_partage/ibtech
+    compose:
+      ibtech_odoo:
+        image: odoo:17.0
+        ports:
+        - 8083:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf: {}
+    secrets_in_clear: []
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets: {}
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: enswork
+    odoo_version: '17.0'
+    path: /home/abdelali/OpenEnsdev/clients/17.0/vps_partage/enswork
+    compose:
+      enswork_odoo:
+        image: odoo:17.0
+        ports:
+        - 8077:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf: {}
+    secrets_in_clear: []
+    filestore_size_bytes: 11902269
+    filestore_size: 11.4MB
+    addons_buckets: {}
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: aquaplanet
+    odoo_version: '17.0'
+    path: /home/abdelali/OpenEnsdev/clients/17.0/vps_partage/aquaplanet
+    compose:
+      aquaplanet_odoo:
+        image: odoo:17.0
+        ports:
+        - 8084:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf: {}
+    secrets_in_clear: []
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets: {}
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: powerone
+    odoo_version: '17.0'
+    path: /home/abdelali/OpenEnsdev/clients/17.0/vps_dedie/powerone
+    compose:
+      powerone_odoo:
+        image: odoo:17.0
+        ports:
+        - 8093:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf:
+      addons_path: /mnt/extra-addons/ens_core,/mnt/extra-addons/oca,/mnt/extra-addons/oca_custom,/usr/lib/python3/dist-packages/odoo/addons
+      admin_passwd: <MASKED>
+      db_host: odoo_postgres_shared
+      db_port: '5432'
+      db_user: odoo
+      db_password: <MASKED>
+      db_name: ''
+      list_db: 'True'
+      data_dir: /var/lib/odoo
+      workers: '0'
+      max_cron_threads: '1'
+      http_port: '8069'
+    secrets_in_clear:
+    - admin_passwd=<CLAIR>
+    - db_password=<CLAIR>
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets:
+      oca: []
+      ens_core: []
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: mecafric
+    odoo_version: '17.0'
+    path: /home/abdelali/OpenEnsdev/clients/17.0/vps_dedie/mecafric_group/mecafric
+    compose:
+      mecafric_water_odoo:
+        image: odoo:17.0
+        ports:
+        - 8092:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf: {}
+    secrets_in_clear: []
+    filestore_size_bytes: 76046954
+    filestore_size: 72.5MB
+    addons_buckets: {}
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: mecafric_water
+    odoo_version: '17.0'
+    path: /home/abdelali/OpenEnsdev/clients/17.0/vps_dedie/mecafric_group/mecafric_water
+    compose:
+      mecafric_water_odoo:
+        image: odoo:17.0
+        ports:
+        - 8076:8069
+        networks:
+        - odoo-network
+        volumes_count: 5
+    odoo_conf: {}
+    secrets_in_clear: []
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets: {}
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: maxelec
+    odoo_version: '17.0'
+    path: /home/abdelali/OpenEnsdev/clients/17.0/local/maxelec
+    compose:
+      maxelec_odoo:
+        image: odoo:17.0
+        ports:
+        - 8082:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf:
+      addons_path: /mnt/extra-addons/ens_core,/mnt/extra-addons/oca,/mnt/extra-addons/oca_custom
+      data_dir: /var/lib/odoo
+      admin_passwd: <MASKED>
+      list_db: 'True'
+      db_host: odoo_postgres_shared
+      db_port: '5432'
+      db_user: odoo
+      db_password: <MASKED>
+      workers: '0'
+      max_cron_threads: '1'
+    secrets_in_clear:
+    - admin_passwd=<CLAIR>
+    - db_password=<CLAIR>
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets:
+      oca: []
+      ens_core: []
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+  - name: afrequip
+    odoo_version: '17.0'
+    path: /home/abdelali/OpenEnsdev/clients/17.0/local/afrequip
+    compose:
+      afrequip_odoo:
+        image: odoo:17.0
+        ports:
+        - 8078:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf:
+      addons_path: /mnt/extra-addons/ens_core,/mnt/extra-addons/oca,/usr/lib/python3/dist-packages/odoo/addons
+      admin_passwd: <MASKED>
+      db_host: odoo_postgres_shared
+      db_port: '5432'
+      db_user: odoo
+      db_password: <MASKED>
+      db_name: ''
+      list_db: 'True'
+      data_dir: /var/lib/odoo
+      workers: '0'
+      max_cron_threads: '1'
+      http_port: '8069'
+      limit_time_real: '600'
+      limit_time_real_cron: '-1'
+      wkhtmltopdf_params: --disable-plugins --disable-java
+    secrets_in_clear:
+    - admin_passwd=<CLAIR>
+    - db_password=<CLAIR>
+    filestore_size_bytes: 50687949
+    filestore_size: 48.3MB
+    addons_buckets:
+      oca_custom: []
+      oca: []
+      ens_core: []
+    backups_dir_exists: false
+    running_containers:
+    - afrequip_odoo_1
+    - afrequip_postgres_1
+    - afrequip_redis_1
+    container_status:
+      afrequip_odoo_1: Up About an hour (healthy)
+      afrequip_postgres_1: Up 5 hours (healthy)
+      afrequip_redis_1: Up 5 hours (healthy)
+  '19.0':
+  - name: pacadai
+    odoo_version: '19.0'
+    path: /home/abdelali/OpenEnsdev/clients/19.0/local/pacadai
+    compose:
+      pacadai_odoo:
+        image: odoo:19.0
+        ports:
+        - 8094:8069
+        networks:
+        - odoo-network
+        volumes_count: 4
+    odoo_conf:
+      addons_path: /mnt/extra-addons/ens_core,/mnt/extra-addons/oca,/mnt/extra-addons/oca_custom
+      data_dir: /var/lib/odoo
+      admin_passwd: <MASKED>
+      list_db: 'True'
+      db_host: odoo_postgres_shared
+      db_port: '5432'
+      db_user: odoo
+      db_password: <MASKED>
+      workers: '0'
+      max_cron_threads: '1'
+    secrets_in_clear:
+    - admin_passwd=<CLAIR>
+    - db_password=<CLAIR>
+    filestore_size_bytes: 0
+    filestore_size: 0.0B
+    addons_buckets:
+      oca: []
+      ens_core: []
+    backups_dir_exists: false
+    running_containers: []
+    container_status: {}
+runtime_state:
+  ensdev:
+    path: /home/abdelali/.ensdev
+    workflow_tickets:
+    - ticket_11.json
+    - ticket_1.json
+    - ticket_10.json
+    - ticket_8.json
+    - ticket_13.json
+    - ticket_42.json
+    - config.yaml
+    - ticket_9.json
+    history_log_bytes: 2020
+  chroma_db:
+    path: /home/abdelali/OpenEnsdev/cli/ensdev/memory/chroma_db
+    size_bytes: 1626440
+    size: 1.6MB
+postgres_databases:
+  afrequip_postgres_1:
+    image: postgres:15
+    databases:
+    - name: afr
+      size_bytes: 156966247
+      size: 149.7MB
+    - name: afrequip
+      size_bytes: 42016103
+      size: 40.1MB
+    - name: postgres
+      size_bytes: 7667047
+      size: 7.3MB

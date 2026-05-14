@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ajouter les options d'impression au bon de livraison -->
+    <record id="view_picking_form_inherit_print_options" model="ir.ui.view">
+        <field name="name">stock.picking.form.print.options</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Options d'impression" name="print_options">
+                    <group>
+                        <group string="Affichage">
+                            <field name="print_with_header"/>
+                            <field name="print_with_ref"/>
+                            <field name="print_with_line_number"/>
+                            <field name="print_with_visa"/>
+                            <field name="print_with_price"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
