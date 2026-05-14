@@ -11,7 +11,7 @@ services:
       HOST: pacadev_postgres_shared
       PORT: "5432"
       USER: odoo
-      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      PASSWORD: odoo
     ports:
       - "8070:8069"
     volumes:
@@ -19,15 +19,7 @@ services:
       - ./addons/oca:/mnt/extra-addons/oca:ro
       - ./addons/ens_core:/mnt/extra-addons/ens_core:ro
       - /home/abdelali/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core_shared:ro
-    command: >
-      odoo
-      --db_host=pacadev_postgres_shared
-      --db_port=5432
-      --db_user=odoo
-      --db_password=${POSTGRES_PASSWORD:-odoo}
-      --addons-path=/mnt/extra-addons/oca,/mnt/extra-addons/ens_core,/mnt/extra-addons/ens_core_shared,/usr/lib/python3/dist-packages/odoo/addons
-      --limit-time-real=600
-      --limit-time-cpu=600
+      - ./odoo.conf:/etc/odoo/odoo.conf:ro
     restart: unless-stopped
     labels:
       - traefik.enable=true
