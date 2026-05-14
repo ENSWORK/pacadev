@@ -60,3 +60,8 @@ v*/clients/*/erpdata_*
 
 # Caches Python compilés
 **/__pycache__/
+
+# Mem0 / ChromaDB — données locales (jamais en repo)
+~/.pacadev/memory/
+core/memory/chroma_db/
+core/memory/history.db
