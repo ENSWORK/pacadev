@@ -1,0 +1,41 @@
+# PACADEV — afrequip (Odoo 17)
+# Postgres : pacadev_postgres_shared (port 5434 host)
+# Odoo     : port 8070 host → afrequip.pacadev.local (Traefik)
+# Network  : pacadev-network (externe)
+
+services:
+  afrequip_odoo:
+    image: odoo:17
+    container_name: afrequip_odoo
+    environment:
+      HOST: pacadev_postgres_shared
+      PORT: "5432"
+      USER: odoo
+      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+    ports:
+      - "8070:8069"
+    volumes:
+      - ./filestore:/var/lib/odoo/filestore
+      - ./addons/oca:/mnt/extra-addons/oca:ro
+      - ./addons/ens_core:/mnt/extra-addons/ens_core:ro
+      - /home/abdelali/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core_shared:ro
+    command: >
+      odoo
+      --db_host=pacadev_postgres_shared
+      --db_port=5432
+      --db_user=odoo
+      --db_password=${POSTGRES_PASSWORD:-odoo}
+      --addons-path=/mnt/extra-addons/oca,/mnt/extra-addons/ens_core,/mnt/extra-addons/ens_core_shared,/usr/lib/python3/dist-packages/odoo/addons
+      --limit-time-real=600
+      --limit-time-cpu=600
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.afrequip.rule=Host(`afrequip.pacadev.local`)
+      - traefik.http.services.afrequip.loadbalancer.server.port=8069
+    networks:
+      - pacadev-network
+
+networks:
+  pacadev-network:
+    external: true
