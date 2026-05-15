@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-from . import partner_statement_details
+from . import partner_statement_details  # noqa: F401
