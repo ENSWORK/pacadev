@@ -1,24 +1,21 @@
-name: PACADEV Pipeline - Afrequip
+name: PACADEV Pipeline
 
 on:
   push:
-    branches:
-      - 'dev/**'
+    branches: ['dev/**']
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 env:
-  PYTHON_VERSION: '3.12'
+  PYTHON_VERSION: '3.11'
 
+# ─────────────────────────────────────────────────────────────
+# JOB 1 — LINT  (job id = "lint" requis par branch protection)
+# ─────────────────────────────────────────────────────────────
 jobs:
-  # ─────────────────────────────────────────
-  # JOB 1 — LINT
-  # ─────────────────────────────────────────
   lint:
-    name: Lint (ruff + pylint)
+    name: Lint
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'afrequip') || contains(github.event.pull_request.title, 'AFREQUIP')
     steps:
       - uses: actions/checkout@v4
 
@@ -27,119 +24,204 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
 
-      - name: Install lint tools
-        run: |
-          pip install ruff pylint pylint-odoo
+      - name: Install tools
+        run: pip install ruff
 
-      - name: ruff check
+      - name: Detect ens_core Python files
+        id: files
         run: |
-          ruff check v17/clients/afrequip/addons/custom/ --output-format=github || true
+          FILES=$(find . -path "*/addons/ens_core/*.py" -o -path "*/addons/ens_core/**/*.py" 2>/dev/null | grep -v __pycache__ | tr '\n' ' ')
+          echo "py_files=$FILES" >> $GITHUB_OUTPUT
+          XML=$(find . -path "*/addons/ens_core/*.xml" -o -path "*/addons/ens_core/**/*.xml" 2>/dev/null | tr '\n' ' ')
+          echo "xml_files=$XML" >> $GITHUB_OUTPUT
 
-      - name: pylint check
+      - name: Ruff — style Python
+        if: steps.files.outputs.py_files != ''
+        run: ruff check ${{ steps.files.outputs.py_files }} --output-format=github --select=E,F,W --ignore=E501
+
+      - name: xmllint — validation XML
+        if: steps.files.outputs.xml_files != ''
         run: |
-          pylint v17/clients/afrequip/addons/custom/ \
-            --load-plugins=pylint_odoo \
-            --disable=C0114,C0115,C0116 \
-            --output-format=colorized \
-            || true
+          sudo apt-get install -y libxml2-utils -qq
+          for f in ${{ steps.files.outputs.xml_files }}; do
+            xmllint --noout "$f" && echo "OK: $f" || exit 1
+          done
 
-  # ─────────────────────────────────────────
-  # JOB 2 — TESTS
-  # ─────────────────────────────────────────
-  tests:
-    name: Unit Tests
+  # ─────────────────────────────────────────────────────────────
+  # JOB 2 — TEST  (job id = "test" requis par branch protection)
+  # ─────────────────────────────────────────────────────────────
+  test:
+    name: Test
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'afrequip') || contains(github.event.pull_request.title, 'AFREQUIP')
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
 
-      - name: Install test dependencies
+      - name: Syntax Python (py_compile)
         run: |
-          pip install pytest pytest-cov
+          find . -path "*/addons/ens_core/*.py" -o -path "*/addons/ens_core/**/*.py" \
+            | grep -v __pycache__ \
+            | xargs -I{} python -m py_compile {} \
+            && echo "Syntaxe Python OK"
 
-      - name: Run tests
+      - name: Vérification manifests (__manifest__.py)
         run: |
-          pytest v17/clients/afrequip/addons/custom/partner_statement_report/tests/ \
-            --cov=v17/clients/afrequip/addons/custom/partner_statement_report \
-            --cov-report=term-missing \
-            --cov-report=xml \
-            -v || true
+          python3 - <<'EOF'
+          import ast, glob, sys
+          errors = []
+          for path in glob.glob("**/addons/ens_core/**/__manifest__.py", recursive=True):
+              try:
+                  with open(path) as f:
+                      manifest = ast.literal_eval(f.read())
+                  for key in ("name", "version", "depends", "installable"):
+                      if key not in manifest:
+                          errors.append(f"{path}: clé manquante '{key}'")
+                  version = manifest.get("version", "")
+                  parts = version.split(".")
+                  if len(parts) != 5 or parts[0] != "17":
+                      errors.append(f"{path}: version invalide '{version}' (attendu 17.X.X.X.X)")
+              except Exception as e:
+                  errors.append(f"{path}: {e}")
+          if errors:
+              print("\n".join(errors))
+              sys.exit(1)
+          print(f"Manifests OK ({len(glob.glob('**/addons/ens_core/**/__manifest__.py', recursive=True))} modules)")
+          EOF
 
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: afrequip
-        continue-on-error: true
+      - name: Vérification structure modules ens_core
+        run: |
+          python3 - <<'EOF'
+          import os, sys, glob
+          errors = []
+          for manifest in glob.glob("**/addons/ens_core/**/__manifest__.py", recursive=True):
+              module_dir = os.path.dirname(manifest)
+              if not os.path.exists(os.path.join(module_dir, "__init__.py")):
+                  errors.append(f"{module_dir}: __init__.py manquant")
+          if errors:
+              print("\n".join(errors))
+              sys.exit(1)
+          print("Structure modules OK")
+          EOF
 
-  # ─────────────────────────────────────────
-  # JOB 3 — SECURITY SCAN
-  # ─────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────
+  # JOB 3 — SECURITY
+  # ─────────────────────────────────────────────────────────────
   security:
-    name: Security Scan
+    name: Security
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'afrequip') || contains(github.event.pull_request.title, 'AFREQUIP')
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
 
-      - name: Install security tools
+      - name: Install bandit
+        run: pip install bandit
+
+      - name: Bandit — analyse sécurité Python
         run: |
-          pip install bandit semgrep
+          FILES=$(find . -path "*/addons/ens_core/*.py" -o -path "*/addons/ens_core/**/*.py" 2>/dev/null | grep -v __pycache__)
+          if [ -n "$FILES" ]; then
+            echo "$FILES" | xargs bandit -ll -q --exit-zero
+          else
+            echo "Aucun fichier Python ens_core à analyser"
+          fi
 
-      - name: Bandit security check
-        run: |
-          bandit -r v17/clients/afrequip/addons/custom/partner_statement_report/ -f json -o bandit-report.json || true
+      - name: Détection secrets (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Semgrep scan
-        run: |
-          semgrep --config=p/security-audit \
-            v17/clients/afrequip/addons/custom/partner_statement_report/ \
-            --json > semgrep-report.json || true
-
-  # ─────────────────────────────────────────
-  # JOB 4 — AI RISK SCORE
-  # ─────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────
+  # JOB 4 — AI-RISK
+  # ─────────────────────────────────────────────────────────────
   ai-risk:
-    name: AI Risk Analysis
+    name: AI Risk
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'afrequip') || contains(github.event.pull_request.title, 'AFREQUIP')
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Calculate AI Risk Score
+      - name: Calcul score de risque IA
+        id: risk
         run: |
-          echo "::notice::AI Risk Score: 0.2/1.0 (Faible)"
-          echo "- Schema Changes: 0"
-          echo "- Security Issues: 0"
-          echo "- Dependency Changes: 1"
-          echo "- Business Logic: 2"
-          echo "✅ Auto-merge possible"
+          BASE=${{ github.event.pull_request.base.sha }}
+          HEAD=${{ github.event.pull_request.head.sha }}
 
-  # ─────────────────────────────────────────
-  # JOB 5 — SUMMARY
-  # ─────────────────────────────────────────
+          AI_COMMITS=$(git log $BASE..$HEAD --format="%B" | grep -c "Co-Authored-By: Claude" || true)
+          INSERTIONS=$(git diff --stat $BASE..$HEAD | tail -1 | grep -oP '\d+(?= insertion)' || echo 0)
+          DELETIONS=$(git diff --stat $BASE..$HEAD | tail -1 | grep -oP '\d+(?= deletion)' || echo 0)
+          FILES_CHANGED=$(git diff --name-only $BASE..$HEAD | wc -l)
+          PY_CHANGED=$(git diff --name-only $BASE..$HEAD | grep -c '\.py$' || true)
+          XML_CHANGED=$(git diff --name-only $BASE..$HEAD | grep -c '\.xml$' || true)
+
+          # Scoring : 0 (faible) → 10 (critique)
+          SCORE=0
+          [ "$AI_COMMITS" -gt 0 ] && SCORE=$((SCORE + 2))
+          [ "$AI_COMMITS" -gt 3 ] && SCORE=$((SCORE + 1))
+          [ "$INSERTIONS" -gt 300 ] && SCORE=$((SCORE + 2))
+          [ "$INSERTIONS" -gt 1000 ] && SCORE=$((SCORE + 2))
+          [ "$PY_CHANGED" -gt 5 ] && SCORE=$((SCORE + 1))
+          [ "$FILES_CHANGED" -gt 20 ] && SCORE=$((SCORE + 1))
+
+          if [ "$SCORE" -le 3 ]; then LEVEL="🟢 Faible"
+          elif [ "$SCORE" -le 6 ]; then LEVEL="🟡 Moyen"
+          else LEVEL="🔴 Élevé"; fi
+
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "level=$LEVEL" >> $GITHUB_OUTPUT
+          echo "ai_commits=$AI_COMMITS" >> $GITHUB_OUTPUT
+          echo "insertions=$INSERTIONS" >> $GITHUB_OUTPUT
+          echo "files=$FILES_CHANGED" >> $GITHUB_OUTPUT
+
+      - name: Rapport de risque
+        run: |
+          {
+            echo "## 🤖 AI Risk Assessment"
+            echo "| Indicateur | Valeur |"
+            echo "|---|---|"
+            echo "| Commits IA | ${{ steps.risk.outputs.ai_commits }} |"
+            echo "| Lignes ajoutées | ${{ steps.risk.outputs.insertions }} |"
+            echo "| Fichiers modifiés | ${{ steps.risk.outputs.files }} |"
+            echo "| **Score** | **${{ steps.risk.outputs.score }}/10** |"
+            echo "| **Niveau** | **${{ steps.risk.outputs.level }}** |"
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Bloquer si risque élevé
+        if: steps.risk.outputs.score >= 8
+        run: |
+          echo "Score IA ${{ steps.risk.outputs.score }}/10 — revue manuelle obligatoire avant merge"
+          exit 1
+
+  # ─────────────────────────────────────────────────────────────
+  # RÉSUMÉ
+  # ─────────────────────────────────────────────────────────────
   summary:
     name: Pipeline Summary
     runs-on: ubuntu-latest
-    needs: [lint, tests, security, ai-risk]
+    needs: [lint, test, security, ai-risk]
     if: always()
     steps:
-      - name: Summarize Results
+      - name: Résumé
         run: |
-          echo "✅ PACADEV Pipeline - Afrequip"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "✅ Lint: PASSED"
-          echo "✅ Tests: PASSED"
-          echo "✅ Security: PASSED"
-          echo "✅ AI Risk: 0.2/1.0 (Faible)"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "🚀 Ready for Staging Deployment"
+          echo "lint    : ${{ needs.lint.result }}"
+          echo "test    : ${{ needs.test.result }}"
+          echo "security: ${{ needs.security.result }}"
+          echo "ai-risk : ${{ needs.ai-risk.result }}"
+          if [[ "${{ needs.lint.result }}" == "failure" || \
+                "${{ needs.test.result }}" == "failure" || \
+                "${{ needs.security.result }}" == "failure" || \
+                "${{ needs.ai-risk.result }}" == "failure" ]]; then
+            echo "❌ Pipeline échoué"
+            exit 1
+          fi
+          echo "✅ Pipeline OK — prêt pour test manuel"
