@@ -63,7 +63,7 @@ def devcontainer(
     if not env_example.exists() or force:
         env_example.write_text(
             "DB_PASSWORD=dev_password\n"
-            "ADMIN_PASSWORD=admin\n"
+            "ADMIN_PASSWORD=123456\n"
             "ANTHROPIC_API_KEY=sk-ant-api03-CHANGE_ME\n"
         )
         console.print("[green]   ✅ .env.example[/green]")

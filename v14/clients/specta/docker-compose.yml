@@ -1,0 +1,42 @@
+# Auto-généré par migration/from-openensdev/04_migrate_client.py
+# Client : specta  (Odoo 14)  port host : 8089
+# v14 : tous les modules sont dans addons/ens_core local.
+#
+# Prérequis :
+#   - infra pacadev démarrée : pacadev infra start
+#   - DB 'specta_prod' existante dans pacadev_postgres_shared
+#   - Secrets injectés via : eval $(sops -d core/secrets/specta.enc.yaml | yq ...)
+#
+services:
+  specta_odoo:
+    image: odoo:14.0
+    container_name: specta_odoo
+    environment:
+      HOST: pacadev_postgres_shared
+      USER: ${POSTGRES_USER:-odoo}
+      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      DB_NAME: specta_prod
+      ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?Set via sops -d core/secrets/specta.enc.yaml}
+    volumes:
+      - ./addons/ens_core:/mnt/extra-addons/ens_core:ro
+      - ./config:/etc/odoo
+      - ./filestore:/var/lib/odoo/filestore
+    ports:
+      - "8089:8069"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - pacadev-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.specta.rule=Host(`specta.pacadev.local`)"
+      - "traefik.http.routers.specta.entrypoints=web"
+      - "traefik.http.services.specta.loadbalancer.server.port=8069"
+
+networks:
+  pacadev-network:
+    external: true

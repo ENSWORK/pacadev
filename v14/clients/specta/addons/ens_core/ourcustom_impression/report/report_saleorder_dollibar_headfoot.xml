@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_saleorder_dollibar_headfoot">
+        <t t-set="company" t-value="user.company_id" />
+        <div class="header" >
+            <div>
+                <style>
+                   #informations {
+                        display: block;
+                        }
+                   .m-0{
+                        display:inline;
+                         }
+                   strong,p,span{
+                        color:black;
+                        }
+               </style>
+                <div class="row mb8">
+                    <div class="col-6">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 250px; max-height: 100px;"/>
+                    </div>
+                     <div class="col-6 text-right mb4">
+                         <div style="font-size:17px;">
+                            <t t-if="env.context.get('proforma', False) or is_pro_forma">
+                                <strong style="color:#0D0446">Pro-Forma Invoice </strong>
+                            </t>
+                             <t t-if="is_bon_commande_vente">
+                                 <strong style="color:#0D0446">Bon Commande</strong>
+                             </t>
+                            <t t-else="">
+                                <strong t-if="doc.state not in ['draft','sent']" style="color:#0D0446">Offre Commerciale</strong>
+                                <!--<span t-if="doc.state in ['draft','sent']">Quotation # </span>-->
+                                <strong t-if="doc.state in ['draft','sent']" style="color:#0D0446" >Offre Commerciale</strong>
+                            </t>
+                             <br/>
+                             <strong style="color:#0D0446">N° </strong>
+                             <strong class="m-0" t-field="doc.name" style="color:#0D0446"/>
+
+                        </div>
+                          <div style="font-size:13px">
+                              <strong style="color:#0D0446">Date:</strong>
+                              <p class="m-0" t-field="doc.date_order" t-options='{"format" : "dd/MM/yyyy"}' style="color:#0D0446"/>
+                          </div>
+                         <div  style="font-size:13px">
+                             <strong style="color:#0D0446">Client N° : </strong><p class="m-0" t-field="doc.partner_id.ref" style="color:#0D0446"/>
+                         </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <style>
+            hr.newhr{
+                border: 1px solid #ABABAB;
+                margin-top:0px;
+                padding-top:0px;}
+            p{
+                font-size:10px;}
+            </style>
+                    <hr class="newhr" />
+            <center><strong><p style="font-size:11px;margin-top:-10px;"  t-field="company.report_footer"></p></strong></center>
+             <div style="text-align:right;margin-top:-19px;color:black;font-size:10px" t-if="report_type == 'pdf'">
+                 <span class="page"/> / <span class="topage"/>
+             </div>
+
+        </div>
+    </template>
+</odoo>

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <template id="ourstock_report_delivery_aggregated_move_lines_pr">
+        <tr t-foreach="aggregated_lines" t-as="line">
+            <td style="vertical-align:middle;width:4%" class="text-center">
+                <span t-esc="aggregated_lines[line]['sl_no']" style="color:black"/>
+            </td>
+            <td style="vertical-align:middle;width:11%">
+                <span t-if="aggregated_lines[line]['default_code']" t-esc="aggregated_lines[line]['default_code']" style="color:black"/>
+            </td>
+            <td style="vertical-align:middle">
+                <!-- Impression de La désignation comamnde au lieu du nom de l'article -->
+                    <span t-esc="aggregated_lines[line]['ourname']" style="color:black" t-options="{'widget': 'text'}"/>
+            </td>
+
+            <td class="text-center" style="text-align:center; vertical-align:middle;width:7%" name="move_line_aggregated_qty_done">
+                 <!--<span t-esc="aggregated_lines[line]['qty_done']" style="color:black"/>-->
+                 <!-- <span t-esc="str('%.2f'% aggregated_lines[line]['qty_done']).replace('.', ',')"  style="color:black"/> -->
+                 <span t-esc="str('{0:,.2f}'.format(float(aggregated_lines[line]['qty_done'])).replace(',', ' ')).replace('.', ',')" style="color:black"/>
+            </td>
+            <td class="text-center" style="text-align:center; vertical-align:middle;width:6%" name="move_line_aggregated_uom">
+                <span t-esc="aggregated_lines[line]['product_uom']" style="color:black"/>
+            </td>
+            <td class="text-center" style="text-align:center; vertical-align:middle;width:11%" name="move_line_aggregated_price_unit">
+                 <!-- <span t-esc="aggregated_lines[line]['pr_sale']" style="color:black"/>-->
+                 <!-- <span t-esc="str('%.2f'% aggregated_lines[line]['pr_sale']).replace('.', ',')" style="color:black"/> -->
+                 <span t-esc="str('{0:,.2f}'.format(float(aggregated_lines[line]['pr_sale'])).replace(',', ' ')).replace('.', ',')" style="color:black"/>
+            </td>
+            <td class="text-center" style="text-align:center; vertical-align:middle;width:11%" name="move_line_aggregated_price_subtotal">
+                 <!--<span t-esc="aggregated_lines[line]['pr_subtotal_sale']" style="color:black"/>-->
+                 <!--<span t-esc="str('%.2f'% aggregated_lines[line]['pr_subtotal_sale']).replace('.', ',')" style="color:black"/> -->
+                 <span t-esc="str('{0:,.2f}'.format(float(aggregated_lines[line]['pr_subtotal_sale'])).replace(',', ' ')).replace('.', ',')" style="color:black"/>
+            </td>
+        </tr>
+        </template>
+    </data>
+</odoo>
+

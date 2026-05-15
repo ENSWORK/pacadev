@@ -1,0 +1,43 @@
+# Auto-généré par migration/from-openensdev/04_migrate_client.py
+# Client : mecafric  (Odoo 17)  port host : 8092
+# v17 : ens_core bind externe vers pacadev/modules/ens_core-17/.
+#
+# Prérequis :
+#   - infra pacadev démarrée : pacadev infra start
+#   - DB 'mecafric_prod' existante dans pacadev_postgres_shared
+#   - Secrets injectés via : eval $(sops -d core/secrets/mecafric.enc.yaml | yq ...)
+#
+services:
+  mecafric_odoo:
+    image: odoo:17.0
+    container_name: mecafric_odoo
+    environment:
+      HOST: pacadev_postgres_shared
+      USER: ${POSTGRES_USER:-odoo}
+      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      DB_NAME: mecafric_prod
+      ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?Set via sops -d core/secrets/mecafric.enc.yaml}
+    volumes:
+      - /home/abdelali/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core:ro
+      - ./addons/oca:/mnt/extra-addons/oca:ro
+      - ./config:/etc/odoo
+      - ./filestore:/var/lib/odoo/filestore
+    ports:
+      - "8092:8069"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - pacadev-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mecafric.rule=Host(`mecafric.pacadev.local`)"
+      - "traefik.http.routers.mecafric.entrypoints=web"
+      - "traefik.http.services.mecafric.loadbalancer.server.port=8069"
+
+networks:
+  pacadev-network:
+    external: true

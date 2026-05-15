@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--Create Menu Accueil-->
+    <menuitem
+            id="our_menu_accueil_root"
+            name="Accueil"
+            sequence="0"
+            web_icon="ourcustom_menu,static/images/accueil.png"/>
+
+        <!--Tableau de bord-->
+        <menuitem id="our_menu_tableau"
+                  name="Tableau de bord"
+                  action="board.open_board_my_dash_action"
+                  parent="our_menu_accueil_root" sequence="0"/>
+        <!--Discussion-->
+        <menuitem id="our_menu_discussion"
+                  name="Discussion"
+                  action="mail.action_discuss"
+                  parent="our_menu_accueil_root" sequence="1"/>
+        <!--Calendrier-->
+        <menuitem id="our_menu_calendrier"
+                  name="Calendrier"
+                  action="calendar.action_calendar_event"
+                  parent="our_menu_accueil_root" sequence="2"/>
+
+
+</odoo>

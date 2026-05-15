@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  specta_odoo:
+    image: odoo:14.0
+    container_name: specta_odoo
+    environment:
+      - HOST=odoo_postgres_shared
+      - USER=odoo
+      - PASSWORD=odoo
+      - DB_NAME=specta_prod
+    volumes:
+      - ./addons/ens_core:/mnt/extra-addons/ens_core
+      - ./addons/oca:/mnt/extra-addons/oca
+      - ./config:/etc/odoo
+      - ./filestore:/var/lib/odoo/filestore
+    ports:
+      - "8089:8069"
+    restart: unless-stopped
+    networks:
+      - odoo-network
+    command: >
+      bash -c "
+        pip3 install --no-deps paramiko -q &&
+        sleep 30 &&
+        odoo -c /etc/odoo/odoo.conf
+      "
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.specta.rule=Host(`specta.odoo.localhost`)"
+      - "traefik.http.routers.specta.entrypoints=web"
+      - "traefik.http.services.specta.loadbalancer.server.port=8069"
+networks:
+  odoo-network:
+    external: true

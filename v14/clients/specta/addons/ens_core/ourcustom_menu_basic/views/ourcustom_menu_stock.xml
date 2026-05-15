@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Create New Menu Stock-->
+    <menuitem
+        id="our_menu_stock_root"
+        name="Stock"
+        sequence="8"
+        groups="stock.group_stock_manager,stock.group_stock_user"
+        web_icon="ourcustom_menu,static/images/inventaire.png"/>
+
+        <!--Vue D'ensemble-->
+        <menuitem id="our_menu_stock_vue_densemble"
+                  name="Vue D'ensemble"
+                  action="stock.stock_picking_type_action"
+                  groups="stock.group_stock_manager"
+                  parent="our_menu_stock_root" sequence="0"/>
+
+        <!--Action for 'Receptions' Menu-->
+        <record id="our_action_picking_tree_receptions" model="ir.actions.act_window">
+                <field name="name">Réceptions</field>
+                <field name="res_model">stock.picking</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="view_mode">tree,kanban,form,calendar</field>
+                <field name="domain">[('picking_type_code', '=', 'incoming')]</field>
+                <field name="context">{'contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0]}</field>
+                <field name="search_view_id" ref="stock.view_picking_internal_search"/>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No transfer found. Let's create one!
+                    </p><p>
+                        Transfers allow you to move products from one location to another.
+                    </p>
+                </field>
+            </record>
+        <!--Réceptions-->
+        <menuitem id="our_menu_receptions"
+                  name="Réceptions"
+                  action="our_action_picking_tree_receptions"
+                  groups="stock.group_stock_manager"
+                  parent="our_menu_stock_root" sequence="1"/>
+
+
+        <!--Action for 'Livraison' Menu-->
+        <record id="our_action_picking_tree_livraison" model="ir.actions.act_window">
+                <field name="name">Livraisons</field>
+                <field name="res_model">stock.picking</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="view_mode">tree,kanban,form,calendar</field>
+                <field name="domain">[('picking_type_code', '=', 'outgoing')]</field>
+                <field name="context">{'contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0]}</field>
+                <field name="search_view_id" ref="stock.view_picking_internal_search"/>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No transfer found. Let's create one!
+                    </p><p>
+                        Transfers allow you to move products from one location to another.
+                    </p>
+                </field>
+            </record>
+        <!--Livraisons-->
+        <menuitem id="our_menu_livraisons"
+                  name="Livraisons"
+                  action="our_action_picking_tree_livraison"
+                  groups="stock.group_stock_manager"
+                  parent="our_menu_stock_root" sequence="2"/>
+
+
+
+        <!--Action for 'Transferts Internes' Menu-->
+        <record id="our_action_picking_tree_transferts_internes" model="ir.actions.act_window">
+                <field name="name">Transferts Internes</field>
+                <field name="res_model">stock.picking</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="view_mode">tree,kanban,form,calendar</field>
+                <field name="domain">[('picking_type_code', '=', 'internal')]</field>
+                <field name="context">{'contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0]}</field>
+                <field name="search_view_id" ref="stock.view_picking_internal_search"/>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No transfer found. Let's create one!
+                    </p><p>
+                        Transfers allow you to move products from one location to another.
+                    </p>
+                </field>
+            </record>
+        <!--Transfers Internes-->
+        <menuitem id="our_menu_transferts_internes"
+                  name="Transferts Internes"
+                  action="our_action_picking_tree_transferts_internes"
+                  groups="stock.group_stock_user"
+                  parent="our_menu_stock_root" sequence="3"/>
+
+
+        <!--Inventaire-->
+        <menuitem id="our_menu_inventaire"
+                  name="Inventaire"
+                  action="stock.action_inventory_form"
+                  parent="our_menu_stock_root" sequence="5"
+                  groups="stock.group_stock_manager"/>
+
+
+        <!--Analyse Added on 07/05/2022 -->
+        <menuitem id="our_menu_inv_analyse"
+                  name="Analyse"
+                  action="stock.action_inventory_form"
+                  parent="our_menu_stock_root"
+                  sequence="90" groups="stock.group_stock_manager"/>
+
+                <menuitem id="our_menu_report" name="Rapport d'inventaire" parent="our_menu_inv_analyse" sequence="100" action="stock.action_view_quants"/>
+                <menuitem id="our_menu_valuation" name="Valorisation de l'inventaire" parent="our_menu_inv_analyse" sequence="110" action="stock_account.stock_valuation_layer_action"/>
+                <menuitem id="our_menu_forecast_inventory" name="Inventaire planifié" parent="our_menu_inv_analyse" sequence="101" action="stock.report_stock_quantity_action"/>
+                <menuitem id="our_stock_move_line_menu" name="Mouvements de produits" action="stock.stock_move_line_action" parent="our_menu_inv_analyse" sequence="150"/>
+                <menuitem id="stock_move_menu" name="Mouvements de stocks" parent="our_menu_inv_analyse" action="stock.stock_move_action" sequence="140" groups="base.group_no_one"/>
+        <!--Configuration-->
+        <menuitem
+                id="our_menu_stock_config_settings"
+                name="Configuration"
+                parent="our_menu_stock_root"
+                sequence="100" groups="stock.group_stock_manager"/>
+
+                <menuitem
+                        id="our_menu_stock_general_settings"
+                        name="Configuration" parent="our_menu_stock_config_settings"
+                        sequence="0"
+                        action="stock.action_stock_config_settings"
+                        groups="base.group_system"/>
+                 <menuitem
+                         id="our_menu_warehouse_config"
+                         name="Gestion d'entrepôt"
+                         parent="our_menu_stock_config_settings"
+                         groups="stock.group_stock_manager"
+                         sequence="1"/>
+                        <menuitem
+                                id="our_menu_action_warehouse_form"
+                                name="Entrepôts"
+                                action="stock.action_warehouse_form"
+                                parent="our_menu_warehouse_config" sequence="1"/>
+                        <menuitem
+                                id="our_menu_action_location_form"
+                                name="Emplacements"
+                                action="stock.action_location_form"
+                                parent="our_menu_warehouse_config"
+                                sequence="2" groups="stock.group_stock_multi_locations"/>
+                        <menuitem
+                                id="our_menu_pickingtype"
+                                name="Types d'opérations"
+                                parent="our_menu_warehouse_config"
+                                action="stock.action_picking_type_list" sequence="4"/>
+                        <menuitem
+                                id="our_menu_putaway"
+                                name="Stratégies de rangement"
+                                parent="our_menu_warehouse_config"
+                                action="stock.action_putaway_tree" sequence="5"
+                                groups="stock.group_stock_multi_locations"/>
+                        <menuitem
+                                id="our_menu_action_rules_form"
+                                name="Règles"
+                                action="stock.action_rules_form"
+                                parent="our_menu_warehouse_config"
+                                sequence="2" groups="stock.group_adv_location"/>
+                        <menuitem
+                                id="our_menu_routes_config"
+                                action="stock.action_routes_form"
+                                name="Routes"
+                                parent="our_menu_warehouse_config" sequence="3"
+                                groups="stock.group_adv_location"/>
+
+                <menuitem
+                        id="our_menu_product_in_config_stock"
+                        name="Articles"
+                        parent="our_menu_stock_config_settings" sequence="4"/>
+                        <menuitem
+                            id="our_menu_product_category_config_stock"
+                            name="Catégories d'articles"
+                            action="product.product_category_action_form"
+                            parent="our_menu_product_in_config_stock" sequence="2"/>
+                        <menuitem
+                            id="our_menu_attribute_action"
+                            name="Caractéristiques"
+                            action="product.attribute_action"
+                            parent="our_menu_product_in_config_stock" sequence="4"
+                            groups="product.group_product_variant"/>
+                        <menuitem
+                            id="our_menu_reordering_rules_config"
+                            action="stock.action_orderpoint"
+                            name="Règles de réapprovisionnement"
+                            parent="our_menu_product_in_config_stock" sequence="10"/>
+                        <menuitem
+                            id="our_menu_wms_barcode_nomenclature_all"
+                            name="Nomenclatures des codes-barres"
+                            parent="our_menu_product_in_config_stock"
+                            action="barcodes.action_barcode_nomenclature_form"
+                            sequence="50" groups="base.group_no_one"/>
+                        <menuitem
+                            id="our_menu_stock_unit_measure_stock"
+                            name="Unités de mesure"
+                            parent="our_menu_product_in_config_stock"  sequence="35"
+                            groups="uom.group_uom"/>
+                        <menuitem
+                            id="our_menu_product_packagings"
+                            name="Conditionnements de produits"
+                            parent="our_menu_product_in_config_stock"
+                            action="product.action_packaging_view"
+                            groups="product.group_stock_packaging"/>
+
+                <menuitem
+                        id="our_product_uom_menu"
+                        name="Unités de mesure"
+                        parent="our_menu_stock_config_settings"
+                        sequence="5" groups="uom.group_uom"/>
+                        <menuitem
+                                id="our_menu_stock_uom_categ_form_action"
+                                action="uom.product_uom_categ_form_action"
+                                name="Catégories UdM"
+                                parent="our_product_uom_menu" sequence="5"/>
+                        <menuitem
+                                id="our_menu_stock_uom_form_action"
+                                action="uom.product_uom_form_action"
+                                name="UdM"
+                                parent="our_product_uom_menu" sequence="35"/>
+
+
+
+
+</odoo>

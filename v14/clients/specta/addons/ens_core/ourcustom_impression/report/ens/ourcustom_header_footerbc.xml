@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ourcustom_header_footerbc">
+        <t t-set="company" t-value="user.company_id" />
+        <div class="header">
+            <div>
+                <style>
+                   #informations {
+                        display: block;
+                        }
+                   .m-0{
+                        display:inline;
+                         }
+                   strong,p,span{
+                        color:black;
+                        }
+               </style>
+                <div class="row mb8">
+                    <div class="col-6">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 180px; max-height: 100px;"/>
+                    </div>
+                    <div class="col-6 text-right mb4">
+                        <h6 class="mt0" style="font-size:15px;color:#373737" t-field="company.report_header"/>
+                    </div>
+                </div>
+
+                <div style="margin-left:700px;margin-bottom:0px;color:black;font-size:15px" t-if="report_type == 'pdf'">
+                    Page N°: <span class="page"/> de <span class="topage"/>
+                </div>
+            </div>
+
+            <div class="not-first-page" style="padding-top:-79px" >
+                <style>
+                    div.not{
+                    display:inline-block;
+                    margin-right:9px;}
+                </style>
+                <div class="not">
+                    <p>
+                        <!--<strong style="font-size:17px" t-if="o.state == 'draft'">Request for Quotation N°<span t-field="o.name"/></strong>-->
+                        <strong style="font-size:16px">Bon de Commande N°<span t-field="o.name"/></strong>
+                        <!--<strong style="font-size:17px" t-if="o.state in ['purchase', 'done']">Purchase Order N°<span t-field="o.name"/></strong>
+                        <strong style="font-size:17px" t-if="o.state == 'cancel'">Cancelled Purchase Order N°<span t-field="o.name"/></strong>-->
+                     </p>
+                </div>
+                <div class="not">
+                    <div t-if="o.partner_id.id" style="font-size:14px">
+                        <strong>Fournisseur : </strong>
+                        <span class="m-0" t-field="o.partner_id" />
+                        <t t-if="o.partner_id.ref">
+                            &#032;<strong>N°</strong>&#032;<span class="m-0" t-field="o.partner_id.ref"/>&#032;
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <style>
+            .div_foot{
+                display:inline-block;
+                margin-left:70px;
+                }
+            hr.newhr{
+                border: 1px solid black;
+                margin-top:0px;
+                padding-top:0px;}
+            #hr2{
+                width:700px;
+                margin-top: -0.5em;
+                margin-bottom: -0.1em;
+                }
+            p{
+                font-size:9px;}
+            </style>
+                    <hr class="newhr" />
+            <center><p style="font-size:10px;" t-field="company.report_footer"></p></center>
+        </div>
+    </template>
+</odoo>

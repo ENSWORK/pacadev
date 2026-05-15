@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_enswork_settings_form" model="ir.ui.view">
+            <field name="name">Enswork Settings</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="50"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form" />
+            <field name="groups_id" eval="[(6,0,[ref('ourcustom_settings.group_ens_param')])]"/> <!--Groupe ENS-->
+            <field name="arch" type="xml">
+                <xpath expr="//div[hasclass('settings')]" position="inside">
+                    <div class="app_settings_block" data-string="Enswork" string="ENS" data-key="ourcustom_settings" >
+                        <div class="o_widget">
+                            <div name="impression">
+                                <h2>IMPRESSION</h2>
+                                <div class="row mt16 o_settings_container">
+                                    <div class="col-12 col-lg-6 o_setting_box">
+                                        <div class="o_setting_left_pane">
+                                            <field name="show_bl_num"/>
+                                        </div>
+                                        <div class="o_setting_right_pane">
+                                            <label for="show_bl_num" string="Afficher BL N° sur la facture"/>
+                                            <div class="text-muted" name="bl_text_muted">
+                                                Bl N° s'affichera sur le rapport : 'Factures'
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="o_widget">
+                            <div name="sales">
+                                <h2>VENTES</h2>
+                                <div class="row mt16 o_settings_container">
+                                    <div class="col-12 col-lg-6 o_setting_box">
+                                        <div class="o_setting_left_pane">
+                                            <field name="show_btn_force_inv_status"/>
+                                        </div>
+                                        <div class="o_setting_right_pane">
+                                            <label for="show_btn_force_inv_status" string="Forcer état de la facture"/>
+                                            <div class="text-muted" name="btn_text_muted">
+                                                Boutton "Marqué comme vendue" s'affichera sur les commandes clients.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="o_widget">
+                            <div name="Contacts">
+                                <h2>Contacts</h2>
+                                <div class="row mt16 o_settings_container">
+                                    <div class="col-12 col-lg-6 o_setting_box">
+                                        <div class="o_setting_left_pane">
+                                            <field name="phone_status"/>
+                                        </div>
+                                        <div class="o_setting_right_pane">
+                                            <label for="phone_status" string="Tél Unique/Obligatoire"/>
+                                            <div class="text-muted" name="btn_text_muted">
+                                                Si cochée, le N° de téléphone sera Unique et Obligatoire pour les partenaires "individuels".
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- ACTION -->
+        <record model="ir.actions.act_window" id="enswork_settings_action">
+            <field name="name">Enswork Paramètres</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_id" ref="view_enswork_settings_form"/>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module' : 'ourcustom_settings'}</field>
+        </record>
+        <!-- Menu -->
+        <!--<menuitem
+                id="our_menu_enswork_parametrage"
+                name="Enswork Paramètres"
+                parent="base.menu_administration"
+                action="enswork_parametrage_action"
+                sequence="0"/>-->
+    </data>
+    <!--!!Note: data-key must take same value as "module' in the above declared action->context-->
+</odoo>

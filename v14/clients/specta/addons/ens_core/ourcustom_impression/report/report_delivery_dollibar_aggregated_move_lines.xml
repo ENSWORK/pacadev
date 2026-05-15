@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <template id="report_delivery_dollibar_aggregated_move_lines">
+        <tr t-foreach="aggregated_lines" t-as="line" style="border-color:#ABABAB;height:8mm">
+             <td class="text-center" style="text-align:center;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:4%" name="move_line_num">
+                <span t-esc="aggregated_lines[line]['sl_no']"/>
+            </td>
+            <td style="border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:11%">
+                <span t-if="aggregated_lines[line]['default_code']" t-esc="aggregated_lines[line]['default_code']"/>
+            </td>
+            <td style="border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB">
+                <!-- Impression de La désignation au lieu du nom de l'article -->
+
+                <t t-set="var" t-value="aggregated_lines[line]['ourname']"/>
+                 <t t-if="var and var !=''">
+                     <span t-esc="aggregated_lines[line]['ourname']"/>
+                 </t>
+                <t t-else="">
+                    <span t-esc="aggregated_lines[line]['name']"/>
+                </t>
+                <!--<span t-esc="aggregated_lines[line]['name']"/>
+                <p t-if="aggregated_lines[line]['description']">
+                    <span t-esc="aggregated_lines[line]['description']"/>
+                </p>-->
+            </td>
+
+            <td class="text-center" style="text-align:center;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:9%" name="move_line_aggregated_qty_done">
+                <span t-esc="aggregated_lines[line]['qty_done']"/>
+
+            </td>
+            <td class="text-center" style="text-align:center;border-color:#ABABAB;vertical-align:middle;border-bottom:1px dotted #ABABAB;width:13%" name="move_line_aggregated_uom">
+                <span t-esc="aggregated_lines[line]['product_uom']"/>
+            </td>
+        </tr>
+            <tr style="background-color:white !important;">
+                <td style="border-color:#ABABAB;"> </td>
+                <td style="border-color:#ABABAB;"> </td>
+                <td style="border-color:#ABABAB;"> </td>
+                <td style="border-color:#ABABAB;"> </td>
+                <td style="border-color:#ABABAB;"> </td>
+            </tr>
+        </template>
+    </data>
+</odoo>
+

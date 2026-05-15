@@ -1,0 +1,17 @@
+Updated to v4.0.1.1.3 on 14-11-2022
+There was in error while setting tax amount first and then trying to add article
+Err: Division By Zero
+SOL:
+in sale_discount_total/models/sale.py
+Function set_disc 
+Add if total != 0 
+Inside the IF clode: if orderline.order_id.discount_rate != 0 :
+                    
+
+Function  supply_rate
+Add if total != 0 
+Inside the IF close: if order.discount_rate != 0 :
+                    
+
+                    
+also inside file acount_invoice.py when devision /total same problem

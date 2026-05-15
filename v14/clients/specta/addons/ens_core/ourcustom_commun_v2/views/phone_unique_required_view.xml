@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!--    # Make Phone required for Individual Partners # -->
+        <record id="partner_phone_status" model="ir.ui.view">
+            <field name="name">partner_phone_status</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <!--Note: Original Fiel Phone and its label __ Will be invisible just for Particular pertners -->
+                <xpath expr="//field[@name='phone']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('company_type', '=', 'person')]}</attribute>
+                </xpath>
+                <xpath expr="//label[@for='phone']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('company_type', '=', 'person')]}</attribute>
+                </xpath>
+
+                <!--Note: The new field will be visible just for particular partners (to make it required+obligatory just activate the function from settings)-->
+                <xpath expr="//field[@name='vat']" position="after">
+                    <!--The field: phone_required_unique added by ourcustom_settings module-->
+                  <field name="phone_required"
+                         placeholder="ex: 06.22.44.55.66"
+                         widget="mask" data-inputmask-mask="09.99.99.99.99"
+                         attrs="{'required': [('phone_required_unique', '=', True),('company_type', '=', 'person')], 'invisible': [('company_type', '=', 'company')]}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

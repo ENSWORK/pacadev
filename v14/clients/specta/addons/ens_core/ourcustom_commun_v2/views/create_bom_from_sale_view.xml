@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+         <record id="bill_of_material_source_cmd" model="ir.ui.view">
+            <field name="name">bill_of_material_source_cmd</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='miscellaneous']/group/group/field[@name='origin']" position="after">
+                    <field name="bom_source_cmd" readonly="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_sale_order_bom_count" model="ir.ui.view">
+            <field name="name">view_sale_order_bom_count</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_view_invoice']" position="after">
+                    <button type="object"
+                        name="action_view_our_bom"
+                        class="oe_stat_button"
+                        icon="fa-flask"
+                        attrs="{'invisible': [('sale_bom_count', '=', 0)]}" groups="base.group_user">
+                        <field name="sale_bom_count" widget="statinfo" string="Ordre de Fabrication"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

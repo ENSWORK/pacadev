@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="add_warning_in_template_form_view">
+        <field name="name">add.warning</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+             <xpath expr="//page[@name='sales']" position="inside">
+                 <group string="Avertissement lors de la comfirmation de la vente de ce produit." groups="sale.group_warning_sale">
+                 <field name="warn" nolabel="1"/>
+                 <field name="warn_msg" colspan="3" nolabel="1"
+                                    attrs="{'required':[('warn','!=','no-message')],'readonly':[('warn','=','no-message')], 'invisible':[('warn','=','no-message')]}"/>
+                 </group>
+             </xpath>
+            <xpath expr="//page[@name='purchase']" position="inside">
+                 <group string="Avertissement lors de la comfirmation d'achat de ce produit." groups="purchase.group_warning_purchase">
+                 <field name="purchase_warn" nolabel="1"/>
+                 <field name="purchase_warn_msg" colspan="3" nolabel="1"
+                                    attrs="{'required':[('purchase_warn','!=','no-message')],'readonly':[('purchase_warn','=','no-message')], 'invisible':[('purchase_warn','=','no-message')]}"/>
+                 </group>
+             </xpath>
+        </field>
+    </record>
+</odoo>

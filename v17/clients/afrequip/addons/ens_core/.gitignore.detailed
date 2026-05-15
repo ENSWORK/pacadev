@@ -1,0 +1,196 @@
+# ================================================================================
+# ENSWORK .gitignore - Configuration détaillée
+# ================================================================================
+#
+# Ce fichier configure les patterns Git pour exclure les fichiers/dossiers
+# qui ne doivent pas être versionés (dépendances, cache, binaires, etc)
+#
+# Structure:
+# 1. Python & Packaging
+# 2. Environnements virtuels
+# 3. Odoo spécifique
+# 4. Bases de données
+# 5. Fichiers temporaires ensdev
+# 6. IDE & Éditeurs
+# 7. OS spécifique
+# 8. Fichiers binaires volumineux
+#
+# ================================================================================
+
+# ================================================================================
+# 1. PYTHON & PACKAGING
+# ================================================================================
+# Cache Python compilé
+__pycache__/
+*.py[cod]              # .pyc, .pyo, .pyd
+*$py.class
+
+# Fichiers egg
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Bytecode
+*.so
+.Python
+*.pyc
+*.pyo
+
+# ================================================================================
+# 2. ENVIRONNEMENTS VIRTUELS
+# ================================================================================
+# Standard virtualenv
+venv/
+env/
+ENV/
+.venv/
+
+# Pre-commit venv
+.venv_pre-commit/
+
+# ensdev-manager venv
+ensdev-manager/venv/
+ensdev-manager/venv-backend/
+
+# ================================================================================
+# 3. ODOO SPÉCIFIQUE
+# ================================================================================
+# Fichiers de traduction (générés automatiquement)
+*.pot
+
+# Fichiers de stockage Odoo (filestore)
+# Contient les pièces jointes, images, etc - trop volumineux
+filestore/
+*/filestore/
+*/data/filestore/
+
+# Sessions utilisateurs (données sensibles)
+sessions/
+*/sessions/
+*/data/sessions/
+
+# ================================================================================
+# 4. BASES DE DONNÉES
+# ================================================================================
+# Dumps SQL
+*.sql
+*.sql.gz
+*.dump
+
+# Backups de production (données sensibles)
+db_prod_backup/
+
+# ================================================================================
+# 5. FICHIERS TEMPORAIRES ENSDEV
+# ================================================================================
+# Session tracking
+.ensdev_session
+.ensdev_history.json
+
+# Fichiers FUSE (Linux filesystem sync)
+.fuse_hidden*/
+
+# ================================================================================
+# 6. IDE & ÉDITEURS
+# ================================================================================
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+
+# Vim & Nano
+*.swp                  # Vim swap files
+*.swo                  # Vim backup files
+*~                     # Nano backup files
+.~*                    # Autre éditeurs
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ================================================================================
+# 7. OS SPÉCIFIQUE
+# ================================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+.TemporaryItems
+
+# Windows
+Thumbs.db
+ehthumbs.db
+*.lnk
+
+# Linux
+.directory
+.gvfs
+
+# ================================================================================
+# 8. FICHIERS BINAIRES & TEMPORAIRES
+# ================================================================================
+# Archives (backups locaux)
+archives/
+archive.zip
+*.tar.gz
+*.zip
+
+# Logs (sauf ensdev-manager qui en a besoin)
+*.log
+!ensdev-manager/flask.log
+logs/
+ensdev-manager/logs/
+
+# Fichiers de backup
+*.bak
+*.backup
+*.old
+*.broken
+*.buggy
+*~.nib
+
+# Node.js / Frontend (si utilisé)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ================================================================================
+# 9. SOURCES ODOO (trop volumineux - ~4GB)
+# ================================================================================
+# À ne JAMAIS tracker
+odoo-sources/
+
+# ================================================================================
+# 10. BACKUPS & DONNÉES SENSIBLES
+# ================================================================================
+# Tous les types de backups
+backups/
+backup-*/
+*.backup
+
+# Configurations sensibles
+*.conf                 # Sauf *.conf.example
+!*.conf.example
+
+# Fichiers de déploiement sensibles
+.env
+.env.local
+secrets/
+
+# ================================================================================
+# EXCEPTIONS (fichiers à tracker malgré les patterns ci-dessus)
+# ================================================================================
+!.github/
+!.gitignore
+!.pre-commit-config.yaml
+!ensdev-manager/flask.log
+!*.conf.example
+
+# ================================================================================
+# FIN DU FICHIER
+# ================================================================================

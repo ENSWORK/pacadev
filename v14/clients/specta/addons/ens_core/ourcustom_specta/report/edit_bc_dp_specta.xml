@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+                    <!--This File Edit BC et Demande de prix For SPECTA-->
+
+    <!--Bon de Commande SPECTA-->
+     <template id="edit_bc_specta" inherit_id="ourcustom_impression.report_ourpurchaseorder_document_inherit">
+          <!--Remove Numero de Client-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/div[@class='mod1']" position="replace">
+
+        </xpath>
+         <!--Edit padding of partner name-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/div[@class='mod2']" position="replace">
+            <div  class='mod3' style="color:black;padding-top:20px"><p class="m-0" t-field="o.partner_id"/></div>
+        </xpath>
+     </template>
+
+     <!--Demande de prix SPECTA-->
+     <template id="edit_dp_specta" inherit_id="ourcustom_impression.report_ourpurchasequotation_document_inherit">
+          <!--Remove Numero de Client-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/div[@class='mod1']" position="replace">
+
+        </xpath>
+         <!--Edit padding of partner name-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr[1]/td[2]/div/div[@class='mod2']" position="replace">
+            <div  class='mod3' style="color:black;padding-top:20px"><p class="m-0" t-field="o.partner_id"/></div>
+        </xpath>
+     </template>
+
+</odoo>

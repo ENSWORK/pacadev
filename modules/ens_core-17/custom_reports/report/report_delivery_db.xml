@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Header Template -->
+    <template id="external_layout_header_delivery">
+        <div class="header">
+            <div class="row">
+                <!-- Logo column - only show if print_with_header is True -->
+                <t t-if="o.print_with_header">
+                    <div class="col-3">
+                        <t t-if="o.company_id.logo">
+                        <img t-att-src="image_data_uri(o.company_id.logo)" alt="Logo" t-attf-style="max-height: #{o.company_id.logo_height}px; max-width: #{o.company_id.logo_width}px;"/>
+                        </t>
+                    </div>
+                </t>
+                <!-- Bon de Livraison Information - always shown -->
+                <div t-attf-class="col-#{12 if not o.print_with_header else 9} text-end">
+                    <div style="font-family: Arial, sans-serif; line-height: 1.1;">
+                        <h5 t-attf-style="font-size: 18px; font-weight: bold; color: #{o.company_id.primary_color}">BON DE LIVRAISON</h5>
+                        <div t-attf-style="font-size: 14px; color: #{o.company_id.primary_color};">
+                            <strong>Numéro : </strong><span t-field="o.name"/><br/>
+                            <strong>Date livraison : </strong><span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/><br/>
+                            <strong>Réf. de la commande : </strong><span t-field="o.sale_id.client_order_ref"/><br/>
+                            <strong>Date de la commande : </strong><span t-field="o.sale_id.date_order" t-options='{"format": "dd/MM/yyyy"}'/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Footer Template -->
+    <template id="external_layout_footer_custom">
+        <div class="footer">
+            <!-- Footer type: Image -->
+            <t t-if="o.company_id.footer_db_type == 'image' and o.company_id.footer_image_db">
+                <img t-att-src="image_data_uri(o.company_id.footer_image_db)"
+                     alt="Footer DB"
+                     style="width: 100%; max-width: 100%; display: block;"/>
+            </t>
+
+            <!-- Footer type: Text (default or custom) -->
+            <t t-elif="o.company_id.footer_db_type == 'text'">
+                <div class="text-center" style="font-size: 13px; border-top: 1px solid #ABABAB; padding-top: 4px; line-height: 1.1;">
+                    <!-- Custom text if provided -->
+                    <t t-if="o.company_id.footer_text_db">
+                        <div t-field="o.company_id.footer_text_db"/>
+                    </t>
+                    <!-- Default fiscal information if no custom text -->
+                    <t t-else="">
+                        <div>
+                            <span t-field="o.company_id.name"/> SARL AU - Capital de <span t-field="o.company_id.capital"/> MAD
+                        </div>
+                        <div style="margin-top:1px;">
+                            <span t-field="o.company_id.street"/>, <span t-field="o.company_id.city"/>, <span t-field="o.company_id.country_id.name"/>
+                        </div>
+                        <div style="margin-top:1px;">
+                            R.C.: <span t-field="o.company_id.rc"/> - Patente: <span t-field="o.company_id.tp"/>
+                            - I.F.: <span t-field="o.company_id.iff"/> - C.N.S.S.: <span t-field="o.company_id.cnss"/> - I.C.E.: <span t-field="o.company_id.ice"/>
+                        </div>
+                        <div style="margin-top:1px;">
+                            Email: <span t-field="o.company_id.email"/> - Site web: <span t-field="o.company_id.website"/>
+                        </div>
+                    </t>
+                    <div t-if="report_type == 'pdf'" style="text-align: right; margin-top: 1px; font-size: 11px;">
+                        Page <span class="page"/> / <span class="topage"/>
+                    </div>
+                </div>
+            </t>
+
+            <!-- Footer type: None - no footer displayed -->
+        </div>
+    </template>
+
+    <!-- Layout Template -->
+    <template id="external_layout_delivery">
+        <div class="article o_report_layout_standard" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id">
+            <t t-call="custom_reports.external_layout_header_delivery"/>
+            <t t-raw="0"/>
+            <!-- Footer uniquement si print_with_header est activé -->
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_footer_custom"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- Document Content Template -->
+    <template id="report_delivery_db_document">
+                        <!-- Émetteur/Destinataire Section -->
+                        <div class="mt-4">
+                            <table class="mb-4" style="width:100%;border-collapse: separate; border-spacing: 0;">
+                                <tr>
+                                    <td style="width:45%;border:0px;background-color:#EEEDED;padding:10px;">
+                                        <div style="line-height: 1.5;">
+                                            <strong t-field="o.company_id.name" t-attf-style="color: #{o.company_id.primary_color}"/><br/>
+                                            <t t-if="o.company_id.street">
+                                                <span t-field="o.company_id.street" t-attf-style="color: #{o.company_id.primary_color}"/><br/>
+                                            </t>
+                                            <t t-if="o.company_id.street2">
+                                                <span t-field="o.company_id.street2" style="color:#0D0446"/><br/>
+                                            </t>
+                                            <t t-if="o.company_id.city or o.company_id.country_id">
+                                                <span t-field="o.company_id.city" t-attf-style="color: #{o.company_id.primary_color}"/>
+                                                <t t-if="o.company_id.city and o.company_id.country_id"> - </t>
+                                                <span t-field="o.company_id.country_id" t-attf-style="color: #{o.company_id.primary_color}"/>
+                                            </t>
+                                            <div class="mt-2">
+                                                <t t-if="o.company_id.phone">
+                                                    <div>
+                                                           <strong t-attf-style="color: #{o.company_id.primary_color}">Tél: </strong>
+                                                        <span t-field="o.company_id.phone" t-attf-style="color: #{o.company_id.primary_color}"/>
+                                                    </div>
+                                                </t>
+                                                <t t-if="o.company_id.email">
+                                                    <div>
+                                                        <strong t-attf-style="color: #{o.company_id.primary_color}">Email: </strong>
+                                                        <span t-field="o.company_id.email" t-attf-style="color: #{o.company_id.primary_color}"/>
+                                                    </div>
+                                                </t>
+                                                <t t-if="o.company_id.website">
+                                                    <div>
+                                                        <strong t-attf-style="color: #{o.company_id.primary_color}">Web: </strong>
+                                                        <span t-field="o.company_id.website" t-attf-style="color: #{o.company_id.primary_color}"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="width:5%;border:0px;"> </td>
+                                    <td style="width:50%;border:1px solid #ABABAB;padding:15px;">
+                                        <div style="line-height: 1.5;">
+                                            <strong t-field="o.partner_id"/><br/>
+                                            <div style="margin-top:5px;">
+                                                <t t-if="o.partner_id.street">
+                                                    <span t-field="o.partner_id.street"/><br/>
+                                                </t>
+                                                <t t-if="o.partner_id.street2">
+                                                    <span t-field="o.partner_id.street2"/><br/>
+                                                </t>
+                                                <t t-if="o.partner_id.city">
+                                                    <span t-field="o.partner_id.city"/><br/>
+                                                </t>
+                                                <t t-if="o.partner_id.country_id">
+                                                    <span t-field="o.partner_id.country_id"/>
+                                                </t>
+                                            </div>
+                                            <div style="margin-top:10px;">
+                                                <t t-if="o.partner_id.phone">
+                                                    <strong>Tél : </strong>
+                                                    <span t-field="o.partner_id.phone"/><br/>
+                                                </t>
+                                                <t t-if="o.partner_id.email">
+                                                    <strong>E-mail : </strong>
+                                                    <span t-field="o.partner_id.email"/><br/>
+                                                </t>
+                                                <t t-if="o.partner_id.ice">
+                                                    <strong>ICE : </strong>
+                                                    <span t-field="o.partner_id.ice"/>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Main Table for Delivery Note -->
+                            <table class="table table-sm" style="margin-top:20px;border:1px solid #ABABAB; font-size: 14px;">
+                                <thead>
+                                    <tr>
+                                        <th t-if="o.print_with_ref" class="text-left" style="width:10%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;font-size:14px;">Référence</th>
+                                        <th class="text-left" style="padding:8px;border:1px solid #ABABAB;vertical-align:middle;font-size:14px;">Description</th>
+                                        <th class="text-center" style="width:10%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;font-size:14px;">UdM</th>
+                                        <th class="text-center" style="width:10%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;font-size:14px;">Qté commandée</th>
+                                        <th class="text-center" style="width:10%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;font-size:14px;">Qté Livrée</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+<t t-foreach="o.move_ids_without_package" t-as="line">
+    <!-- Table content for each line -->
+    <tr>
+        <!-- Référence Column -->
+        <td t-if="o.print_with_ref" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+            <span t-if="line.product_id.default_code" t-field="line.product_id.default_code"/>
+        </td>
+        <!-- Description Column -->
+        <td style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+            <span t-field="line.name"/>
+        </td>
+
+        <!-- Poids/vol. Column -->
+        <td class="text-center" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+            <span t-field="line.product_uom"/>
+        </td>
+
+        <!-- Qté commandée Column -->
+        <td class="text-center" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+            <span t-field="line.product_uom_qty"/>
+        </td>
+
+        <!-- Qté à expédier Column -->
+        <td class="text-center" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
+            <span t-field="line.quantity"/>
+        </td>
+    </tr>
+</t>
+<!-- Lignes vides avec uniquement les séparations verticales -->
+<t t-set="empty_lines" t-value="max(10 - len(o.move_ids_without_package), 0)"/>
+<t t-foreach="range(empty_lines)" t-as="i">
+    <tr style="height:25px; border: none;">
+        <td t-if="o.print_with_ref" style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+    </tr>
+</t>
+                                </tbody>
+                            </table>
+<!-- Visa Section -->
+                        <t t-if="o.print_with_visa">
+                            <table style="border: 1px solid #ABABAB;color:#ABABAB;width:60%;margin-left:200px;page-break-inside: avoid;" name="table_visa">
+                                <tr style="color:black;">
+                                    <td colspan="2" style="border-color:#ABABAB"><center><strong>Visa</strong></center></td>
+                                </tr>
+                                <tr style="border: 1px solid #ABABAB">
+                                    <td style="width:40%;color:black;border-color:#ABABAB"><center><strong>Service Livraison</strong></center></td>
+                                    <td style="width:40%;color:black;border-color:#ABABAB"><center><strong>Client</strong></center></td>
+                                </tr>
+                                <tr style="border:1px solid #ABABAB">
+                                    <td style="width:40%;height:200px;color:black;border-color:#ABABAB"></td>
+                                    <td style="width:40%;height:200px;color:black;border-color:#ABABAB"></td>
+                                </tr>
+                            </table>
+                        </t>
+                        </div>
+    </template>
+
+            <!-- Main Template for Delivery Note -->
+            <template id="report_delivery_db">
+                <t t-call="web.html_container">
+                    <t t-foreach="docs" t-as="o">
+                        <t t-set="doc" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                        <t t-call="custom_reports.external_layout_delivery">
+                            <t t-call="custom_reports.report_delivery_db_document"/>
+                        </t>
+                    </t>
+                </t>
+            </template>
+
+    <!-- Report Action -->
+    <record id="action_report_delivery_db" model="ir.actions.report">
+        <field name="name">Bon de livraison DB</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_reports.report_delivery_db</field>
+        <field name="report_file">custom_reports.report_delivery_db</field>
+        <field name="print_report_name">'Bon_De_Livraison_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_standard"/>
+    </record>
+</odoo>

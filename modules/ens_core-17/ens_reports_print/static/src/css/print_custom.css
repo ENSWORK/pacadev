@@ -1,0 +1,153 @@
+/* ========================================================================
+   MODULE: ENS Reports Print
+   Styles CSS pour layouts d'impression flexibles
+   ======================================================================== */
+
+/* ========================================================================
+   LAYOUT STANDARD (par défaut)
+   ======================================================================== */
+.layout-standard {
+    font-size: 10pt;
+    line-height: 1.4;
+}
+
+.layout-standard table {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.layout-standard th {
+    padding: 8px 5px;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.layout-standard td {
+    padding: 6px 5px;
+}
+
+/* ========================================================================
+   LAYOUT COMPACT (économie de papier)
+   ======================================================================== */
+.layout-compact {
+    font-size: 8pt;
+    line-height: 1.2;
+}
+
+.layout-compact table {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.layout-compact th {
+    padding: 4px 3px;
+    font-size: 8pt;
+    background-color: #e9ecef;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.layout-compact td {
+    padding: 3px 3px;
+    font-size: 8pt;
+}
+
+.layout-compact .page {
+    margin-bottom: 0 !important;
+}
+
+.layout-compact h2 {
+    font-size: 14pt;
+    margin-bottom: 0.5rem;
+}
+
+.layout-compact #informations {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.layout-compact #signature_zone {
+    margin-top: 1rem !important;
+}
+
+/* ========================================================================
+   LAYOUT PREMIUM (présentation luxueuse)
+   ======================================================================== */
+.layout-premium {
+    font-size: 11pt;
+    line-height: 1.6;
+    font-family: 'Georgia', serif;
+}
+
+.layout-premium table {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #dee2e6;
+}
+
+.layout-premium th {
+    padding: 12px 8px;
+    background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 3px solid #495057;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.layout-premium td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.layout-premium h2 {
+    font-size: 20pt;
+    font-weight: 300;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.layout-premium #informations {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.layout-premium #signature_zone {
+    margin-top: 3rem;
+    border-top: 2px solid #dee2e6;
+    padding-top: 2rem;
+}
+
+/* ========================================================================
+   UTILITAIRES COMMUNS
+   ======================================================================== */
+
+/* Zone signature */
+#signature_zone {
+    page-break-inside: avoid;
+}
+
+#signature_zone .col-6 {
+    text-align: center;
+}
+
+/* Éviter les coupures de page */
+.avoid-page-break-inside {
+    page-break-inside: avoid;
+}
+
+/* Impression optimisée */
+@media print {
+    .layout-compact {
+        margin: 0;
+        padding: 0;
+    }
+
+    .layout-premium {
+        color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}

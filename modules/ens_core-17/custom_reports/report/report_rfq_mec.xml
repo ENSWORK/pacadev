@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ==================== HEADER SECTION ==================== -->
+    <template id="external_layout_header_rfq_mec">
+        <div class="header">
+            <div class="row">
+                <div class="col-3">
+                    <t t-if="o.company_id.logo">
+                        <img t-att-src="image_data_uri(o.company_id.logo)" alt="Logo" t-attf-style="max-height: #{o.company_id.logo_height}px; max-width: #{o.company_id.logo_width}px;"/>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="external_layout_footer_rfq_mec">
+        <div class="footer">
+            <div style="margin-bottom: 10px;">
+                <span style="float: right; font-size: 13px;">Page N° <span class="page"/>/<span class="topage"/></span>
+                <div style="clear: both;"></div>
+            </div>
+            <t t-if="o.company_id.footer_image_mec">
+                <img t-att-src="image_data_uri(o.company_id.footer_image_mec)" alt="Footer" style="width: 100%; max-height: 120px;"/>
+            </t>
+        </div>
+    </template>
+
+    <template id="external_layout_rfq_mec">
+        <div class="article o_report_layout_standard">
+            <t t-call="custom_reports.external_layout_header_rfq_mec"/>
+            <t t-raw="0"/>
+            <t t-call="custom_reports.external_layout_footer_rfq_mec"/>
+        </div>
+    </template>
+
+    <!-- ==================== DOCUMENT TEMPLATE ==================== -->
+    <template id="report_rfq_mec_document">
+        <!-- RFQ Header Information -->
+        <table style="width:100%; border-collapse: separate; border-spacing: 0; border: 0;">
+            <tr>
+                <!-- RFQ Details Column -->
+                <td style="width:45%; border: 0;">
+                    <table style="width:100%; border-collapse: separate;">
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <strong>Demande de Prix N°: </strong><span t-field="o.name"/>
+                            </td>
+                        </tr>
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <strong>Date: </strong><span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/>
+                            </td>
+                        </tr>
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <t t-if="o.partner_ref">
+                                    <strong>Référence Fournisseur: </strong><span t-field="o.partner_ref"/>
+                                </t>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+                <!-- Spacer Column -->
+                <td style="width:5%;"></td>
+
+                <!-- Supplier Information Column -->
+                <td style="width:50%;">
+                    <div style="border: 1px solid black; padding:8px;">
+                        <table style="width:100%; border-collapse: separate;">
+                            <tr>
+                                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0; background-color: #f9f9f9;">
+                                    <span t-field="o.partner_id.name" style="font-size: 18px; font-weight: bold;"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                    <t t-if="o.partner_id.street">
+                                        <span t-field="o.partner_id.street"/>
+                                        <t t-if="o.partner_id.street2 or o.partner_id.city or o.partner_id.state_id or o.partner_id.zip or o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.street2">
+                                        <span t-field="o.partner_id.street2"/>
+                                        <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip or o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.city">
+                                        <span t-field="o.partner_id.city"/>
+                                        <t t-if="o.partner_id.state_id or o.partner_id.zip or o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.state_id">
+                                        <span t-field="o.partner_id.state_id.name"/>
+                                        <t t-if="o.partner_id.zip or o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.zip">
+                                        <span t-field="o.partner_id.zip"/>
+                                        <t t-if="o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.country_id">
+                                        <span t-field="o.partner_id.country_id.name"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                    <t t-if="o.partner_id.phone or o.partner_id.mobile">
+                                        <strong>Tél:</strong>
+                                        <t t-if="o.partner_id.phone">
+                                            <span t-field="o.partner_id.phone"/>
+                                        </t>
+                                        <t t-if="o.partner_id.mobile">
+                                            <t t-if="o.partner_id.phone"> / </t>
+                                            <span t-field="o.partner_id.mobile"/>
+                                        </t>
+                                    </t>
+                                    <t t-if="o.partner_id.email">
+                                        <t t-if="o.partner_id.phone or o.partner_id.mobile">
+                                            <br/>
+                                        </t>
+                                        <strong>Email:</strong>
+                                        <span t-field="o.partner_id.email"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr t-if="o.partner_id.vat">
+                                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                    <strong>ICE:</strong>
+                                    <span t-field="o.partner_id.vat"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Information Table -->
+        <t t-if="o.print_with_buyer or o.print_with_payment_terms">
+            <table style="width:100%; border-collapse: collapse; margin-top: 10px; padding: 8px;">
+                <tr>
+                    <!-- Première colonne - Acheteur (avec option) -->
+                    <td t-if="o.print_with_buyer" style="width:50%; vertical-align: top; padding: 8px; border-right: 0;">
+                        <strong>Acheteur :</strong>
+                        <span t-field="o.user_id.name"/><br/>
+                        <t t-if="o.user_id.phone">
+                            <strong>Téléphone :</strong>
+                            <span t-field="o.user_id.phone"/><br/>
+                        </t>
+                        <t t-if="o.user_id.email">
+                            <strong>E-mail :</strong>
+                            <span t-field="o.user_id.email"/><br/>
+                        </t>
+                    </td>
+                    <!-- Deuxième colonne - Conditions de paiement (avec option) -->
+                    <td t-if="o.print_with_payment_terms" t-attf-style="width:{{o.print_with_buyer and '50%' or '100%'}}; vertical-align: top; padding: 8px; border-left: 0;">
+                        <t t-if="o.incoterm_id">
+                            <strong>Conditions de livraison :</strong>
+                            <span t-field="o.incoterm_id.name"/><br/>
+                        </t>
+                        <t t-if="o.payment_term_id">
+                            <strong>Conditions de paiement :</strong>
+                            <span t-field="o.payment_term_id.name"/><br/>
+                        </t>
+                        <t t-if="o.date_planned">
+                            <strong>Date de livraison prévue :</strong>
+                            <span t-field="o.date_planned" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/><br/>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+        </t>
+
+        <!-- Add CSS classes -->
+        <style>
+            .rfq-line-even {
+                background-color: #ffffff;
+            }
+            .rfq-line-odd {
+                background-color: #f9f9f9;
+            }
+            table.no-internal-borders,
+            .no-internal-borders tr,
+            .no-internal-borders td,
+            .no-internal-borders th {
+                border: none !important;
+            }
+        </style>
+
+        <!-- RFQ Line Items Table -->
+        <table class="table table-sm no-internal-borders" style="width: 100%; margin-top: 20px; border-collapse: collapse; border: 1px solid #ABABAB;">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <t t-if="o.print_with_line_number">
+                        <th style="width: 5%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none;">N°</th>
+                    </t>
+                    <t t-if="o.print_with_ref">
+                        <th style="width: 15%; padding: 8px; background-color: #f8f9fa; border: none;">Référence</th>
+                    </t>
+                    <th t-attf-style="width: #{(o.print_with_ref and o.print_with_expected_date and '45%') or (o.print_with_ref or o.print_with_expected_date and '60%') or '70%'}; padding: 8px; white-space: normal; word-wrap: break-word; background-color: #f8f9fa; border: none;">Description d'article</th>
+                    <t t-if="o.print_with_expected_date">
+                        <th style="width: 15%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none;">Date prévue</th>
+                    </t>
+                    <th style="width: 10%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none;">Quantité</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="o.order_line" t-as="line" t-att-class="line_index % 2 == 0 and 'rfq-line-even' or 'rfq-line-odd'" style="border: none;">
+                    <t t-if="o.print_with_line_number">
+                        <td style="padding: 8px; text-align: center; border: none;">
+                            <span t-esc="line_index + 1"/>
+                        </td>
+                    </t>
+                    <t t-if="o.print_with_ref">
+                        <td style="padding: 8px; border: none;">
+                            <span t-field="line.product_id.default_code"/>
+                        </td>
+                    </t>
+                    <td style="padding: 8px; border: none;">
+                        <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                    </td>
+                    <t t-if="o.print_with_expected_date">
+                        <td style="text-align: center; padding: 8px; border: none;">
+                            <span t-field="line.date_planned" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
+                        </td>
+                    </t>
+                    <td style="text-align: center; padding: 8px; border: none;">
+                        <t t-set="qty_str" t-value="'{:.2f}'.format(line.product_qty)"/>
+                        <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/><br/>
+                        <span t-field="line.product_uom.name" style="font-size: 10px; color: #666666;"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Notes section -->
+        <t t-if="o.notes">
+            <div style="margin-top: 20px; padding: 10px; border: 1px solid #ddd; background-color: #f9f9f9;">
+                <strong>Notes :</strong><br/>
+                <span t-field="o.notes"/>
+            </div>
+        </t>
+
+        <!-- Signature utilisateur uniquement -->
+        <t t-if="o.print_with_signature and o.user_id.signature_image">
+            <div style="margin-top: 20px; padding-left: 10px;">
+                <img t-att-src="image_data_uri(o.user_id.signature_image)"
+                     alt="Signature"
+                     style="max-width: 300px; max-height: 150px; display: block;"/>
+            </div>
+        </t>
+    </template>
+
+    <!-- Main Report Template -->
+    <template id="report_rfq_mec">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="custom_reports.external_layout_rfq_mec">
+                    <t t-call="custom_reports.report_rfq_mec_document"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_rfq_mec" model="ir.actions.report">
+        <field name="name">RFQ MEC</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_reports.report_rfq_mec</field>
+        <field name="report_file">custom_reports.report_rfq_mec</field>
+        <field name="print_report_name">'Demande de prix - %s' % (object.name)</field>
+        <field name="binding_model_id" eval="False"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_standard"/>
+    </record>
+
+</odoo>

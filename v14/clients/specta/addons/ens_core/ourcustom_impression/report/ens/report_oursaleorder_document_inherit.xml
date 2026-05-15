@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_oursaleorder_document_inherit" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <t t-set="company" t-value="user.company_id" /> <!--We need it for Primary/Secondary Colors-->
+            <t t-call="web.html_container">
+            <div class="article o_report_layout_boxed" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"><!--To ignore the default layout(remove header+footer)-->
+                <t t-call="ourcustom_impression.ourcustom_header_footeroc" />
+                <style>
+                   #informations {
+                        display: block;
+                        }
+                   .m-0{
+                        display:inline;
+                         }
+                   <!--strong,p,span{
+                        color:black;
+                        }-->
+               </style>
+                <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+                 <div class="ourpage">
+                    <!--<t t-call="web.address_layout"/>
+                    <t t-raw="0"/>-->
+            <div class="oe_structure"/>
+                   <!--  <div style="color:black;">
+                    <center><strong><span style="margin-left:5px;color:#081669;font-size:15px">Pour plus d’information sur nos produits, veuillez consulter notre site web : <span style="color:#081669" t-field="doc.company_id.website"></span></span></strong></center>
+                  </div><br/>-->
+
+                     <table class="mod" style="width:100%;border:0px">
+                        <tr>
+                            <td style="width:50%;border:0px">
+                                <h2 class="mt16">
+                                    <!--<span style="font-size:20px" ><strong>Offre Commerciale</strong> </span>-->
+                                    <t t-if="not (env.context.get('proforma', False) or is_pro_forma)">
+                                        <span t-if="doc.state not in ['draft','sent']" style="font-size:20px">Offre Commerciale</span>
+                                        <span t-if="doc.state in ['draft','sent']" style="font-size:20px">Offre Commerciale</span>
+                                    </t>
+                                    <t t-if="env.context.get('proforma', False) or is_pro_forma">
+                                        <span style="font-size:20px">Facture Pro-Forma</span>
+                                    </t>
+                                </h2>
+
+                                <div class="row mt32 mb32" id="informations" style="color:black">
+                                    <div  class="col-auto col-3 mw-100 mb-2">
+                                        <strong>Numéro:</strong>
+                                        <p class="m-0" t-field="doc.name"/>
+                                    </div>
+                                    <div t-if="doc.date_order and doc.state not in ['draft','sent']" style="margin-top:-10px;" class="col-auto col-3 mw-100 mb-2">
+                                        <strong>Date de la commande:</strong>
+                                        <p class="m-0" t-field="doc.date_order" t-options='{"format" : "dd/MM/yyyy"}'/>
+                                    </div>
+                                    <div t-if="doc.client_order_ref" class="col-auto col-3 mw-100 mb-2 mod" style="margin-top:-10px;">
+                                        <strong>Votre référence:</strong>
+                                        <p class="m-0" t-field="doc.client_order_ref"/>
+                                    </div>
+                                    <div t-if="doc.date_order and doc.state in ['draft','sent']" style="margin-top:-10px;" class="col-auto col-3 mw-100 mb-2">
+                                        <strong>Date du devis:</strong>
+                                        <p class="m-0" t-field="doc.date_order" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                                    </div>
+                <!--<div t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="col-auto col-3 mw-100 mb-2" name="expiration_date">
+                    <strong>Expiration:</strong>
+                    <p class="m-0" t-field="doc.validity_date"/>
+                </div>-->
+                                    <div class="col-auto col-3 mw-100 mb-2" style="color:black;margin-top:-10px" name="user_contact">
+                                        <strong>Votre Contact:</strong>
+                                        <p class="m-0" t-field="doc.user_id"/>
+                                    </div>
+                                    <div class="col-auto col-3 mw-100 mb-2"  style="margin-top:-10px;color:black;"  name="user_phone">
+                                        <strong>Téléphone:</strong>
+                                        <t t-if="doc.user_id.company_type == 'person'">
+                                            <p t-if="doc.user_id.phone_required" class="m-0" t-esc="str(doc.user_id.phone_required).replace('.',' ')"/>
+                                        </t>
+                                        <t t-else="">
+                                             <p class="m-0" t-field="doc.user_id.phone"/>
+                                        </t>
+                                    </div>
+                                    <div class="col-auto col-3 mw-100 mb-2"  style="margin-top:-10px;color:black;"  name="user_email">
+                                        <strong>E-mail:</strong>
+                                        <p class="m-0" t-field="doc.user_id.email"/>
+                                    </div>
+
+                                </div>
+                            </td>
+                            <style>
+                                /*Border Cornerred*/
+                    #content {
+                          position:relative;
+                          width:420px;
+                         /* min-height:180px;*/
+                          min-height:170px;
+                          align-items: center;
+                          overflow:auto;
+                          padding-bottom:20px;
+                    }
+
+                    #content:before,
+                    #content:after,
+                    #content>:last-child:before,
+                    #content>:last-child:after {
+                        position: absolute;
+                        width: 60px;
+                        height: 50px;
+                        border-color: black;
+                        border-style: solid;
+                        content: ' ';
+                    }
+
+                    #content:before {
+                        top: 10px;
+                        left: 10px;
+                        width:20%;
+                        border-right:0px;
+                        border-bottom:0px;
+                        border-width: 1px 0px 0px 1px;
+                    }
+
+                    #content:after {
+                        top: 10px;
+                        right: 10px;
+                        width:20%;
+                        border-left:0px;
+                        border-bottom:0px;
+                        border-width: 1px 1px 0px 0px;
+                    }
+
+                    #content>:last-child:before {
+                        bottom: 10px;
+                        right: 10px;
+                        width:20%;
+                        border-left:0px;
+                        border-top:0px;
+                        border-width: 0px 1px 1px 0px;
+                    }
+
+                    #content>:last-child:after {
+                        bottom: 10px;
+                        left: 10px;
+                        width:20%;
+                        border-right:0px;
+                        border-top:0px;
+                        border-width: 0px 0px 1px 1px;
+                    }
+                            </style>
+                            <td  style="width:50%;border:none">
+                                <div id="content" style="padding-left:20px;padding-right:20px">
+                                            <div class='mod' style="color:black"><center><strong>Client N° : </strong><p class="m-0" t-field="doc.partner_id.ref"/></center></div>
+                                            <div  class='mod2' style="color:black"><p class="m-0" t-field="doc.partner_id"/></div>
+                                            <div style="color:black">
+                                                <span t-field="doc.partner_id.street"></span>&#032;<span t-field="doc.partner_id.street2"></span>&#032;
+                                                <span t-field="doc.partner_id.city"></span>&#032;<span t-field="doc.partner_id.state_id"></span>&#032;
+                                                <span t-field="doc.partner_id.zip"></span>&#032;<span t-field="doc.partner_id.country_id"></span></div>
+                                            <div style="color:black">
+                                                <strong>Tél :</strong>
+                                                <t t-if="doc.partner_id.company_type == 'person'">
+                                                    <p t-if="doc.partner_id.phone_required" class="m-0" t-esc="str(doc.partner_id.phone_required).replace('.',' ')"/>
+                                                </t>
+                                                <t t-else="">
+                                                     <p class="m-0" t-field="doc.partner_id.phone"/>
+                                                </t>
+                                            </div>
+                                            <div style="color:black" t-if="doc.ourcontact"><strong>Contact : </strong><p class="m-0" t-field="doc.ourcontact.name"/></div>
+                                            <div style="color:black" t-if="doc.partner_id.email"><strong>E-mail :</strong><p class="m-0" t-field="doc.partner_id.email"/></div>
+                                            <div style="color:black"><strong>ICE :</strong><p class="m-0" t-field="doc.partner_id.vat"/></div>
+                                </div>
+                            </td>
+                        </tr>
+                     </table><br/>
+
+                     <!--TABLE  PRINCIPALE-->
+
+                     <style>
+                         .rows_color2 tr:nth-child(even){
+		                    background-color: #B1B7BF !important;
+                        }
+                     </style>
+                      <!-- Is there a discount on at least one line? -->
+                    <t t-set="display_discount" t-value="any(l.discount for l in doc.order_line)"/>
+                    <t t-set="display_delai" t-value="any(l.ourdelai for l in doc.order_line)"/>
+                    <t t-set="display_sl" t-value="sum([(1 if l.sl_no!=0 else 0) for l in doc.order_line])"/>
+
+                <table class="table table-sm o_main_table rows_color2">
+                    <!-- In case we want to repeat the header, remove "display: table-row-group" -->
+                    <thead>
+                        <tr>
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:4%" name="th_line_num" t-if="display_sl != 0" class="text-center">N°</th>
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_ref" class="text-left">Référence</th>
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_description" class="text-left">Désignation</th>
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_quantity" class="text-center">Qté</th>
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_uom" groups="uom.group_uom" class="text-center">UdM</th>
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_delai" t-if="display_delai" class="text-center">Délai</th>
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_priceunit" class="text-right">P.U HT</th>
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_discount" t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
+                                <span>Disc.%</span>
+                            </th>
+                            <!--<th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_taxes" class="text-right">Taxes</th>-->
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:9%" name="th_priceunit_net" t-if="display_discount" class="text-right"><span>P.U Net</span></th>
+                            <th t-attf-style="background-color:{{company.primary_color}}!important;color:white;vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_subtotal" class="text-right">
+                                <span groups="account.group_show_line_subtotals_tax_excluded">Total HT<!--Amount--></span>
+                                <span groups="account.group_show_line_subtotals_tax_included">Total HT</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <t t-set="current_subtotal" t-value="0"/>
+
+                        <t t-foreach="doc.order_line.sorted(key=lambda l: l.sl_no)" t-as="line">
+
+                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+                            <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                <t t-if="not line.display_type">
+                                    <td t-if="display_sl != 0" style="color:black;vertical-align:middle;width:4%" name="td_line_num" class="text-center"><span t-field="line.sl_no"/></td>
+                                    <td style="color:black;width:11%;vertical-align:middle" name="td_ref"><span t-if="line.product_id.default_code" t-esc="str(line.product_id.default_code).replace('-', '⁻')"/></td>
+                                    <td style="color:black;vertical-align:middle" name="td_name"><span t-field="line.name"/></td>
+                                    <td style="color:black;vertical-align:middle;width:7%" name="td_quantity" class="text-center">
+                                        <span t-field="line.product_uom_qty"/>
+                                    </td>
+                                    <td groups="uom.group_uom" style="color:black;vertical-align:middle;width:7%" name="td_uom" class="text-center">
+                                        <span t-field="line.product_uom" />
+                                    </td>
+                                    <td t-if="display_delai" style="color:black;vertical-align:middle;width:7%" name="td_delai" class="text-center">
+                                        <span t-field="line.ourdelai" />
+                                    </td>
+                                    <td style="color:black;vertical-align:middle;width:11%" name="td_priceunit" class="text-right">
+                                        <span t-field="line.price_unit"/>
+                                    </td>
+                                    <td style="color:black;vertical-align:middle;width:7%" t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
+                                        <!-- <span t-esc="str('%.2f'% line.discount).replace('.', ',')"/>  -->
+                                        <span t-esc="str('{0:,.2f}'.format(float(line.discount)).replace(',', ' ')).replace('.', ',')" /><span>%</span>
+                                    </td>
+                                     <td style="color:black;vertical-align:middle;width:9%" t-if="display_discount" class="text-right" name="th_priceunit_net" >
+                                         <t t-set="punet" t-value="float(0)"/>
+                                         <t t-if="line.price_unit != 0" t-set="punet" t-value="line.price_unit-(line.price_unit*line.discount/100)"/>
+
+                                         <span t-if="punet" class="text-nowrap" t-esc="str('{0:,.2f}'.format(float(punet)).replace(',', ' ')).replace('.', ',')"/>
+                                    </td>
+
+
+                                    <td style="color:black;vertical-align:middle;width:11%" name="td_subtotal" class="text-right">
+
+                                       <!-- <span t-esc="str('%.2f'% line.price_subtotal).replace('.', ',')" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <span t-esc="str('%.2f'% line.price_total).replace('.', ',')" groups="account.group_show_line_subtotals_tax_included"/> -->
+
+
+                                        <span t-esc="str('{0:,.2f}'.format(float(line.price_subtotal)).replace(',', ' ')).replace('.', ',')"  groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <span t-esc="str('{0:,.2f}'.format(float(line.price_total)).replace(',', ' ')).replace('.', ',')"  groups="account.group_show_line_subtotals_tax_included"/>
+
+
+
+                                    </td>
+                                </t>
+                                <t t-if="line.display_type == 'line_section'">
+                                    <td style="color:black" name="td_section_line" colspan="99">
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <t t-set="current_section" t-value="line"/>
+                                    <t t-set="current_subtotal" t-value="0"/>
+                                </t>
+                                <t t-if="line.display_type == 'line_note'">
+                                    <td style="color:black" name="td_note_line" colspan="99">
+                                        <span t-field="line.name"/>
+                                    </td>
+                                </t>
+                            </tr>
+
+                            <t t-if="current_section and (line_last or doc.order_line[line_index+1].display_type == 'line_section')">
+                                <tr class="is-subtotal text-right">
+                                    <td style="color:black" name="td_section_subtotal" colspan="99">
+                                        <strong class="mr16">Sous-Total</strong>
+                                        <!--<span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>-->
+                                        <!--remove currency-->
+                                        <span t-esc="str('{0:,.2f}'.format(float(current_subtotal)).replace(',', ' ')).replace('.', ',')" />
+
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+
+                     <!--Last Table-->
+                 <table style="width:100%;border:none;page-break-inside: avoid;" name="cond_total">
+                     <tr tysle="border:none">
+                         <td style="width:69%;border:none;">
+                             <t t-if="env.context.get('proforma', False) or is_pro_forma">
+                                 <div style="color:black" name="amount2word">
+                                    <strong>Arrêter la pr&#233;sente facture à la somme de: </strong><span t-esc="doc.currency_id.amount_to_text(doc.amount_total)"/>
+                                </div>
+                             </t>
+                             <div style="color:black;">
+                                <p style="font-style: italic;padding-top:7px;">
+                                  <strong t-if="doc.currency_id or doc.validity_date or doc.payment_term_id or doc.incoterm" style="text-decoration: underline;padding-left:2px">Conditions Générales :</strong><br/>
+                                   <div  t-if="doc.currency_id" class="col-auto col-3 mw-100 mb-2" style="margin-top:-8px">
+                                       <strong>Devise  :</strong>
+                                       <p class="m-0" t-field="doc.currency_id"/>
+                                   </div>
+                                    <div  t-if="doc.validity_date" class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px">
+                                       <strong>Validité de l'offre  :</strong>
+                                       <p class="m-0" t-field="doc.validity_date"/>
+                                   </div>
+                                    <div t-if="doc.payment_term_id" class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px">
+                                       <strong>Conditions de paiement  :</strong>
+                                       <p class="m-0" t-field="doc.payment_term_id"/>
+                                   </div>
+                                    <div t-if="doc.incoterm" class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px">
+                                       <strong>Conditions de livraison  :</strong>
+                                       <p class="m-0" t-field="doc.incoterm"/>
+                                   </div>
+                                </p>
+                            </div>
+
+                         </td>
+                         <td style="width:31%;border:none;vertical-align:middle">
+                             <div class="clearfix" name="so_total_summary">
+                               <!-- <div id="total" class="row" name="total">-->
+                                <div id="total" name="total">
+                                    <!--<div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">-->
+                                    <div>
+                                        <table class="table table-sm" style="page-break-inside: avoid;">
+                                            <tr class="border-black o_subtotal" style="">
+                                                <td name="td_amount_untaxed_label"><strong>Total HT<!--Subtotal--></strong></td>
+                                                <td name="td_amount_untaxed" class="text-right">
+                                                    <span style="color:black" t-esc="str('{0:,.2f}'.format(float(doc.amount_untaxed)).replace(',', ' ')).replace('.', ',')"/>
+                                                </td>
+                                            </tr>
+                                            <t t-foreach="doc.amount_by_group" t-as="amount_by_group">
+                                                <tr style="color:black">
+                                                    <t t-if="amount_by_group[5] == 1 and doc.amount_untaxed == amount_by_group[2]">
+                                                        <td name="td_amount_by_group_label_3">
+                                                            <span t-esc="amount_by_group[0]"/>
+                                                            <!--<span>&amp;nbsp;<span>sur</span>&amp;nbsp;<t t-esc="amount_by_group[2]" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/></span>-->
+                                                        </td>
+                                                        <td name="td_amount_by_group_3" class="text-right o_price_total">
+                                                            <!--<span t-esc="amount_by_group[1]" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>-->
+                                                            <!--remove currency-->
+                                                            <span t-esc="str('{0:,.2f}'.format(float(amount_by_group[1])).replace(',', ' ')).replace('.', ',')"  />
+                                                        </td>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <td name="td_amount_by_group_label">
+                                                            <span t-esc="amount_by_group[0]"/>
+                                                        </td>
+                                                        <td name="td_amount_by_group" class="text-right o_price_total">
+                                                            <!--<span t-esc="amount_by_group[1]" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>-->
+                                                            <!--remove currency-->
+                                                            <span t-esc="str('{0:,.2f}'.format(float(amount_by_group[1])).replace(',', ' ')).replace('.', ',')" />
+
+                                                        </td>
+                                                    </t>
+                                                </tr>
+                                            </t>
+                                            <tr class="border-black o_total">
+                                                <td t-attf-style="background-color:{{company.secondary_color}}!important;" name="td_amount_total_label"><strong style="color:white">Total TTC</strong></td>
+                                                <td t-attf-style="background-color:{{company.secondary_color}}!important;" name="td_amount_total" class="text-right">
+                                                      <span t-esc="str('{0:,.2f}'.format(float(doc.amount_total)).replace(',', ' ')).replace('.', ',')" />
+                                                    
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                         </td>
+                     </tr>
+                 </table>
+
+                <div style="color:black;" name="service">
+                    <div style="float:right;color:black"><strong>Service Commercial</strong></div>
+                </div><br/><br/>
+                <div class="NB">
+                    <p style="font-style: italic;color:black;font-size:9px">
+                        <strong style="text-decoration: underline;">N.B :</strong><br/>
+                        <strong>*</strong>Merci de noter nos références en cas de commande.<br/>
+                        <strong>*</strong>Le délai de livraison ci-dessus est valable à la date du devis et susceptible d'être revu en fonction de la date de réception de la commande.<br/>
+                        <strong>*</strong>Notre offre est établie pour des prestations standard hors cahier des charges. Toutes  spécifications particulières est convenues sur le descriptif qui peut  être en pièce jointe.
+                    </p>
+                </div>
+            <!--<p t-field="doc.note"/>
+            <p t-if="doc.payment_term_id.note">
+                <span t-field="doc.payment_term_id.note"/>
+            </p>
+            <p id="fiscal_position_remark" t-if="doc.fiscal_position_id and doc.fiscal_position_id.sudo().note">
+                <strong>Fiscal Position Remark:</strong>
+                <span t-field="doc.fiscal_position_id.sudo().note"/>
+            </p>
+-->        </div>
+            </div>
+            </t>
+        </xpath>
+    </template>
+</odoo>

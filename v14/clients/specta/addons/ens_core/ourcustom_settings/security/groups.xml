@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Groups-->
+    <record id="group_ens_param" model="res.groups">
+        <field name="name">ENS</field>
+    </record>
+
+</odoo>

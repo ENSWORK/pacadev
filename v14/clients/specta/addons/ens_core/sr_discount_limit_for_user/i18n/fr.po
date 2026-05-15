@@ -1,0 +1,62 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sr_discount_limit_for_user
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-03-24 09:18+0000\n"
+"PO-Revision-Date: 2023-03-24 09:18+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sr_discount_limit_for_user
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_res_users__discount_limit
+msgid "Assign Discount Limit"
+msgstr "Attribuer une limite de remise"
+
+#. module: sr_discount_limit_for_user
+#: model_terms:ir.ui.view,arch_db:sr_discount_limit_for_user.view_users_form_extends_to_add_discount_limit
+msgid "Discount Limit"
+msgstr "Limite de remise"
+
+#. module: sr_discount_limit_for_user
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_res_users__display_name
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_sale_order_line__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: sr_discount_limit_for_user
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_account_move_line__id
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_res_users__id
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_sale_order_line__id
+msgid "ID"
+msgstr ""
+
+#. module: sr_discount_limit_for_user
+#: model:ir.model,name:sr_discount_limit_for_user.model_account_move_line
+msgid "Journal Item"
+msgstr ""
+
+#. module: sr_discount_limit_for_user
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_account_move_line____last_update
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_res_users____last_update
+#: model:ir.model.fields,field_description:sr_discount_limit_for_user.field_sale_order_line____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: sr_discount_limit_for_user
+#: model:ir.model,name:sr_discount_limit_for_user.model_sale_order_line
+msgid "Sales Order Line"
+msgstr ""
+
+#. module: sr_discount_limit_for_user
+#: model:ir.model,name:sr_discount_limit_for_user.model_res_users
+msgid "Users"
+msgstr ""

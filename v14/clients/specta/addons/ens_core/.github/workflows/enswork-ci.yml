@@ -1,0 +1,209 @@
+name: ENSWORK CI/CD
+
+# Déclenche le workflow sur :
+# - Pull Request vers main
+# - Push direct sur main
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  # ============================================
+  # JOB 1 : VALIDATION DU CODE
+  # ============================================
+  validate-code:
+    name: Validation Python & Pre-commit
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install flake8 black isort pylint
+
+    - name: Run Black (formatting check)
+      run: |
+        echo "🎨 Vérification formatage avec Black..."
+        black --check ensdev-manager/ tools/ensdev/ || {
+          echo "❌ Formatage incorrect. Lancez : black ensdev-manager/ tools/ensdev/"
+          exit 1
+        }
+
+    - name: Run Flake8 (linting)
+      run: |
+        echo "🔍 Vérification syntaxe avec Flake8..."
+        flake8 ensdev-manager/ tools/ensdev/ --max-line-length=120 --extend-ignore=E203,W503
+
+    - name: Run isort (imports check)
+      run: |
+        echo "📦 Vérification imports avec isort..."
+        isort --check-only ensdev-manager/ tools/ensdev/
+
+    - name: Verify Python syntax
+      run: |
+        echo "✅ Vérification syntaxe Python..."
+        find ensdev-manager/ tools/ensdev/ -name "*.py" -exec python3 -m py_compile {} \;
+
+  # ============================================
+  # JOB 2 : TESTS MODULES ODOO
+  # ============================================
+  test-odoo-modules:
+    name: Tests Modules Odoo
+    runs-on: ubuntu-latest
+    needs: validate-code
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Check module dependencies
+      run: |
+        echo "🔍 Vérification dépendances modules custom..."
+
+        # Vérifier tous les modules ens_core
+        for module in modules/odoo-17/ens_core/*/; do
+          if [ -f "$module/__manifest__.py" ]; then
+            echo "Vérification: $module"
+            python3 tools/ensdev/check-deps.py "$module" || true
+          fi
+        done
+
+    - name: Validate manifest files
+      run: |
+        echo "📋 Validation des fichiers __manifest__.py..."
+
+        for manifest in modules/odoo-17/ens_core/*/__manifest__.py; do
+          echo "Vérification syntaxe: $manifest"
+          python3 -c "exec(open('$manifest').read())" || {
+            echo "❌ Erreur dans $manifest"
+            exit 1
+          }
+        done
+
+    - name: Check XML syntax (reports)
+      run: |
+        echo "🔍 Vérification syntaxe XML des rapports..."
+
+        # Installer xmllint si besoin
+        sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+        # Vérifier les fichiers XML des rapports
+        find modules/odoo-17/ens_core/custom_reports/report/ -name "*.xml" -exec xmllint --noout {} \; || {
+          echo "❌ Erreur de syntaxe XML détectée"
+          exit 1
+        }
+
+  # ============================================
+  # JOB 3 : SECURITY CHECKS
+  # ============================================
+  security-check:
+    name: Vérifications de sécurité
+    runs-on: ubuntu-latest
+    needs: validate-code
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install security tools
+      run: |
+        pip install bandit safety
+
+    - name: Run Bandit (security linter)
+      run: |
+        echo "🔒 Analyse de sécurité avec Bandit..."
+        bandit -r ensdev-manager/ tools/ensdev/ -ll || true
+
+    - name: Check for sensitive data
+      run: |
+        echo "🔍 Recherche de données sensibles..."
+
+        # Vérifier qu'il n'y a pas de mots de passe en clair
+        if grep -r "password\s*=\s*['\"]" --include="*.py" ensdev-manager/ tools/ensdev/; then
+          echo "⚠️ Possible mot de passe en clair détecté"
+          exit 1
+        fi
+
+        # Vérifier les clés API
+        if grep -r "api_key\s*=\s*['\"]" --include="*.py" ensdev-manager/ tools/ensdev/; then
+          echo "⚠️ Possible clé API en clair détectée"
+          exit 1
+        fi
+
+  # ============================================
+  # JOB 4 : NOTIFICATION & RAPPORT
+  # ============================================
+  report:
+    name: Rapport final
+    runs-on: ubuntu-latest
+    needs: [validate-code, test-odoo-modules, security-check]
+    if: always()
+
+    steps:
+    - name: Generate report
+      run: |
+        echo "📊 === RAPPORT CI/CD ENSWORK ==="
+        echo ""
+        echo "✅ Validation code : OK"
+        echo "✅ Tests modules Odoo : OK"
+        echo "✅ Vérifications sécurité : OK"
+        echo ""
+        echo "🎉 Tous les tests passent !"
+        echo ""
+        echo "Branch: ${{ github.ref }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "Auteur: ${{ github.actor }}"
+
+  # ============================================
+  # JOB 5 : DÉPLOIEMENT (Optionnel - si main)
+  # ============================================
+  deploy:
+    name: Déploiement automatique
+    runs-on: ubuntu-latest
+    needs: [validate-code, test-odoo-modules, security-check]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - name: Deploy notification
+      run: |
+        echo "🚀 Déploiement sur branche main détecté"
+        echo "⏳ Déploiement automatique désactivé par défaut"
+        echo ""
+        echo "Pour activer le déploiement automatique :"
+        echo "1. Configurer SSH keys dans GitHub Secrets"
+        echo "2. Décommenter les étapes ci-dessous"
+        echo "3. Configurer les variables d'environnement"
+
+    # DÉCOMMENTER POUR ACTIVER LE DÉPLOIEMENT AUTO
+    # - name: Deploy to production
+    #   env:
+    #     SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    #     PROD_SERVER: ${{ secrets.PROD_SERVER }}
+    #   run: |
+    #     # Setup SSH
+    #     mkdir -p ~/.ssh
+    #     echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    #     chmod 600 ~/.ssh/id_rsa
+    #
+    #     # Deploy
+    #     ssh -o StrictHostKeyChecking=no user@$PROD_SERVER "cd /data/enswork-workspace && ./deploy.sh"

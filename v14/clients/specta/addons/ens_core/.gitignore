@@ -1,0 +1,137 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.pyc
+
+# Odoo
+*.pot
+filestore/
+sessions/
+#*.log
+
+# Base de données
+*.sql
+*.dump
+db_prod_backup/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environnements virtuels
+venv/
+env/
+ENV/
+.venv_pre-commit/
+ensdev-manager/venv/
+ensdev-manager/venv-backend/
+
+# Sources Odoo (trop gros pour Git)
+odoo-sources/
+
+# Données runtime
+*/data/filestore/
+*/data/sessions/
+#*/logs/*.log
+backups/
+
+# Fichiers de configuration sensibles
+*.conf
+!*.conf.example
+
+# Fichiers temporaires ensdev (générés automatiquement)
+.ensdev_session
+.ensdev_history.json
+
+# Métriques ensdev-manager (générées automatiquement)
+ensdev-manager/metrics/history.json
+ensdev-manager/metrics/*.json
+
+!/ensdev-manager/flask.log
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.npm/
+
+# Fichiers de backup/debug (obsolètes)
+*.old
+*.broken
+*.buggy
+*.backup
+*~.nib
+
+# Archives temporaires
+archives/*/
+*.zip
+
+# Logs
+*.log
+!ensdev-manager/flask.log
+
+# Ensdev-manager (dossier de gestion - à exclure complètement)
+ensdev-manager/
+metrics/
+/docs/
+/scripts/
+
+# Temporary and log files
+temp_debug_script.py
+
+# Documentation and guides
+AUDIT_SUMMARY.txt
+CLAUDE.md
+CLEANUP_CHECKLIST.md
+CR-11-RESUME.md
+GIT_STRUCTURE.md
+GUIDE_COMPLET_ENSDEV.md
+PACADAI-GUIDE-COMPLET.md
+PACADAI-STATUT-FINAL-100%.md
+PLANE-INTEGRATION-COMPLETE.md
+QWEN_INSTRUCTIONS.md
+RAPPORT-AUDIT-PACADAI-2025-12-15.md
+REPRISE-PLANE.md
+briefing-*.txt
+
+# Utility scripts
+fix_template.sh
+fix_template_cache.py
+
+# Tools directory
+
+# Archive directory
+.archive/
+
+# OCA modules directory
+.ensdev/plane/
+
+# Ensdev directory
+
+# Tools directory
+
+# Development directories
+.ensdev/
+tools/
+.archive/
+
+# Documentation
+docs/
+
+# Scripts
+scripts/

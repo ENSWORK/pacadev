@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_purchasequotation_dollibar_headfoot">
+        <t t-set="company" t-value="user.company_id" />
+        <div class="header" >
+            <div>
+                <style>
+                   #informations {
+                        display: block;
+                        }
+                   .m-0{
+                        display:inline;
+                         }
+                   strong,p,span{
+                        color:black;
+                        }
+               </style>
+                <div class="row mb8">
+                    <div class="col-6">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 250px; max-height: 100px;"/>
+                    </div>
+                     <div class="col-6 text-right mb4">
+                        <p>
+                            <strong style="font-size:17px;color:#0D0446">Demande de prix N° <span style="font-size:17px;color:#0D0446" t-field="o.name"/></strong>
+                        </p>
+                         <div style="margin-top:-10px; font-size:13px" name="order_date">
+                            <strong style="color:#0D0446">Date de Commande:</strong>
+                            <p style="color:#0D0446" class="m-0"  t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/>
+                        </div>
+                         <div style="font-size:13px">
+                             <strong style="color:#0D0446">Fournisseur N° : </strong><p class="m-0" t-field="o.partner_id.ref" style="color:#0D0446"/>
+                         </div>
+                         <div t-if="o.partner_ref" style="font-size:13px;">
+                            <strong style="color:#0D0446">Votre Offre:</strong>
+                            <p t-field="o.partner_ref" class="m-0" style="color:#0D0446"/>
+                         </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <style>
+            hr.newhr{
+                border: 1px solid #ABABAB;
+                margin-top:0px;
+                padding-top:0px;}
+            p{
+                font-size:10px;}
+            </style>
+                    <hr class="newhr" />
+            <center><strong><p style="font-size:11px;margin-top:-10px;" t-field="company.report_footer"></p></strong></center>
+             <div style="text-align:right;margin-top:-19px;color:black;font-size:10px" t-if="report_type == 'pdf'">
+                 <span class="page"/> / <span class="topage"/>
+             </div>
+
+        </div>
+    </template>
+</odoo>

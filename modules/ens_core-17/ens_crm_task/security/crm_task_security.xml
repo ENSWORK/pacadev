@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Security Group: CRM Task Creator -->
+        <record id="group_crm_task_creator" model="res.groups">
+            <field name="name">CRM Task Creator</field>
+            <field name="category_id" ref="base.module_category_sales_crm"/>
+            <field name="comment">Users can create project tasks from CRM leads/opportunities</field>
+            <field name="implied_ids" eval="[(4, ref('crm.group_use_lead'))]"/>
+        </record>
+
+    </data>
+</odoo>

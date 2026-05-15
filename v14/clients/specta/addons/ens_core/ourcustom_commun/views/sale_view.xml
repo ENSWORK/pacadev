@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+         <record id="view_order_form_inherit_comm" model="ir.ui.view">
+            <field name="name">view.order.form.inherit.comm</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <!--
+                <xpath expr="//notebook/page[@name='order_lines']/field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
+                    <field name="rest_to_ivoice" invisible="1"/>
+                    <field name="rest_to_ivoice_tax" invisible="1"/>
+                    <field name="rest_to_ivoice_ttc" invisible="1"/>
+                </xpath>
+                -->
+
+                <xpath expr="//group[@name='sale_total']" position="after">
+                    <group colspan="4">
+                        <!--<field name="amount_rest_to_invoice_ttc" attrs="{'invisible': [('invoice_status', '=', 'no')]}"/>-->
+                        <field name="reste_a_facturer" attrs="{'invisible': [('invoice_status', '=', 'no')]}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

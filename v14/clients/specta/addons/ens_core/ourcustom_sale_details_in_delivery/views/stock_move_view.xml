@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="sale_details_in_stock_move" model="ir.ui.view">
+        <field name="name">sale_details_in_stock_move</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='quantity_done']" position="after">
+                <field name="sale_currency_id" invisible="1"/>
+                <field name="price_unit" readonly="True"  invisible="1"/>
+                <field name="tax_id" readonly="True" widget="many2many_tags"  invisible="1"/>
+                <field name="discount" readonly="True"  invisible="1"/>
+
+                <field name="price_subtotal" widget="monetary" options="{'currency_field': 'sale_currency_id'}"  invisible="1"/>
+                <field name="price_tax" widget="monetary" options="{'currency_field': 'sale_currency_id'}"  invisible="1"/>
+                <field name="price_total" widget="monetary" options="{'currency_field': 'sale_currency_id'}" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//page[@name='operations']" position="inside">
+                <group class="oe_subtotal_footer oe_right">
+                    <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'sale_currency_id'}" invisible="1"/>
+                    <field name="amount_tax" widget="monetary" options="{'currency_field': 'sale_currency_id'}" invisible="1"/>
+                    <field name="amount_total" widget="monetary" options="{'currency_field': 'sale_currency_id'}" invisible="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- sale order line Treeview  -->
+    <record id="sale_order_line_tree_view_comm" model="ir.ui.view">
+      <field name="name">sale.order.line.Tree.comm</field>
+      <field name="model">sale.order.line</field>
+      <field name="arch" type="xml">
+        <tree create="false" delete="false">
+          <field name="order_partner_id"/>
+          <field name="product_id" optional="hide"/>
+          <field name="name"/>
+          <field name="product_uom_qty"/>
+          <field name="qty_delivered" string="Livré"/>
+          <field name="qty_invoiced" string="Facturé"/>
+          <field name="product_uom" string="UdM"/>
+          <field name="price_unit"/>
+          <field name="tax_id" widget="many2many_tags"/>
+          <field name="price_subtotal"/>
+        </tree>
+      </field>
+    </record>
+    <!--we need an ACTION to call this view-->
+    <record id="action_sale_order_line_tree_view" model="ir.actions.act_window">
+      <field name="name">Lignes des Ventes</field>
+      <field name="res_model">sale.order.line</field>
+      <field name="view_mode">tree</field>
+    </record>
+
+    <menuitem
+      name="Lignes des Ventes"
+      id="menu_sale_order_line_id"
+      action="action_sale_order_line_tree_view"
+      parent="ourcustom_menu.our_sale_menu"
+      sequence="10"
+    />
+<!--In case its an odoo instance that doesn't use ourcustom_menu model
+    The menu "Liste des Ventes" should be placed based on code bellow
+    and you should comment the menuitem above
+
+    <menuitem
+      name="Lignes des Ventes"
+      id="menu_sale_order_line_id_org"
+      action="action_sale_order_line_tree_view"
+      parent="sale.sale_order_menu"
+      sequence="10"
+    />
+
+-->
+
+</odoo>

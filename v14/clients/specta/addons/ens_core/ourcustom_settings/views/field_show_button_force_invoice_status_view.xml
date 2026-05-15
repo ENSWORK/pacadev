@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="sale_order_show_button_force_invoice" model="ir.ui.view">
+            <field name="name">sale_order_show_button_force_invoice</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                 <xpath expr="//notebook/page[@name='other_information']/group/group[@name='sale_info']" position="inside">
+                     <field name="show_hide_btn_force_inv_status" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

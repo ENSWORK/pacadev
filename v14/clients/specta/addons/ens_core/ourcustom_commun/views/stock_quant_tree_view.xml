@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="our_stock_quant_tree_view" model="ir.ui.view">
+            <field name="name">our.stock.quant.tree.view</field>
+            <field name="model">stock.quant</field>
+             <field name="inherit_id" ref="stock.view_stock_quant_tree_editable"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                   <field name="categ_id" string="Catégorie Article" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

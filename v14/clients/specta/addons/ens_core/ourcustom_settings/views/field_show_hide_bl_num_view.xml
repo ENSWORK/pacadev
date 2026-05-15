@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="acount_move_show_bl_num" model="ir.ui.view">
+            <field name="name">account.move.show.bl.num</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form" />
+            <field name="arch" type="xml">
+                 <xpath expr="//notebook/page[@name='other_info']/group[@id='other_tab_group']/group[@name='accounting_info_group']" position="inside">
+                     <field name="show_hide_bl_num" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

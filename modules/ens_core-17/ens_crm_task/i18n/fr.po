@@ -1,0 +1,202 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#   * ens_crm_task
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-22 16:00:00\n"
+"PO-Revision-Date: 2026-01-22 16:00:00\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__action_type
+msgid "Action"
+msgstr "Action"
+
+#. module: ens_crm_task
+#: model:ir.model.fields.selection,name:ens_crm_task.selection__crm_create_task_wizard__action_type__create_new
+msgid "Create New Task"
+msgstr "Créer une nouvelle tâche"
+
+#. module: ens_crm_task
+#: model:ir.model.fields.selection,name:ens_crm_task.selection__crm_create_task_wizard__action_type__link_existing
+msgid "Link to Existing Task"
+msgstr "Lier à une tâche existante"
+
+#. module: ens_crm_task
+#: model:ir.ui.view,arch_db:ens_crm_task.view_crm_create_task_wizard_form
+msgid "Create Task from CRM Pipeline/Lead"
+msgstr "Créer une tâche depuis CRM Pipeline/Lead"
+
+#. module: ens_crm_task
+#: model:ir.actions.act_window,name:ens_crm_task.action_crm_create_task_wizard
+msgid "Create Task from CRM Pipeline/Lead"
+msgstr "Créer une tâche depuis CRM Pipeline/Lead"
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_crm_lead_form_inherit_create_task
+msgid "Create Task"
+msgstr "Créer une tâche"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__name
+msgid "Task Name"
+msgstr "Nom de la tâche"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__project_id
+msgid "Project"
+msgstr "Projet"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__user_ids
+msgid "Assigned to"
+msgstr "Assigné à"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__date_deadline
+msgid "Deadline"
+msgstr "Date limite"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__tag_ids
+msgid "Tags"
+msgstr "Étiquettes"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__partner_id
+msgid "Customer"
+msgstr "Client"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__partner_id
+msgid "Partner"
+msgstr "Partenaire"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__date_assign
+msgid "Assigning Date"
+msgstr "Date d'assignation"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__company_id
+msgid "Company"
+msgstr "Société"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__description
+msgid "Description"
+msgstr "Description"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__stage_id
+msgid "Stage"
+msgstr "Étape"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__existing_task_id
+msgid "Select Existing Task"
+msgstr "Sélectionner une tâche existante"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_create_task_wizard__opportunity_id
+msgid "Opportunity"
+msgstr "Opportunité"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_lead__task_ids
+msgid "Related Tasks"
+msgstr "Tâches liées"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_crm_lead__task_count
+msgid "Task Count"
+msgstr "Nombre de tâches"
+
+#. module: ens_crm_task
+#: model:ir.model.fields,field_description:ens_crm_task.field_project_task__opportunity_id
+msgid "Opportunity"
+msgstr "Opportunité"
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_crm_lead_form_inherit_create_task
+msgid "Tasks"
+msgstr "Tâches"
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_crm_create_task_wizard_form
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: ens_crm_task
+#: model:res.groups,name:ens_crm_task.group_crm_task_creator
+msgid "CRM Task Creator"
+msgstr "Créateur de tâches CRM"
+
+#. module: ens_crm_task
+#: model:res.groups,comment:ens_crm_task.group_crm_task_creator
+msgid "Users can create project tasks from CRM leads/opportunities"
+msgstr "Les utilisateurs peuvent créer des tâches projet depuis les leads/opportunités CRM"
+
+#. module: ens_crm_task
+#: model:ir.model,name:ens_crm_task.model_crm_lead
+msgid "Lead/Opportunity"
+msgstr "Lead/Opportunité"
+
+#. module: ens_crm_task
+#: model:ir.model,name:ens_crm_task.model_project_task
+msgid "Task"
+msgstr "Tâche"
+
+#. module: ens_crm_task
+#: model:ir.model,name:ens_crm_task.model_crm_create_task_wizard
+msgid "Create Task from CRM Lead/Opportunity"
+msgstr "Créer une tâche depuis un Lead/Opportunité CRM"
+
+#. module: ens_crm_task
+#: code:addons/ens_crm_task/wizard/crm_create_task_wizard.py:0
+#, python-format
+msgid "Task created from CRM Opportunity: "
+msgstr "Tâche créée depuis l'opportunité CRM : "
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_crm_create_task_wizard_form
+msgid "Name"
+msgstr "Nom"
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_crm_create_task_wizard_form
+msgid "Task name..."
+msgstr "Nom de la tâche..."
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_crm_create_task_wizard_form
+msgid "Task description..."
+msgstr "Description de la tâche..."
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_crm_create_task_wizard_form
+msgid "Search for existing task..."
+msgstr "Rechercher une tâche existante..."
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_crm_create_task_wizard_form
+msgid "Select Task"
+msgstr "Sélectionner une tâche"
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_project_task_form_inherit_opportunity
+msgid "Lead"
+msgstr "Lead"
+
+#. module: ens_crm_task
+#: model_terms:ir.ui.view,arch_db:ens_crm_task.view_project_task_form_inherit_opportunity
+msgid "Opportunity"
+msgstr "Opportunité"

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="partner_form_view">
+            <field name="name">res.partner.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <field name="vat" position="after">
+                    <!--These Fields gonna appear just if The CONTACT IS A SOCITY-->
+                   <field name="identifiant_rc" attrs="{'invisible':[('is_company','=',False)]}"/>
+                   <field name="identifiant_if" attrs="{'invisible':[('is_company','=',False)]}"/>
+                   <field name="identifiant_patente" attrs="{'invisible':[('is_company','=',False)]}"/>
+                   <field name="siege" attrs="{'invisible':[('is_company','=',False)]}"/>
+                </field>
+                <field name="ref" position="attributes">
+                       <attribute name="attrs">{'readonly': [('is_company', '=', True)]}</attribute>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

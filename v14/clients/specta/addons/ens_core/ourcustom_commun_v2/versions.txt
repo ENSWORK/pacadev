@@ -1,0 +1,41 @@
+V0.4 on 03-02-2023 By J-Y
+ICE 15 CHIFFRE VERIFICATION
+    -ice_15_char.py
+    -__init__.py
+    -ice_15_char.xml
+    -__manifest__.py (Model depends on ourcustom_commun:use 'siege' in xpath)
+
+V0.5 on 13-02-2023 By LD
+Handle Reconsiliation Error: Cannot create unbalanced journal entry. Ids: %s\nDifferences debit - credit: %s"
+    File account_move + call it in __init__.py
+
+V0.6 on 16-02-2023 By J-Y LD
+Show a Blocking message on sale/purchase/BL/BR confirmation if a product contains a blocking message
+(Task Odoo "Article pour Offre Seulement")
+
+Files
+    -models/__init__.py
+    -models/add_warning.py
+    -__manifst__.py
+    -views/add_warning.xml
+
+V0.7 on 27-02-2023 By Asmae - LD
+Add fields 'Date de bon commande (date_commande)'
+Keep it invisible, it will be visible while installing ourcustom_sofilair since it's a SOFILAIR demand for now.
+Files:
+    -models/add_date_bon_commande.py
+    -views/add_date_bon_commande.xml
+    -__init__.py
+    __manifest__.py
+
+V0.8 on 23-03-2023
+[FIX] Fix Error cannot create Unbalenced entries Validating reconciliation and editing Taxe in vendor invoice lines
+    (Need to be checked to be sure about it)
+
+V0.9 on 15-04-2023
+[IMP] Block reset to draft of 'Paid' or 'Partially Paid' Invoices, show message to cancel payment first!
+
+V1.0 on 21-04-2023
+[ADD] Add two Features:
+    - Set Min discount by category
+    - Block User when Product Sale Price is below Product Price

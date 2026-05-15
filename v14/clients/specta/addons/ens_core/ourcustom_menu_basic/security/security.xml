@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Group-->
+    <record id="ourcustom_group_all_menus" model="res.groups">
+        <field name="name">Afficher Tous Les Menus</field>
+    </record>
+</odoo>

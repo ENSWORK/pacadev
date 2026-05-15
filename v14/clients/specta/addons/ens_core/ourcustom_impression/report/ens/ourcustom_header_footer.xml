@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ourcustom_header_footer">
+        <t t-set="company" t-value="user.company_id" />
+        <div class="header">
+            <div>
+                <style>
+                   #informations {
+                        display: block;
+                        }
+                   .m-0{
+                        display:inline;
+                         }
+                   strong,p,span{
+                        color:black;
+                        }
+               </style>
+                <div class="row mb8">
+                    <div class="col-6">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-width: 180px; max-height: 100px;"/>
+                    </div>
+                    <div class="col-6 text-right mb4" style="padding-bottom:1px">
+                        <h6 class="mt0" style="font-size:15px;color:#373737" t-field="company.report_header"/>
+                    </div>
+                </div>
+                <div style="margin-left:700px;margin-bottom:0px;color:black;font-size:14px" t-if="report_type == 'pdf'">
+                Page N°: <span class="page"/> de <span class="topage"/>
+                </div>
+                <!--<div class="first-page" style="color:black;margin-top:5px">
+                    <center><strong><span style="margin-left:5px;color:#081669;font-size:15px">Pour plus d’information sur nos produits, visiter notre site web : <span style="color:#081669" t-field="o.company_id.website"></span></span></strong></center>
+                </div>-->
+            </div>
+             <div class="not-first-page" style="padding-top:-79px" >
+                 <style>
+                     div.not{
+                     display:inline-block;
+                     margin-right:9px;}
+                 </style>
+                 <div class="not">
+                 <p>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'out_invoice' and o.state == 'posted'">Facture</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'out_invoice' and o.state == 'draft'">Facture en brouillon</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'out_invoice' and o.state == 'cancel'">Facture annulée</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'out_refund'">Avoir</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'in_refund'">Avoir de fournisseur</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'in_invoice'">Facture fournisseur</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.name != '/'" t-field="o.name"/></strong>
+                 </p>
+                 </div>
+                  <div class="not">
+                        <div style="font-size:14px" t-if="o.partner_id.ref" >
+                            <strong>Client :</strong>
+                            <span class="m-0" t-field="o.partner_id"/>
+                            <t t-if="o.partner_id.ref">
+                                &#032;<strong>N°</strong>&#032;<span class="m-0" t-field="o.partner_id.ref"/>&#032;
+                            </t>
+                        </div>
+                  </div>
+             </div>
+        </div>
+
+        <div class="footer">
+            <style>
+            hr.newhr{
+                border: 1px solid black;
+                margin-top:0px;
+                padding-top:0px;}
+            p{
+                font-size:10px;}
+            </style>
+                    <hr class="newhr" />
+            <center><p style="font-size:10px;" t-field="company.report_footer"></p></center>
+
+        </div>
+    </template>
+</odoo>

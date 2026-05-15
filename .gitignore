@@ -10,6 +10,7 @@ build/
 
 # Venv
 .pacadev-venv/
+.venv/
 venv/
 env/
 
@@ -41,4 +42,26 @@ v*/clients/*/addons/oca/
 
 # État local (spécifique machine)
 v*/clients/*/.pacadev/
+.pacadev/
 .claude/
+
+# Clés age privées — JAMAIS commiter
+core/secrets/age/
+*.age
+key.txt
+
+# Archives & dumps (gros, jamais en repo)
+core.zip
+*.tar.gz
+download-*/
+v*/clients/*/download-*/
+erpdata_*.zip
+v*/clients/*/erpdata_*
+
+# Caches Python compilés
+**/__pycache__/
+
+# Mem0 / ChromaDB — données locales (jamais en repo)
+~/.pacadev/memory/
+core/memory/chroma_db/
+core/memory/history.db

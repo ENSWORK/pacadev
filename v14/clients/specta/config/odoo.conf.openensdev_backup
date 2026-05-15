@@ -1,0 +1,13 @@
+[options]
+addons_path = /mnt/extra-addons/ens_core,/mnt/extra-addons/oca
+data_dir = /var/lib/odoo
+list_db = True
+dbfilter = ^specta
+admin_passwd = B@hou1983
+db_host = odoo_postgres_shared
+db_port = 5432
+db_user = odoo
+db_password = odoo
+workers = 0
+max_cron_threads = 1
+

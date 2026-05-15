@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Renommer vat par ICE
+        ICE(vat) Obligatoire quand : societe = True AND siege = True
+        -->
+    <record id="view_res_partner_views_inherit" model="ir.ui.view">
+        <field name="name">res.partner.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="replace">
+                <field name="vat" placeholder="e.g. BE0477472701" attrs="{'readonly': [('parent_id','!=',False)], 'required': [('is_company', '=', True),('siege', '=', True)]}" string="ICE"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

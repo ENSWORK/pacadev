@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="add_ref_article" model="ir.ui.view">
+            <field name="name">add.ref.article</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[@name='general_information']/group/group[@name='group_general']/field[@name='categ_id']" position="after">
+                    <field name="ref_article"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="add_code_categ_article" model="ir.ui.view">
+            <field name="name">add.code.categ.article</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="product.product_category_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='parent_id']" position="after">
+                    <field name="code_categ"/>
+                </xpath>
+            </field>
+         </record>
+    </data>
+</odoo>

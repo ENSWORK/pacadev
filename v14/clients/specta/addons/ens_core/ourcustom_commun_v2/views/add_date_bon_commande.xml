@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="form_view_add_date_bon_commande">
+            <field name="name">form_view_add_date_bon_commande</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='client_order_ref']" position="after">
+                    <field name="date_commande" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--ADD BUTTON IN SALE ORDER VIEW-->
+         <record id="maintenance_from_sale_view" model="ir.ui.view">
+            <field name="name">maintenance_from_sale_view</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <header>
+                        <button
+                                name="%(action_maintenance_from_sale_wz)d"
+                                string="Demande de Maintenance"
+                                type="action"
+                                class="btn-primary"
+                        />
+                </header>
+            </field>
+        </record>
+
+        <!--ADD FIELD origin_sale IN MAINTENANCE REQUEST VIEW-->
+         <record id="maintenance_request_org_view" model="ir.ui.view">
+            <field name="name">maintenance_request_org_view</field>
+            <field name="model">maintenance.request</field>
+            <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/group/group[2]/field[@name='company_id']" position="after">
+                    <field name="origin_sale" readonly="True"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Add Maintenance Box to show Maintenance requests linked to current SO-->
+        <record id="view_sale_order_form_mnt_count" model="ir.ui.view">
+            <field name="name">view_sale_order_form_mnt_count</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_view_invoice']" position="after">
+                    <button type="object"
+                        name="action_view_our_mnt_request"
+                        class="oe_stat_button"
+                        icon="fa-gear"
+                        attrs="{'invisible': [('mnt_request_count', '=', 0)]}" groups="base.group_user">
+                        <field name="mnt_request_count" widget="statinfo" string="Maintenance"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ourcustom_header_footer_whf">
+        <t t-set="company" t-value="user.company_id" />
+        <div class="header" >
+            <div>
+                <style>
+                   #informations {
+                        display: block;
+                        }
+                   .m-0{
+                        display:inline;
+                         }
+                   strong,p,span{
+                        color:black;
+                        }
+               </style>
+                <br/><br/>
+                <div style="margin-left:700px;margin-bottom:0px;color:black;font-size:14px" t-if="report_type == 'pdf'">
+                Page N°: <span class="page"/> de <span class="topage"/>
+                </div>
+                <!--<div class="first-page" style="color:black;margin-top:5px">
+                    <center><strong><span style="margin-left:5px;color:#081669;font-size:15px">Pour plus d’information sur nos produits, visiter notre site web : <span style="color:#081669" t-field="o.company_id.website"></span></span></strong></center>
+                </div>-->
+            </div>
+             <div class="not-first-page" style="padding-top:-79px" >
+                 <style>
+                     div.not{
+                     display:inline-block;
+                     margin-right:9px;}
+                 </style>
+                 <div class="not">
+                 <p>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'out_invoice' and o.state == 'posted'">Facture</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'out_invoice' and o.state == 'draft'">Facture en brouillon</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'out_invoice' and o.state == 'cancel'">Facture annulée</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'out_refund'">Avoir</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'in_refund'">Avoir de fournisseur</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.move_type == 'in_invoice'">Facture fournisseur</span></strong>
+                        <strong><span style="font-size:16px" t-if="o.name != '/'" t-field="o.name"/></strong>
+                 </p>
+                 </div>
+                  <div class="not">
+                        <div style="font-size:14px" t-if="o.partner_id.ref" >
+                            <strong>Client N° :</strong>
+                             <span class="m-0" t-field="o.partner_id"/>
+                            <t t-if="o.partner_id.ref">
+                                &#032;<strong>N°</strong>&#032;<span class="m-0" t-field="o.partner_id.ref"/>&#032;
+                            </t>
+                        </div>
+                  </div>
+             </div>
+        </div>
+    </template>
+</odoo>

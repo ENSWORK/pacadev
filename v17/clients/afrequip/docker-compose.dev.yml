@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: afrequip_dev
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    ports:
+      - "5433:5432"
+    volumes:
+      - afrequip_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  odoo:
+    image: odoo:17
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      HOST: postgres
+      USER: odoo
+      PASSWORD: odoo
+      DB_NAME: afrequip_dev
+    ports:
+      - "8070:8069"
+    volumes:
+      - afrequip_odoo_data:/var/lib/odoo
+      - ./addons/oca:/mnt/extra-addons/oca
+      - ./addons/ens_core:/mnt/extra-addons/ens_core
+    command: odoo -c /odoo.conf --addons-path=/mnt/extra-addons/oca,/mnt/extra-addons/ens_core,/usr/lib/python3/dist-packages/odoo/addons
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - afrequip_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  afrequip_postgres_data:
+  afrequip_odoo_data:
+  afrequip_redis_data:
+
+networks:
+  default:
+    name: afrequip_dev_network

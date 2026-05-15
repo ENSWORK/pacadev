@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report
+            string="Bon Commande Vente DB"
+            id="report_saleorder_commande_db"
+            menu="True"
+            model="sale.order"
+            report_type="qweb-pdf"
+            name="ourcustom_specta.report_saleorder_commande_dollibar"
+            file="ourcustom_specta.report_saleorder_commande_dollibar"
+            paperformat="ourcustom_impression.paperformat_db"
+            print_report_name="'Bon Commande Vente N° %s - Client %s' % ((object.name).replace('/', '') , object.partner_id.name)"
+        />
+
+        <!--Show DB reports (just DB not DB SE)-->
+        <!--Facture DB-->
+        <record id="ourcustom_impression.report_invoice_db" model="ir.actions.report">
+            <field name="binding_model_id" ref="account.model_account_move"/>
+        </record>
+        <record id="ourcustom_impression.report_saleorder_db" model="ir.actions.report">
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+        </record>
+        <record id="ourcustom_impression.report_saleorder_pro_db" model="ir.actions.report">
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+        </record>
+        <record id="ourcustom_impression.report_purchaseorder_db" model="ir.actions.report">
+            <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+        </record>
+        <record id="ourcustom_impression.report_purchasequotation_db" model="ir.actions.report">
+            <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+        </record>
+        <record id="ourcustom_impression.report_delivery_db" model="ir.actions.report">
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        </record>
+    </data>
+</odoo>

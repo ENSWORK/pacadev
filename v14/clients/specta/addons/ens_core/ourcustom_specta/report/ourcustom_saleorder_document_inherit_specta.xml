@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--This file edit OC for SPECTA-->
+     <template id="ourcustom_header_footeroc_inherit_specta" inherit_id="ourcustom_impression.ourcustom_header_footeroc">
+
+          <!--Remove Slogan From Header-->
+         <xpath expr="//div[@class='header']/div/div[@class='row mb8']/div[@class='col-6 text-right mb4']" position="replace">
+
+         </xpath>
+     </template>
+    <template id="report_oursaleorder_document_inherit_specta" inherit_id="ourcustom_impression.report_oursaleorder_document_inherit">
+         <!--Edit NB in Offre-->
+        <xpath expr="//t/div/div[@class='ourpage']/div[@class='NB']" position="replace">
+            <p style="font-style: italic;color:black;font-size:9px">
+                        <strong style="text-decoration: underline;">N.B :</strong><br/>
+                        <strong>*</strong>Merci de noter nos références en cas de commande.<br/>
+                        <strong>*</strong>Le délai de livraison ci-dessus est valable à la date du devis et susceptible d'être revu en fonction de la date de réception de la commande.<br/>
+                        <strong>*</strong>Notre offre est établie pour des prestations standard hors cahier des charges. Toutes  spécifications particulières est convenues sur le descriptif qui peut  être en pièce jointe.<br/>
+            </p>
+            <div t-if="env.context.get('proforma', False) or is_pro_forma">
+                <img class="img" style="float:right" src="/ourcustom_specta/static/src/img/signature_specta.png"/>
+            </div>
+        </xpath>
+         <!--Remove Votre Reference-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr/td[1]/div[@class='row mt32 mb32']/div[@class='col-auto col-3 mw-100 mb-2 mod']" position="replace">
+
+        </xpath>
+         <!--Remove Numero de Client-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr/td[2]/div/div[@class='mod']" position="replace">
+
+        </xpath>
+         <!--Edit padding of partner name-->
+        <xpath expr="//t/div/div[@class='ourpage']/table[@class='mod']/tr/td[2]/div/div[@class='mod2']" position="replace">
+            <div  class='mod2' style="color:black;padding-top:20px"><p class="m-0" t-field="doc.partner_id"/></div>
+        </xpath>
+
+    </template>
+</odoo>

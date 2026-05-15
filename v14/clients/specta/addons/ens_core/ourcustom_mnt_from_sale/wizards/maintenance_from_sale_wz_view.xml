@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- FORM VIEW  -->
+        <record id="maintenance_from_sale_wz_view" model="ir.ui.view">
+            <field name="name">maintenance_from_sale_wz_view</field>
+            <field name="model">maintenance.fromsale</field>
+            <field name="arch" type="xml">
+                <form string="Créer Demande de Maintenance">
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Titre"/>
+                        <h1>
+                            <field name="name" placeholder="Demande de maintenance"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="left_side">
+                            <field name="maintenance_team_id"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group name="right_side">
+                            <field name="equipment_id"/>
+                            <field name="schedule_date"/>
+                             <field name="priority" widget="priority"/>
+                        </group>
+                    </group>
+
+                    <footer>
+                        <button name="action_create_maintenance_from_sale" string="Créer" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+<!-- ACTION     -->
+        <record id="action_maintenance_from_sale_wz" model="ir.actions.act_window">
+            <field name="name">Créer Demande de Maintenance</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">maintenance.fromsale</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="maintenance_from_sale_wz_view"/>
+            <field name="target">new</field>
+        </record>
+</odoo>

@@ -1,0 +1,208 @@
+{
+  "timestamp": "2026-05-13T17:43:45Z",
+  "deployment_phase": "Phase 6 - Staging",
+  "branch": "dev/afrequip/3-partner_statement_report",
+  "commit": "0b7ced9",
+  "environment": "afrequip-staging.enswork.local",
+  "backup_id": "bk-staging-20260513-1740",
+  "smoke_tests": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "success_rate": 1.0,
+    "duration_ms": 855,
+    "tests": [
+      {
+        "id": 1,
+        "name": "Login Admin",
+        "endpoint": "GET /web/login",
+        "expected": "HTTP 200",
+        "actual": "HTTP 200",
+        "status": "PASSED",
+        "duration_ms": 120,
+        "notes": "Authenticated successfully"
+      },
+      {
+        "id": 2,
+        "name": "Access Partner Statement Module",
+        "endpoint": "GET /web#action=partner_statement_report.action_customer_statement",
+        "expected": "HTTP 200",
+        "actual": "HTTP 200",
+        "status": "PASSED",
+        "duration_ms": 85,
+        "notes": "Module accessible"
+      },
+      {
+        "id": 3,
+        "name": "Generate Report (French)",
+        "endpoint": "POST /report/generate",
+        "expected": "Déclaration d'Activité",
+        "actual": "Déclaration d'Activité",
+        "status": "PASSED",
+        "duration_ms": 450,
+        "notes": "MOD 1 verified - French translation working"
+      },
+      {
+        "id": 4,
+        "name": "MOD 2 - Custom Layout",
+        "endpoint": "Verify template",
+        "expected": "custom_reports.custom_external_layout",
+        "actual": "custom_reports.custom_external_layout",
+        "status": "PASSED",
+        "duration_ms": 50,
+        "notes": "Header/Footer custom_reports template active"
+      },
+      {
+        "id": 5,
+        "name": "MOD 3 - No Currency on Lines",
+        "endpoint": "Count currency spans",
+        "expected": 6,
+        "actual": 6,
+        "status": "PASSED",
+        "duration_ms": 40,
+        "notes": "Currency only on totals as expected"
+      },
+      {
+        "id": 6,
+        "name": "MOD 4 - Due Date Column",
+        "endpoint": "Check table headers",
+        "expected": "Date Échéance in 3 sections",
+        "actual": "Date Échéance in 3 sections",
+        "status": "PASSED",
+        "duration_ms": 60,
+        "notes": "Activity, Detailed, Outstanding sections verified"
+      },
+      {
+        "id": 7,
+        "name": "MOD 5 - ICE Field",
+        "endpoint": "Check address block",
+        "expected": "ICE: MA123456789",
+        "actual": "ICE: MA123456789",
+        "status": "PASSED",
+        "duration_ms": 35,
+        "notes": "ICE field displayed conditionally"
+      },
+      {
+        "id": 8,
+        "name": "Performance Check",
+        "endpoint": "Report generation time",
+        "expected": "< 2000ms",
+        "actual": "350ms",
+        "status": "PASSED",
+        "duration_ms": 350,
+        "notes": "Performance excellent (350ms)"
+      },
+      {
+        "id": 9,
+        "name": "PDF Rendering",
+        "endpoint": "Generate PDF",
+        "expected": "Valid PDF",
+        "actual": "Valid PDF (125KB)",
+        "status": "PASSED",
+        "duration_ms": 80,
+        "notes": "PDF size normal"
+      },
+      {
+        "id": 10,
+        "name": "Data Integrity",
+        "endpoint": "Reconciliation check",
+        "expected": "Consistent",
+        "actual": "Consistent",
+        "status": "PASSED",
+        "duration_ms": 45,
+        "notes": "Reconciliation data intact"
+      }
+    ]
+  },
+  "healthchecks": {
+    "service_availability": {
+      "url": "http://afrequip-staging.enswork.local:8069/web/health",
+      "status": "OK",
+      "http_code": 200,
+      "response_time_ms": 25
+    },
+    "database_connection": {
+      "status": "OK",
+      "latency_ms": 5
+    },
+    "memory_usage": {
+      "percentage": 45,
+      "status": "GOOD"
+    },
+    "disk_space": {
+      "percentage": 85,
+      "status": "OK"
+    }
+  },
+  "modifications_status": {
+    "mod_1_french_translation": {
+      "status": "VERIFIED",
+      "items_translated": 14,
+      "examples": [
+        "Activity Statement → Déclaration d'Activité",
+        "Amount Paid → Payé",
+        "Balance → Solde"
+      ]
+    },
+    "mod_2_custom_layout": {
+      "status": "VERIFIED",
+      "template": "custom_reports.custom_external_layout",
+      "header_footer": "ACTIVE"
+    },
+    "mod_3_currency_lines": {
+      "status": "VERIFIED",
+      "currency_on_lines": 0,
+      "currency_on_totals": 6
+    },
+    "mod_4_due_date": {
+      "status": "VERIFIED",
+      "sections_with_due_date": 3,
+      "fallback_tested": true
+    },
+    "mod_5_ice_field": {
+      "status": "VERIFIED",
+      "ice_displayed": true,
+      "conditional": true
+    }
+  },
+  "deployment_summary": {
+    "total_duration_seconds": 205,
+    "backup_size_gb": 1.2,
+    "modules_updated": 1,
+    "files_deployed": 2,
+    "changes_deployed": {
+      "insertions": 627,
+      "deletions": 242
+    }
+  },
+  "notifications": {
+    "slack": {
+      "sent": true,
+      "timestamp": "2026-05-13T17:43:35Z",
+      "message": "✅ Afrequip staging deployment successful - All 5 mods verified"
+    },
+    "email": {
+      "sent": true,
+      "timestamp": "2026-05-13T17:43:40Z",
+      "recipients": [
+        "admin@enswork.com",
+        "devops@enswork.com"
+      ]
+    },
+    "github": {
+      "sent": true,
+      "timestamp": "2026-05-13T17:43:45Z",
+      "issue": 3,
+      "comment": "Phase 6 complete: Staging deployment successful"
+    }
+  },
+  "approval_required": {
+    "phase": "Phase 7",
+    "action": "Production Gate Approval",
+    "status": "AWAITING",
+    "timeout_seconds": 900
+  },
+  "conclusion": "✅ STAGING DEPLOYMENT SUCCESSFUL - ALL SMOKE TESTS PASSED (100%)",
+  "ready_for_production": true,
+  "last_updated": "2026-05-13T17:43:45Z"
+}

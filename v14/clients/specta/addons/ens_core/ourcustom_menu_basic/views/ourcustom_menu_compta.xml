@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--Create Menu Comptabilité-->
+    <menuitem
+            id="our_menu_comptabilite_root"
+            name="Comptabilité"
+            groups="account.group_account_readonly,account.group_account_invoice"
+            sequence="9"
+            web_icon="ourcustom_menu,static/images/comptabilite.png"/>
+
+        <!--Menu Vue D'ensemble-->
+        <menuitem
+                id="our_menu_vue_densemble"
+                name="Vue D'ensemble"
+                action="account.open_account_journal_dashboard_kanban"
+                groups="account.group_account_invoice,account.group_account_manager"
+                parent="our_menu_comptabilite_root"
+                sequence="2"/>
+        <!--Menu Clients-->
+        <menuitem
+                id="our_menu_clients"
+                name="Clients"
+                parent="our_menu_comptabilite_root"
+                groups="account.group_account_user,account.group_account_manager"
+                sequence="3"/>
+                <!--Factures-->
+                <menuitem
+                        id="our_menu_clients_factures"
+                        name="Factures"
+                        action="account.action_move_out_invoice_type"
+                        parent="our_menu_clients"/>
+                <!--Avoirs-->
+                <menuitem
+                        id="our_menu_clients_avoirs"
+                        name="Avoirs"
+                        action="account.action_move_out_refund_type"
+                        parent="our_menu_clients"/>
+                <!--Paiements-->
+                <menuitem
+                        id="our_menu_clients_paiements"
+                        name="Paiements"
+                        action="account.action_account_payments"
+                        parent="our_menu_clients"/>
+                <!--Recouvrements-->
+                <menuitem
+                        id="our_menu_clients_recouvrements"
+                        name="Recouvrements"
+                        action="ourcustom_commun.action_view_list_customer_statements"
+                        groups="account.group_account_user,account.group_account_manager"
+                        parent="our_menu_clients"/>
+
+
+
+        <!--Menu Fournisseurs-->
+        <menuitem
+                id="our_menu_fournisseurs"
+                name="Fournisseurs"
+                parent="our_menu_comptabilite_root"
+                groups="account.group_account_user,account.group_account_manager"
+                sequence="4"/>
+                <!--Factures-->
+                <menuitem
+                        id="our_menu_fournisseurs_fact"
+                        name="Factures"
+                        action="account.action_move_in_invoice_type"
+                        parent="our_menu_fournisseurs"/>
+                <!--Avoirs-->
+                <menuitem
+                        id="our_menu_fournisseurs_avoirs"
+                        name="Avoirs"
+                        action="account.action_move_in_refund_type"
+                        parent="our_menu_fournisseurs"/>
+                <!--Paiements-->
+                <menuitem
+                        id="our_menu_fournisseurs_paiements"
+                        name="Paiements"
+                        action="account.action_account_payments_payable"
+                        parent="our_menu_fournisseurs"/>
+        <!--Comptabilité-->
+        <menuitem id="our_menu_compta" name="Comptabilité" sequence="6" groups="account.group_account_user,account.group_account_manager" parent="our_menu_comptabilite_root">
+            <!--Divers-->
+            <menuitem id="our_menu_compta_divers" name="Divers" sequence="1">
+                <!--Pieces Comptables-->
+                <menuitem id="our_menu_compta_piece_comptable" name="Pièces comptables" action="account.action_move_journal_line" groups="account.group_account_readonly" sequence="1"/>
+                <!--Écritures Comptables-->
+                <menuitem id="our_menu_compta_ecriture_comptable" name="Écritures comptables" action="account.action_account_moves_all" groups="base.group_no_one" sequence="10"/>
+            </menuitem>
+            <!--Journaux-->
+            <menuitem id="our_menu_compta_journaux" name="Journaux" sequence="2">
+                <menuitem id="our_menu_compta_jventes" name="Ventes" action="account.action_account_moves_journal_sales" groups="account.group_account_readonly" sequence="1"/>
+                <menuitem id="our_menu_compta_jachats" name="Achats" action="account.action_account_moves_journal_purchase" groups="account.group_account_readonly" sequence="2"/>
+                <menuitem id="our_menu_compta_jbanque" name="Banque et Liquidités" action="account.action_account_moves_journal_bank_cash" groups="account.group_account_readonly" sequence="3"/>
+                <menuitem id="our_menu_compta_jdivers" name="Divers" action="account.action_account_moves_journal_misc" groups="account.group_account_readonly" sequence="4"/>
+            </menuitem>
+            <menuitem id="our_menu_finance_entries_accounting_ledgers" name="Journaux" sequence="3">
+                <menuitem id="our_menu_action_account_moves_ledger_general" name="Grand livre" action="account.action_account_moves_ledger_general" groups="account.group_account_readonly" sequence="1"/>
+                <menuitem id="our_menu_action_account_moves_ledger_partner" name="Livre des tiers" action="account.action_account_moves_ledger_partner" groups="account.group_account_readonly" sequence="2"/>
+            </menuitem>
+            <!--Gestion-->
+            <menuitem id="our_menu_finance_entries_management" name="Gestion" sequence="10" groups="account.group_account_invoice,account.group_account_readonly">
+                <!--Budgets-->
+                <menuitem
+                      id="our_menu_act_budget_view"
+                      name="Budgets"
+                      action="base_account_budget.act_budget_view" sequence="60"
+                      groups="account.group_account_user,account.group_account_manager"/>
+                <!--Assets-->
+                 <menuitem
+                         id="our_menu_action_account_asset_asset_form"
+                         name="Actifs"
+                         action="om_account_asset.action_account_asset_asset_form"
+                         sequence="101" groups="account.group_account_manager"/>
+            </menuitem>
+            <!--Generate Assets Entries-->
+            <menuitem id="our_menu_finance_entries_generate_entries" name="Générer les lignes d'écritures">
+                <menuitem
+                      name="Générer les lignes d'écritures"
+                      action="om_account_asset.action_asset_depreciation_confirmation_wizard"
+                      id="our_menu_asset_depreciation_confirmation_wizard"
+                      sequence="111"
+                      groups="account.group_account_manager"/>
+            </menuitem>
+            <!--Actions-->
+            <menuitem id="our_menu_finance_entries_actions" name="Actions" sequence="11" groups="account.group_account_user,account.group_account_manager">
+                <!--Lock Date-->
+                 <menuitem
+                          id="our_menu_action_change_lock_date"
+                          name="Dates de fermeture Fiscal"
+                          action="om_account_accountant.action_view_change_lock_date"
+                          groups="account.group_account_manager"
+                          sequence="55"/>
+                <!--Lettrage-->
+                <menuitem
+                        id="our_menu_action_manual_reconciliation"
+                        name="Lettrage"
+                        action="account_reconciliation_widget.action_manual_reconciliation"
+                        sequence="25" />
+                <!--Ajustements fiscaux-->
+                <menuitem
+                        id="our_menu_action_tax_adjustment"
+                        name="Ajustements fiscaux"
+                        action="account.tax_adjustments_form"
+                        groups="base.group_no_one" sequence="45"/>
+            </menuitem>
+        </menuitem>
+        <!--Analyse-->
+        <menuitem id="our_menu_finance_reports" name="Analyse" sequence="20" parent="our_menu_comptabilite_root" groups="account.group_account_manager">
+            <!--RAPPORTS PDF-->
+            <menuitem id="our_menu_finance_legal_statement" name="Rapports PDF">
+                <menuitem id="our_menu_account_report_bs"  name="Bilan" sequence="5" action="accounting_pdf_reports.action_account_report_bs" groups="account.group_account_user,account.group_account_manager"/>
+                <menuitem id="our_menu_account_report_pl" name="Profit et Perte" sequence="6" action="accounting_pdf_reports.action_account_report_pl"  groups="account.group_account_user,account.group_account_manager"/>
+                <menuitem id="our_menu_aged_trial_balance" name="Solde du partenaire âgé" sequence="7" action="accounting_pdf_reports.action_account_aged_balance_view"/>
+                <menuitem id="our_menu_general_ledger" name="Grand livre général" sequence="3" action="accounting_pdf_reports.action_account_general_ledger_menu" groups="account.group_account_user,account.group_account_manager"/>
+                <menuitem id="our_menu_print_journal" name="Audit des journaux" sequence="1" action="accounting_pdf_reports.action_account_print_journal_menu" groups="account.group_account_manager,account.group_account_user"/>
+                <menuitem id="our_menu_partner_ledger" name="Grand livre des partenaires" sequence="2" action="accounting_pdf_reports.action_account_partner_ledger_menu" groups="account.group_account_user,account.group_account_manager"/>
+                <menuitem id="our_menu_account_report" name="Tax Report" sequence="8" action="accounting_pdf_reports.action_account_tax_report" groups="account.group_account_manager,account.group_account_user"/>
+                <menuitem id="our_menu_general_Balance_report" name="Trial Balance" sequence="4" action="accounting_pdf_reports.action_account_balance_menu" groups="account.group_account_user,account.group_account_manager"/>
+            </menuitem>
+            <!--PARTNER REPORTS-->
+            <menuitem id="our_menu_finance_partner_reports" name="Rapports des partenaires" sequence="20">
+                <menuitem id="our_menu_aged_trial_balance" name="Solde du partenaire âgé" sequence="10" action="accounting_pdf_reports.action_account_aged_balance_view"/>
+                <menuitem id="our_menu_aged_receivable" name="Aged Receivable" sequence="20" action="accounting_pdf_reports.action_account_aged_receivable"/>
+                <menuitem id="our_menu_aged_payable" name="Aged Payable" sequence="30" action="accounting_pdf_reports.action_account_aged_payable"/>
+                <menuitem id="our_menu_partner_ledger" name="Grand livre des partenaires" sequence="5" action="accounting_pdf_reports.action_account_partner_ledger_menu" groups="account.group_account_user,account.group_account_manager"/>
+            </menuitem>
+            <!--Audits Report-->
+            <menuitem id="our_menu_finance_audit_reports" name="Rapports d'audit" sequence="30">
+                <menuitem id="our-menu_general_ledger" name="Grand livre général" sequence="10" action="accounting_pdf_reports.action_account_general_ledger_menu" groups="account.group_account_user,account.group_account_manager"/>
+                <menuitem id="our-menu_print_journal" name="Audit des journaux" sequence="40" action="accounting_pdf_reports.action_account_print_journal_menu" groups="account.group_account_manager,account.group_account_user"/>
+                <menuitem id="our_menu_account_report" name="Rapports Fiscaux" sequence="30" action="accounting_pdf_reports.action_account_tax_report" groups="account.group_account_manager,account.group_account_user"/>
+                <menuitem id="our_menu_general_balance_report" name="Trial Balance" sequence="20"  action="accounting_pdf_reports.action_account_balance_menu" groups="account.group_account_user,account.group_account_manager"/>
+            </menuitem>
+
+
+            <menuitem id="our_account_reports_management_menu" name="Gestion" sequence="4">
+                <menuitem id="our_menu_action_account_invoice_report_all" name="Analyse des factures" action="account.action_account_invoice_report_all" sequence="1"/>
+                <menuitem id="our_menu_act_crossovered_budget_lines_view" action="om_account_budget.act_crossovered_budget_lines_view" sequence="20" groups="account.group_account_user,account.group_account_manager"/>
+                <menuitem id="our_menu_action_asset_asset_report" name="Actifs" action="om_account_asset.action_asset_asset_report"  sequence="21"/>
+                <menuitem id="menu_act_crossovered_budget_lines_view" name="Budgets" action="base_account_budget.act_budget_lines_view" sequence="20"/>
+            </menuitem>
+            <menuitem id="our_account_reports_legal_statements_menu" name="Generic Statements" sequence="1" groups="account.group_account_readonly"/>
+        </menuitem>
+
+
+        <!--Configuration-->
+         <menuitem id="our_menu_finance_configuration" name="Configuration" sequence="35" groups="account.group_account_manager" parent="our_menu_comptabilite_root">
+                <menuitem id="our_menu_account_config" name="Configuration" action="account.action_account_config" groups="base.group_system" sequence="0"/>
+                <menuitem id="our_account_invoicing_menu" name="Facturation" groups="account.group_account_invoice,account.group_account_readonly" sequence="1">
+                    <menuitem id="our_menu_action_payment_term_form" name="Conditions de paiement" action="account.action_payment_term_form" sequence="1"/>
+                    <menuitem id="our_menu_action_incoterm_open" name="Conditions de livraison" action="account.action_incoterms_tree" groups="account.group_account_manager" sequence="3"/>
+                </menuitem>
+                <menuitem id="our_account_banks_menu" name="Banques" groups="account.group_account_manager" sequence="2">
+                    <menuitem id="our_menu_action_account_bank_journal_form" name="Ajouter un compte Bancaire" action="account.action_new_bank_setting" groups="account.group_account_manager" sequence="1"/>
+                    <menuitem id="our_action_account_reconcile_model_menu" name="Modèles de lettrage" action="account.action_account_reconcile_model" sequence="3" />
+                </menuitem>
+                <menuitem id="our_account_account_menu" name="Comptabilité" groups="account.group_account_manager" sequence="3">
+                    <menuitem id="our_menu_action_account_form" name="Plan Comptable" action="account.action_account_form" groups="account.group_account_readonly" sequence="1"/>
+                    <menuitem id="our_menu_action_tax_form" name="Taxes" action="account.action_tax_form" sequence="2"/>
+                    <menuitem id="our_menu_action_account_journal_form" name="Journaux" action="account.action_account_journal_form" groups="account.group_account_manager" sequence="3"/>
+                    <menuitem id="our_account_report_folder" name="Rapports de compte" groups="account.group_account_readonly" sequence="4"/>
+                    <menuitem id="our_menu_action_currency_form" action="base.action_currency_form" name="Devises" groups="base.group_multi_currency" sequence="4"/>
+                    <menuitem id="our_menu_action_account_fiscal_position_form" name="Position Fiscales" action="account.action_account_fiscal_position_form" sequence="5"/>
+                    <menuitem id="our_menu_action_account_journal_group_list" name="Groupes de journal" action="account.action_account_journal_group_list" groups="account.group_account_manager" sequence="7"/>
+                    <menuitem id="our_account_type_menu" name="Types de Compte" action="account.action_account_type_form" sequence="30"/>
+                </menuitem>
+
+                 <!--Paiements-->
+                <menuitem id="our_root_payment_menu" name="Paiements" groups="account.group_account_manager" sequence="4">
+                    <menuitem
+                        action="payment.action_payment_acquirer"
+                        id="our_payment_acquirer_menu"
+                        name="Intermédiaires de paiement"
+                        sequence='10' />
+                    <menuitem
+                        action='payment.action_payment_transaction'
+                        id='our_payment_transaction_menu'
+                        name="Transactions de paiement"
+                        groups="base.group_no_one"
+                        sequence='20' />
+                    <menuitem
+                        action='payment.payment_token_action'
+                        id='our_payment_token_menu'
+                        name="Sauvez les données de paiement"
+                        groups='base.group_no_one'/>
+                    <menuitem
+                        action="payment.action_payment_icon"
+                        id="our_payment_icon_menu"
+                        name="Icônes de paiement"
+                        groups="base.group_no_one"/>
+
+                </menuitem>
+                <menuitem id="our_account_management_menu" name="Gestion" groups="account.group_account_manager" sequence="5">
+                    <menuitem id="our_menu_product_product_categories" name="Catégories d'articles" action="product.product_category_action_form" sequence="3"/>
+                    <menuitem id="our_menu_action_rounding_form_view" name="Arrondis d'espèces" action="account.rounding_list_action" groups="account.group_cash_rounding" sequence="4"/>
+                    <menuitem id="our_menu_configure_tax_report" name="Rapports de taxes" action="account.action_configure_tax_report" groups="base.group_no_one" sequence="5"/>
+                    <menuitem id="our_menu_action_analytic_lines_tree" name="Écritures analytiques" action="analytic.account_analytic_line_action_entries" groups="analytic.group_analytic_accounting" sequence="35"/>
+                    <menuitem id="our_menu_budget_post_form" name="Positions budgétaires" action="base_account_budget.open_budget_post_form"  sequence="5"/>
+                    <menuitem id="our_account_followup_menu" name="Niveaux de suivi" action="ourcustom_commun.action_account_followup_definition_form"  groups="account.group_account_manager" sequence="2"/>
+                    <menuitem id="our_menu_action_account_asset_asset_list_normal_purchase" name="Types d'Actif" action="om_account_asset.action_account_asset_asset_list_normal_purchase"  sequence="6"/>
+                </menuitem>
+                <menuitem id="our_menu_analytic_accounting" name="Comptabilité analytique" groups="analytic.group_analytic_accounting,analytic.group_analytic_tags" sequence="6">
+                    <menuitem id="our_account_analytic_def_account" name="Comptes analytiques" action="analytic.action_account_analytic_account_form" groups="analytic.group_analytic_accounting" sequence="1"/>
+                    <menuitem id="our_account_analytic_group_menu" name="Groupe de comptes analytiques" action="analytic.account_analytic_group_action" groups="analytic.group_analytic_accounting" sequence="2"/>
+                    <menuitem id="our_account_analytic_tag_menu" name="Étiquettes analytiques" action="analytic.account_analytic_tag_action" groups="analytic.group_analytic_tags"/>
+                </menuitem>
+         </menuitem>
+
+
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--This file edit Facture Pro-Forma DB for SPECTA-->
+     <template id="add_signature_in_proforma" inherit_id="ourcustom_impression.report_saleorder_pro_dollibar">
+          <xpath expr="//table[@name='table_cdp']" position="after">
+            <div name="signature_specta">
+                <img class="img" style="float:right" src="/ourcustom_specta/static/src/img/signature_specta.png"/>
+            </div>
+        </xpath>
+     </template>
+
+    <!--
+        WHEN YOU UPDATE ourcustom_impression to the latest versions
+        where DB reports got edited use the below block instead of the above one
+        + Comment this template: saleorder_pro_dollibar_headfoot_specta in file: edit_db_headers_footers.xml
+    -->
+<!--    <template id="add_signature_in_proforma" inherit_id="ourcustom_impression.report_saleorder_dollibar">-->
+<!--          <xpath expr="//table[@name='table_cdp']" position="after">-->
+<!--            <t t-if="is_pro_forma_db">-->
+<!--                <div name="signature_specta">-->
+<!--                    <img class="img" style="float:right" src="/ourcustom_specta/static/src/img/signature_specta.png"/>-->
+<!--                </div>-->
+<!--            </t>-->
+<!--        </xpath>-->
+<!--     </template>-->
+</odoo>

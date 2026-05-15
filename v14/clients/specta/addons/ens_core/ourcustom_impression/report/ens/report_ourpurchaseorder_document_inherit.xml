@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_ourpurchaseorder_document_inherit" inherit_id="purchase.report_purchaseorder_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+             <div class="article o_report_layout_boxed" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"><!--To ignore the default layout(remove header+footer)-->
+                <t t-call="ourcustom_impression.ourcustom_header_footerbc" />
+                <style>
+                   #informations {
+                        display: block;
+                        }
+                   .m-0{
+                        display:inline;
+                         }
+                   strong,p,span{
+                        color:black;
+                        }
+                    div.T2{
+                    display:inline-block;
+                    }
+                    .rows_color tr:nth-child(even){
+		                background: #B1B7BF;
+                    }
+
+                    /*Border Cornerred*/
+                    #content {
+                          position:relative;
+                          width:420px;
+                          /*min-height:180px;*/
+                          min-height:160px;
+                          align-items: center;
+                          overflow:auto;
+                          padding-bottom:20px;
+                    }
+
+                    #content:before,
+                    #content:after,
+                    #content>:last-child:before,
+                    #content>:last-child:after {
+                        position: absolute;
+                        width: 60px;
+                        height: 50px;
+                        border-color: black;
+                        border-style: solid;
+                        content: ' ';
+                    }
+
+                    #content:before {
+                        top: 10px;
+                        left: 10px;
+                        width:20%;
+                        border-right:0px;
+                        border-bottom:0px;
+                        border-width: 1px 0px 0px 1px;
+                    }
+
+                    #content:after {
+                        top: 10px;
+                        right: 10px;
+                        width:20%;
+                        border-left:0px;
+                        border-bottom:0px;
+                        border-width: 1px 1px 0px 0px;
+                    }
+
+                    #content>:last-child:before {
+                        bottom: 10px;
+                        right: 10px;
+                        width:20%;
+                        border-left:0px;
+                        border-top:0px;
+                        border-width: 0px 1px 1px 0px;
+                    }
+
+                    #content>:last-child:after {
+                        bottom: 10px;
+                        left: 10px;
+                        width:20%;
+                        border-right:0px;
+                        border-top:0px;
+                        border-width: 0px 0px 1px 1px;
+                    }
+
+                </style>
+                  <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+        <!--<t t-set="address">
+            <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+            <p t-if="o.partner_id.vat"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p>
+        </t>
+        <t t-if="o.dest_address_id">
+            <t t-set="information_block">
+                <strong>Shipping address:</strong>
+                <div t-if="o.dest_address_id">
+                    <div t-field="o.dest_address_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}" name="purchase_shipping_address"/>
+                </div>
+
+            </t>
+        </t>-->
+        <div class="ourpage">
+            <div class="oe_structure"/>
+            <table style="width:100%;border:0px" class="mod">
+                <tr>
+                    <td style="width:50%;border:0px;padding-top:0px">
+                        <h2>
+                            <!--<strong style="font-size:20px" t-if="o.state == 'draft'">Request for Quotation N°<span t-field="o.name"/></strong> -->
+                            <strong style="font-size:20px">Bon de Commande N°<span t-field="o.name"/></strong>
+                            <!--<strong style="font-size:20px" t-if="o.state in ['purchase', 'done']">Purchase Order N°<span t-field="o.name"/></strong>
+                            <strong style="font-size:20px" t-if="o.state == 'cancel'">Cancelled Purchase Order N°<span t-field="o.name"/></strong>-->
+                        </h2>
+                        <div id="informations" class="row mt32 mb32">
+                            <div class="col-auto col-3 mw-100 mb-2"  name="date_order">
+                                <strong>Date de la Commande:</strong>
+                                <!--<p t-field="o.date_order" class="m-0"/>-->
+                                <span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/>
+                            </div>
+                            <div t-if="o.partner_ref" class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px"  name="offre">
+                                <strong>Votre Offre:</strong>
+                                <p t-field="o.partner_ref" class="m-0"/>
+                            </div>
+                            <div t-if="o.ourtransporteurp" class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px" name="transporteur">
+                                <strong>Transporteur : </strong>
+                                <p class="m-0" t-field="o.ourtransporteurp"/>
+                            </div>
+                            <div class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px"  name="responsable_achat">
+                                <strong>Acheteur :</strong>
+                                <p class="m-0" t-field="o.user_id"/>
+                            </div>
+                            <div t-if="o.user_id.phone or o.user_id.phone_required" class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px"  name="responsable_numero">
+                                <strong>Téléphone :</strong>
+                                <t t-if="o.user_id.company_type == 'person'">
+                                    <p t-if="o.user_id.phone_required" class="m-0" t-esc="str(o.user_id.phone_required).replace('.',' ')"/>
+                                 </t>
+                                <t t-else="">
+                                    <p class="m-0" t-field="o.user_id.phone"/>
+                                </t>
+                            </div>
+                            <div t-if="o.user_id.email" class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px"  name="responsable_email">
+                                <strong>E-mail :</strong>
+                                <p class="m-0" t-field="o.user_id.email"/>
+                            </div>
+                         </div>
+                    </td>
+                    <td  style="width:50%;border:0px">
+                        <div id="content" style="padding-left:20px;padding-right:20px">
+                            <div class="mod1"><center><strong>Fournisseur N° : </strong><p class="m-0" t-field="o.partner_id.ref"/></center></div>
+                            <div class="mod2" style="padding-top:2px;"><p class="m-0" t-field="o.partner_id"/></div>
+                            <div><span t-field="o.partner_id.street"></span>&#032;<span t-field="o.partner_id.street2"></span>&#032;
+                                <span t-field="o.partner_id.city"></span>&#032;<span t-field="o.partner_id.state_id"></span>&#032;
+                                <span t-field="o.partner_id.zip"></span>&#032;<span t-field="o.partner_id.country_id"></span></div>
+                            <div>
+                                <strong>Tél :</strong>
+                                <t t-if="o.partner_id.company_type == 'person'">
+                                    <p t-if="o.partner_id.phone_required" class="m-0" t-esc="str(o.partner_id.phone_required).replace('.',' ')"/>
+                                 </t>
+                                <t t-else="">
+                                    <p class="m-0" t-field="o.partner_id.phone"/>
+                                </t>
+                            </div>
+                            <div t-if="o.ourcontact"><strong>Contact :</strong><p class="m-0" t-field="o.ourcontact.name"/></div>
+                            <div t-if="o.partner_id.email"><strong>E-mail :</strong><p class="m-0" t-field="o.partner_id.email"/></div>
+                            <div><strong>ICE :</strong><p class="m-0" t-field="o.partner_id.vat"/></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+<br/>
+                <!--TABLE PRINCIPALE-->
+            <t t-set="display_discount" t-value="any(l.discount for l in o.order_line)"/>
+            <t t-set="display_sl" t-value="sum([(1 if l.sl_no!=0 else 0) for l in o.order_line])"/>
+            <table class="table table-sm o_main_table rows_color">
+                <thead>
+                    <tr>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:4%" name="th_line_num" t-if="display_sl != 0" class="text-center">N°</th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_ref"><strong>Référence</strong></th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;" name="th_description"><strong>Désignation</strong></th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_quantity" class="text-center"><strong>Qté</strong></th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_udm"  groups="uom.group_uom" class="text-center"><strong>UdM</strong></th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_price_unit" class="text-right"><strong>P.U HT</strong></th>
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:7%" name="th_discount"  t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}" t-if="display_discount"  class="text-right"><strong><span>Remise</span></strong></th>
+                        <!--<th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:9%" name="th_priceunit_net" t-if="display_discount" class="text-right"><span>P.U Net</span></th>-->
+                        <th style="vertical-align:middle;text-transform: lowercase;text-transform: capitalize;width:11%" name="th_amount" class="text-right"><span style="font-weight:900">Total HT</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="current_subtotal" t-value="0"/>
+                    <t t-foreach="o.order_line.sorted(key=lambda l: l.sl_no)" t-as="line">
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+                        <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+                            <t t-if="not line.display_type">
+
+                                <td t-if="display_sl != 0" style="color:black;vertical-align:middle;width:4%" name="td_line_num" class="text-center"><span t-field="line.sl_no"/></td>
+                                <td class="text-left" style="width:11%;vertical-align:middle">
+                                    <span t-if="line.product_id.default_code" t-esc="str(line.product_id.default_code).replace('-', '⁻')"/>
+                                </td>
+                                <td class="text-left" id="product" style="vertical-align:middle">
+                                    <span t-field="line.name"/>
+                                </td>
+
+                                <td class="text-center" style="vertical-align:middle;width:7%">
+                                    <span t-field="line.product_qty"/>
+                                </td>
+                                <td groups="uom.group_uom" class="text-center" style="vertical-align:middle;width:7%">
+                                    <span t-field="line.product_uom.name" groups="uom.group_uom"/>
+                                </td>
+                                <td class="text-right" style="vertical-align:middle;width:11%">
+                                    <span t-field="line.price_unit"/>
+                                </td>
+                                <td class="text-right" t-if="display_discount" style="vertical-align:middle;width:7%">
+                                   <!-- <span t-field="line.discount"/>-->
+                                    <!-- <span t-esc="str('%.2f'% line.discount).replace('.', ',')"/><span>%</span> -->
+                                    <span t-esc="str('{0:,.2f}'.format(float(line.discount)).replace(',', ' ')).replace('.', ',')" /><span>%</span>
+
+
+                                </td>
+
+                                <td class="text-right" style="vertical-align:middle;width:11%">
+                                    <!--<span t-field="line.price_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>-->
+                                    <span t-esc="str('{0:,.2f}'.format(float(line.price_subtotal)).replace(',', ' ')).replace('.', ',')" />
+
+                                </td>
+                            </t>
+                            <t t-if="line.display_type == 'line_section'">
+                                <td colspan="99" id="section">
+                                    <span t-field="line.name"/>
+                                </td>
+                                <t t-set="current_section" t-value="line"/>
+                                <t t-set="current_subtotal" t-value="0"/>
+                            </t>
+                            <t t-if="line.display_type == 'line_note'">
+                                <td colspan="99" id="note">
+                                    <span t-field="line.name"/>
+                                </td>
+                            </t>
+                        </tr>
+                        <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
+                            <tr class="is-subtotal text-right">
+                                <td colspan="99" id="subtotal">
+                                    <strong class="mr16">Sous-Total</strong>
+                                    <!--<span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>-->
+                                    <span t-esc="str('{0:,.2f}'.format(float(current_subtotal)).replace(',', ' ')).replace('.', ',')" />
+
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </tbody>
+            </table>
+
+              <!--Last Table-->
+            <table style="width:100%;border:none;page-break-inside: avoid;" name="cond_total">
+                <tr tysle="border:none">
+                    <td style="width:69%;border:none;">
+                        <div style="color:black;" name="conf_info">
+                            <p style="font-style: italic;padding-top:7px;">
+                                <strong t-if="o.currency_id or o.payment_term_id or o.incoterm_id" style="text-decoration: underline;padding-left:2px">Conditions Générales :</strong><br/>
+                                <div t-if="o.currency_id" class="col-auto col-3 mw-100 mb-2" style="margin-top:-8px" name="devise">
+                                    <strong>Devise : </strong>
+                                    <p class="m-0" t-field="o.currency_id"/>
+                                </div>
+                                <div t-if="o.payment_term_id" class="col-auto col-3 mw-100 mb-2" style="margin-top:-10px" name="conf_paiement">
+                                    <strong>Condition de paiement : </strong>
+                                    <p class="m-0" t-field="o.payment_term_id"/>
+                                 </div>
+                                <div t-if="o.incoterm_id" class="col-auto col-3 mw-100 mb-2" name="incoterms" style="margin-top:-10px">
+                                    <strong>Conditions de livraison : </strong>
+                                    <p class="m-0" t-field="o.incoterm_id"/>
+                                </div>
+                            </p>
+                        </div>
+                    </td>
+                    <td style="width:31%;border:none;vertical-align:middle">
+                       <!-- <div id="total" class="row justify-content-end">-->
+                        <div id="total" class="justify-content-end">
+                           <!-- <div class="col-4">-->
+                                <table class="table table-sm" style="page-break-inside: avoid;">
+                                    <tr class="border-black">
+                                        <td name="td_subtotal_label"><strong>Total HT<!--Subtotal--></strong></td>
+                                        <td class="text-right">
+                                            <!--<span t-field="o.amount_untaxed" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>-->
+                                            <!--<span t-esc="str('%.2f'% o.amount_untaxed).replace('.', ',')"/> -->
+                                            <span t-esc="str('{0:,.2f}'.format(float(o.amount_untaxed)).replace(',', ' ')).replace('.', ',')" />
+
+                                        </td>
+                                    </tr>
+                                    <!--- TOTAL TVA
+                                    <tr>
+                                        <td name="td_taxes_label" style="color:black">TVA</td>
+                                        <td class="text-right">
+                                            <!-<span t-field="o.amount_tax" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>->
+                                            <span t-esc="str('%.2f'% o.amount_tax).replace('.', ',')"/>
+                                        </td>
+                                    </tr>
+                                    -->
+                                    <!-- TVA BY GROUP-->
+                                    <t t-set="amount_by_group" t-value="o._amount_by_group()"/>
+                                    <t t-foreach="amount_by_group" t-as="line">
+                                        <tr>
+                                            <td><span t-esc="line"/></td>
+                                            <t t-set="amount" t-value="amount_by_group.get(line)"/>
+                                            <td class="text-right">
+                                                <span t-esc="str('{0:,.2f}'.format(float(amount)).replace(',', ' ')).replace('.', ',')"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <tr class="border-black o_total" style="">
+                                        <td style="background-color:black" name="td_amount_total_label"><strong style="color:white">Total TTC</strong></td>
+                                        <td class="text-right" style="background-color:white">
+                                            <!--<span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>-->
+                                            <span t-esc="str('{0:,.2f}'.format(float(o.amount_total)).replace(',', ' ')).replace('.', ',')"/>
+
+                                        </td>
+                                    </tr>
+                                </table>
+                           <!-- </div>-->
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+
+            <br/>
+            <table style="border:1px solid black; width:100%" class="line NB">
+                <tr><td style="padding-left:6px">
+                    <p style="font-style: italic;font-size:9px">
+                        <strong style="text-decoration: underline;">N.B :</strong><br/>
+                        <strong>*</strong> Nous vous remercions de rappeler notre numéro de commande sur le bon de livraison et sur la facture.<br/>
+                        <strong style="text-decoration: underline;">Conditions générales d’achats</strong><br/>
+                        <strong>*</strong> Les délais de livraison indiqués sur notre bon de commande sont à respecter pour éviter tout retard pouvant être généré lors du paiement.<br/>
+                        <strong>*</strong> La réception définitive de la marchandise est subordonnée à leur approbation par nos services de contrôle.<br/>
+                        <strong>*</strong> Veuillez adresser vos factures au siège de la société :  <span t-if="o.company_id.street" t-field="o.company_id.street">&#160;</span>
+                        <span t-if="o.company_id.street2" t-field="o.company_id.street2">&#160;</span><span t-if="o.company_id.state_id" t-field="o.company_id.state_id">&#160;</span>
+                        <span t-if="o.company_id.zip">-&#160;</span><span t-if="o.company_id.zip" t-field="o.company_id.zip">&#160;</span>
+                        <span t-if="o.company_id.city" t-field="o.company_id.city">&#160;</span><span t-if="o.company_id.country_id">-&#160;</span><span t-field="o.company_id.country_id"/>
+                        <br/>
+                    </p>
+                </td></tr>
+            </table>
+
+            <br/>
+            <!--<p t-field="o.notes"/><br/>-->
+            <div style="float:right"><strong>Service Achat</strong></div>
+
+
+        </div>
+             </div>
+        </xpath>
+    </template>
+</odoo>

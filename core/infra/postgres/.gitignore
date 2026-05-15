@@ -1,0 +1,4 @@
+# Données PostgreSQL — JAMAIS commiter
+data/
+*.sql
+*.dump

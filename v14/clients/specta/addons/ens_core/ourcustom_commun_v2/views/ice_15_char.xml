@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ice_15_char" model="ir.ui.view">
+        <field name="name">ice_15_char</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='siege']" position="after">
+                <field name="verifier_ice"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

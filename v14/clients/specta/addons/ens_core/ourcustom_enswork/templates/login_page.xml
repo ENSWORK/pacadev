@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="hide_select_db" inherit_id="web.login" name="Hide Select DB">
+        <xpath expr="//div[@class='form-group field-db']" position="replace">
+        </xpath>
+        <xpath expr="//div[@class='justify-content-between mt-2 d-flex small']" position="replace">
+        </xpath>
+
+        <!--Remove log in as super user-->
+        <button type="submit" name="redirect" class="btn btn-link btn-sm btn-block cybro-super-btn" position="replace">
+            <!--if the theme multicolor is not installed remove the 'cybro-super-btn' from the class above-->
+        </button>
+    </template>
+    <template id="hide_manage_db" inherit_id="web.login_layout" name="Hide Manage DB">
+        <xpath expr="//div[@class='text-center small mt-4 pt-3 border-top']" position="replace">
+        </xpath>
+    </template>
+
+    <!--Hide Footer Change Header color -->
+	<template id="our_portal_login_mod" inherit_id="website.login_layout" name="Login Layout Inherit">
+        <xpath expr="//div[@class='oe_website_login_container']" position="after">
+            <style type="text/css">
+                #wrapwrap {
+                    background-color: #f1f4f5 !important;
+                }
+                .navbar {
+                    background-color: #714B67 !important;
+                }
+
+                footer {
+                    visibility: hidden;
+                }
+	    </style>
+        </xpath>
+    </template>
+
+</odoo>

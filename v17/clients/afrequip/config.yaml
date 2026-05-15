@@ -1,0 +1,48 @@
+client: afrequip
+version: "17"
+issue: "#3"
+module: partner_statement_report
+status: dev
+branch: dev/afrequip/3-partner_statement_report
+
+modules:
+  - partner_statement_report
+
+odoo:
+  port: 8069
+  db_name: afrequip_dev
+  admin_user: admin
+  admin_password: admin
+
+docker:
+  compose_file: docker-compose.dev.yml
+  services:
+    - odoo
+    - postgres
+    - redis
+
+modifications:
+  - id: "1"
+    name: "Traduction FR"
+    status: "pending"
+    files: ["wizard/", "report/", "views/", "data/"]
+  
+  - id: "2"
+    name: "Header/Footer custom_reports"
+    status: "pending"
+    files: ["report/partner_statement_report_pdf.xml"]
+  
+  - id: "3"
+    name: "Suppression devise sur lignes"
+    status: "pending"
+    files: ["report/partner_statement_report_pdf.xml"]
+  
+  - id: "4"
+    name: "Ajout colonne date_due"
+    status: "pending"
+    files: ["report/partner_statement_details.py", "report/partner_statement_report_pdf.xml"]
+  
+  - id: "5"
+    name: "Ajout champ ICE client"
+    status: "pending"
+    files: ["report/partner_statement_report_pdf.xml"]

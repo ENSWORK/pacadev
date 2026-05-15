@@ -14,6 +14,8 @@ class WorkflowState(Enum):
     """États possibles du workflow PACADEV"""
     INIT = "init"
     DEV = "dev"
+    SELF_REVIEW = "self_review"
+    TEST_MANUAL = "test_manual"
     CI_RUNNING = "ci_running"
     CI_PASSED = "ci_passed"
     MERGED = "merged"
@@ -28,6 +30,11 @@ class WorkflowState(Enum):
 class TransitionEvent(Enum):
     """Événements déclenchant une transition"""
     WORK_START_VALID = "work_start_valid"
+    SELF_REVIEW_STARTED = "self_review_started"
+    SELF_REVIEW_PASSED = "self_review_passed"
+    SELF_REVIEW_FAILED = "self_review_failed"
+    TEST_MANUAL_PASSED = "test_manual_passed"
+    TEST_MANUAL_FAILED = "test_manual_failed"
     PUSH_DETECTED = "push_detected"
     ALL_CHECKS_PASS = "all_checks_pass"
     CHECK_FAILED = "check_failed"
@@ -40,6 +47,7 @@ class TransitionEvent(Enum):
     HEALTHCHECKS_OK = "healthchecks_ok"
     HEALTHCHECKS_FAILED = "healthchecks_failed"
     ROLLBACK_TRIGGERED = "rollback_triggered"
+    WORK_DONE = "work_done"
     ERROR_OCCURRED = "error_occurred"
 
 
@@ -62,7 +70,18 @@ class WorkflowFSM:
             (TransitionEvent.WORK_START_VALID, WorkflowState.DEV),
         },
         WorkflowState.DEV: {
+            (TransitionEvent.SELF_REVIEW_STARTED, WorkflowState.SELF_REVIEW),
             (TransitionEvent.PUSH_DETECTED, WorkflowState.CI_RUNNING),
+            (TransitionEvent.ERROR_OCCURRED, WorkflowState.ERROR),
+        },
+        WorkflowState.SELF_REVIEW: {
+            (TransitionEvent.SELF_REVIEW_PASSED, WorkflowState.TEST_MANUAL),
+            (TransitionEvent.SELF_REVIEW_FAILED, WorkflowState.DEV),
+            (TransitionEvent.ERROR_OCCURRED, WorkflowState.ERROR),
+        },
+        WorkflowState.TEST_MANUAL: {
+            (TransitionEvent.TEST_MANUAL_PASSED, WorkflowState.DEV),
+            (TransitionEvent.TEST_MANUAL_FAILED, WorkflowState.DEV),
             (TransitionEvent.ERROR_OCCURRED, WorkflowState.ERROR),
         },
         WorkflowState.CI_RUNNING: {
@@ -100,7 +119,9 @@ class WorkflowFSM:
             (TransitionEvent.ROLLBACK_TRIGGERED, WorkflowState.DEV),
             (TransitionEvent.ERROR_OCCURRED, WorkflowState.ERROR),
         },
-        WorkflowState.CLOSED: set(),
+        WorkflowState.CLOSED: {
+            (TransitionEvent.WORK_DONE, WorkflowState.CLOSED),
+        },
     }
 
     def __init__(self, client: str, state_file: Optional[Path] = None):
