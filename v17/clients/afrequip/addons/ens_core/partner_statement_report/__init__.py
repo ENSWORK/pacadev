@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-from . import wizard
-from . import report
+from . import wizard  # noqa: F401
+from . import report  # noqa: F401

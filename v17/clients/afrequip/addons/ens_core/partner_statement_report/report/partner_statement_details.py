@@ -120,7 +120,7 @@ class InvoiceAbstractReport(models.AbstractModel):
             running += original if not is_refund else -original
 
             sub_lines = []
-            for line in inv.line_ids.filtered(lambda l: l.account_id.account_type == account_type):
+            for line in inv.line_ids.filtered(lambda ln: ln.account_id.account_type == account_type):
                 for partial in (line.matched_debit_ids if is_vendor else line.matched_credit_ids):
                     pmt_move = partial.debit_move_id.move_id if is_vendor else partial.credit_move_id.move_id
                     pmt_date = partial.debit_move_id.date if is_vendor else partial.credit_move_id.date
@@ -187,17 +187,17 @@ class InvoiceAbstractReport(models.AbstractModel):
                     raw_prior, prior_bal = self._get_open_invoices(partner, prior_date, move_type)
                     raw_ending, ending_bal = self._get_open_invoices(partner, end, move_type)
                     prior_lines = [{
-                        'date': l['date'], 'due_date': l.get('due_date'), 'reference': l['reference'],
-                        'original_amount': fmt(l['original_amount']),
-                        'open_amount': fmt(l['open_amount']),
-                        'balance': fmt(l['balance']),
-                    } for l in raw_prior]
+                        'date': ln['date'], 'due_date': ln.get('due_date'), 'reference': ln['reference'],
+                        'original_amount': fmt(ln['original_amount']),
+                        'open_amount': fmt(ln['open_amount']),
+                        'balance': fmt(ln['balance']),
+                    } for ln in raw_prior]
                     ending_lines = [{
-                        'date': l['date'], 'due_date': l.get('due_date'), 'reference': l['reference'],
-                        'original_amount': fmt(l['original_amount']),
-                        'open_amount': fmt(l['open_amount']),
-                        'balance': fmt(l['balance']),
-                    } for l in raw_ending]
+                        'date': ln['date'], 'due_date': ln.get('due_date'), 'reference': ln['reference'],
+                        'original_amount': fmt(ln['original_amount']),
+                        'open_amount': fmt(ln['open_amount']),
+                        'balance': fmt(ln['balance']),
+                    } for ln in raw_ending]
                     prior_balance = fmt(prior_bal)
                     ending_balance = fmt(ending_bal)
 
@@ -225,19 +225,19 @@ class InvoiceAbstractReport(models.AbstractModel):
                     'ending_balance': ending_balance,
                     'aging_buckets': fmt_buckets,
                     'lines': [{
-                        'date': l['date'],
-                        'due_date': l.get('due_date'),
-                        'reference': l['reference'],
-                        'original_amount': fmt(l['original_amount']),
-                        'applied_amount': fmt(l['applied_amount']),
-                        'open_amount': fmt(l['open_amount']),
-                        'balance': fmt(l['balance']),
+                        'date': ln['date'],
+                        'due_date': ln.get('due_date'),
+                        'reference': ln['reference'],
+                        'original_amount': fmt(ln['original_amount']),
+                        'applied_amount': fmt(ln['applied_amount']),
+                        'open_amount': fmt(ln['open_amount']),
+                        'balance': fmt(ln['balance']),
                         'sub_lines': [{
                             'date': s['date'],
                             'reference': s['reference'],
                             'applied_amount': fmt(s['applied_amount']),
-                        } for s in l['sub_lines']],
-                    } for l in lines],
+                        } for s in ln['sub_lines']],
+                    } for ln in lines],
                     'closing_balance': fmt(closing_balance),
                     'opening_balance': opening_balance if statement_type == 'activity' else '0.00',
                     'partner_record': partner,

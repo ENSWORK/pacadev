@@ -167,7 +167,6 @@ class CustomerStatementWizard(models.TransientModel):
         move_type = 'out_invoice' if self.partner_type == 'customer' else 'in_invoice'
         refund_type = 'out_refund' if self.partner_type == 'customer' else 'in_refund'
         account_type = 'asset_receivable' if self.partner_type == 'customer' else 'liability_payable'
-        payment_type = 'inbound' if self.partner_type == 'customer' else 'outbound'
         domain = [
             ('partner_id', '=', partner.id),
             ('move_type', 'in', [move_type, refund_type]),
@@ -205,7 +204,7 @@ class CustomerStatementWizard(models.TransientModel):
                 'sub_lines': [],
             }
 
-            for line in inv.line_ids.filtered(lambda l: l.account_id.account_type == account_type):
+            for line in inv.line_ids.filtered(lambda ln: ln.account_id.account_type == account_type):
                 for partial in (line.matched_credit_ids if self.partner_type == 'customer' else line.matched_debit_ids):
                     pmt_move = partial.credit_move_id.move_id if self.partner_type == 'customer' else partial.debit_move_id.move_id
                     pmt_line_date = partial.credit_move_id.date if self.partner_type == 'customer' else partial.debit_move_id.date
@@ -312,7 +311,6 @@ class CustomerStatementWizard(models.TransientModel):
             raise UserError("La date de début ne peut pas être postérieure à la date de fin.")
 
         report = self.env.ref('partner_statement_report.customer_report_template_action')
-        company = self.env.company
         no_email = []
         sent_count = 0
 
