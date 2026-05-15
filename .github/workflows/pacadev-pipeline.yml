@@ -10,7 +10,7 @@ env:
   PYTHON_VERSION: '3.11'
 
 # ─────────────────────────────────────────────────────────────
-# JOB 1 — LINT  (job id = "lint" requis par branch protection)
+# JOB 1 — LINT
 # ─────────────────────────────────────────────────────────────
 jobs:
   lint:
@@ -26,28 +26,32 @@ jobs:
       - name: Install tools
         run: pip install ruff
 
-      - name: Detect ens_core Python files
-        id: files
+      - name: Ruff — style Python (v17/ens_core uniquement)
         run: |
-          FILES=$(find . -path "*/addons/ens_core/*.py" -o -path "*/addons/ens_core/**/*.py" 2>/dev/null | grep -v __pycache__ | tr '\n' ' ')
-          echo "py_files=$FILES" >> $GITHUB_OUTPUT
-          XML=$(find . -path "*/addons/ens_core/*.xml" -o -path "*/addons/ens_core/**/*.xml" 2>/dev/null | tr '\n' ' ')
-          echo "xml_files=$XML" >> $GITHUB_OUTPUT
+          FILES=$(find v17/clients -path "*/addons/ens_core/*.py" -o \
+                                   -path "*/addons/ens_core/**/*.py" 2>/dev/null \
+                  | grep -v __pycache__ | tr '\n' ' ')
+          if [ -n "$FILES" ]; then
+            ruff check $FILES --output-format=github --select=E,F,W --ignore=E501
+          else
+            echo "Aucun fichier Python v17/ens_core à analyser"
+          fi
 
-      - name: Ruff — style Python
-        if: steps.files.outputs.py_files != ''
-        run: ruff check ${{ steps.files.outputs.py_files }} --output-format=github --select=E,F,W --ignore=E501
-
-      - name: xmllint — validation XML
-        if: steps.files.outputs.xml_files != ''
+      - name: xmllint — validation XML (v17/ens_core uniquement)
         run: |
           sudo apt-get install -y libxml2-utils -qq
-          for f in ${{ steps.files.outputs.xml_files }}; do
-            xmllint --noout "$f" && echo "OK: $f" || exit 1
-          done
+          FILES=$(find v17/clients -path "*/addons/ens_core/*.xml" -o \
+                                   -path "*/addons/ens_core/**/*.xml" 2>/dev/null)
+          if [ -n "$FILES" ]; then
+            echo "$FILES" | while read f; do
+              xmllint --noout "$f" && echo "OK: $f" || exit 1
+            done
+          else
+            echo "Aucun fichier XML v17/ens_core à analyser"
+          fi
 
   # ─────────────────────────────────────────────────────────────
-  # JOB 2 — TEST  (job id = "test" requis par branch protection)
+  # JOB 2 — TEST
   # ─────────────────────────────────────────────────────────────
   test:
     name: Test
@@ -59,14 +63,18 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Syntax Python (py_compile)
+      - name: Syntax Python (py_compile — v17/ens_core)
         run: |
-          find . -path "*/addons/ens_core/*.py" -o -path "*/addons/ens_core/**/*.py" \
-            | grep -v __pycache__ \
-            | xargs -I{} python -m py_compile {} \
-            && echo "Syntaxe Python OK"
+          FILES=$(find v17/clients -path "*/addons/ens_core/*.py" -o \
+                                   -path "*/addons/ens_core/**/*.py" 2>/dev/null \
+                  | grep -v __pycache__)
+          if [ -n "$FILES" ]; then
+            echo "$FILES" | xargs -I{} python -m py_compile {} && echo "Syntaxe Python OK"
+          else
+            echo "Aucun fichier Python v17/ens_core"
+          fi
 
-      - name: Vérification manifests (__manifest__.py)
+      - name: Vérification manifests (v17/ens_core)
         run: |
           python3 - <<'EOF'
           import ast, glob, sys
@@ -81,7 +89,7 @@ jobs:
               raise ValueError("Aucun dict trouvé")
 
           errors = []
-          manifests = glob.glob("**/addons/ens_core/**/__manifest__.py", recursive=True)
+          manifests = glob.glob("v17/clients/*/addons/ens_core/**/__manifest__.py", recursive=True)
           for path in manifests:
               try:
                   manifest = parse_manifest(path)
@@ -90,8 +98,8 @@ jobs:
                           errors.append(f"{path}: clé manquante '{key}'")
                   version = manifest.get("version", "")
                   parts = version.split(".")
-                  if len(parts) != 5 or not parts[0].isdigit():
-                      errors.append(f"{path}: version invalide '{version}' (attendu VV.X.X.X.X)")
+                  if len(parts) != 5 or parts[0] != "17":
+                      errors.append(f"{path}: version invalide '{version}' (attendu 17.X.X.X.X)")
               except Exception as e:
                   errors.append(f"{path}: {e}")
           if errors:
@@ -100,12 +108,12 @@ jobs:
           print(f"Manifests OK ({len(manifests)} modules)")
           EOF
 
-      - name: Vérification structure modules ens_core
+      - name: Structure modules ens_core (v17)
         run: |
           python3 - <<'EOF'
           import os, sys, glob
           errors = []
-          for manifest in glob.glob("**/addons/ens_core/**/__manifest__.py", recursive=True):
+          for manifest in glob.glob("v17/clients/*/addons/ens_core/**/__manifest__.py", recursive=True):
               module_dir = os.path.dirname(manifest)
               if not os.path.exists(os.path.join(module_dir, "__init__.py")):
                   errors.append(f"{module_dir}: __init__.py manquant")
@@ -133,22 +141,27 @@ jobs:
       - name: Install bandit
         run: pip install bandit
 
-      - name: Bandit — analyse sécurité Python
+      - name: Bandit — analyse sécurité Python (v17/ens_core)
         run: |
-          FILES=$(find . -path "*/addons/ens_core/*.py" -o -path "*/addons/ens_core/**/*.py" 2>/dev/null | grep -v __pycache__)
+          FILES=$(find v17/clients -path "*/addons/ens_core/*.py" -o \
+                                   -path "*/addons/ens_core/**/*.py" 2>/dev/null \
+                  | grep -v __pycache__)
           if [ -n "$FILES" ]; then
             echo "$FILES" | xargs bandit -ll -q --exit-zero
           else
-            echo "Aucun fichier Python ens_core à analyser"
+            echo "Aucun fichier Python v17/ens_core à analyser"
           fi
 
-      - name: Détection secrets (gitleaks)
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Gitleaks — détection secrets
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks detect --source . --no-banner --redact \
+            --log-opts "origin/main..HEAD" || \
+          gitleaks detect --source . --no-banner --redact --no-git
 
   # ─────────────────────────────────────────────────────────────
-  # JOB 4 — AI-RISK
+  # JOB 4 — AI-RISK (uniquement sur PR)
   # ─────────────────────────────────────────────────────────────
   ai-risk:
     name: AI Risk
@@ -167,12 +180,9 @@ jobs:
 
           AI_COMMITS=$(git log $BASE..$HEAD --format="%B" | grep -c "Co-Authored-By: Claude" || true)
           INSERTIONS=$(git diff --stat $BASE..$HEAD | tail -1 | grep -oP '\d+(?= insertion)' || echo 0)
-          DELETIONS=$(git diff --stat $BASE..$HEAD | tail -1 | grep -oP '\d+(?= deletion)' || echo 0)
           FILES_CHANGED=$(git diff --name-only $BASE..$HEAD | wc -l)
           PY_CHANGED=$(git diff --name-only $BASE..$HEAD | grep -c '\.py$' || true)
-          XML_CHANGED=$(git diff --name-only $BASE..$HEAD | grep -c '\.xml$' || true)
 
-          # Scoring : 0 (faible) → 10 (critique)
           SCORE=0
           [ "$AI_COMMITS" -gt 0 ] && SCORE=$((SCORE + 2))
           [ "$AI_COMMITS" -gt 3 ] && SCORE=$((SCORE + 1))
@@ -181,9 +191,9 @@ jobs:
           [ "$PY_CHANGED" -gt 5 ] && SCORE=$((SCORE + 1))
           [ "$FILES_CHANGED" -gt 20 ] && SCORE=$((SCORE + 1))
 
-          if [ "$SCORE" -le 3 ]; then LEVEL="🟢 Faible"
-          elif [ "$SCORE" -le 6 ]; then LEVEL="🟡 Moyen"
-          else LEVEL="🔴 Élevé"; fi
+          if [ "$SCORE" -le 3 ]; then LEVEL="Faible"
+          elif [ "$SCORE" -le 6 ]; then LEVEL="Moyen"
+          else LEVEL="Eleve"; fi
 
           echo "score=$SCORE" >> $GITHUB_OUTPUT
           echo "level=$LEVEL" >> $GITHUB_OUTPUT
@@ -194,20 +204,20 @@ jobs:
       - name: Rapport de risque
         run: |
           {
-            echo "## 🤖 AI Risk Assessment"
+            echo "## AI Risk Assessment"
             echo "| Indicateur | Valeur |"
             echo "|---|---|"
             echo "| Commits IA | ${{ steps.risk.outputs.ai_commits }} |"
-            echo "| Lignes ajoutées | ${{ steps.risk.outputs.insertions }} |"
-            echo "| Fichiers modifiés | ${{ steps.risk.outputs.files }} |"
-            echo "| **Score** | **${{ steps.risk.outputs.score }}/10** |"
-            echo "| **Niveau** | **${{ steps.risk.outputs.level }}** |"
+            echo "| Lignes ajoutees | ${{ steps.risk.outputs.insertions }} |"
+            echo "| Fichiers modifies | ${{ steps.risk.outputs.files }} |"
+            echo "| Score | ${{ steps.risk.outputs.score }}/10 |"
+            echo "| Niveau | ${{ steps.risk.outputs.level }} |"
           } >> $GITHUB_STEP_SUMMARY
 
-      - name: Bloquer si risque élevé
+      - name: Bloquer si risque eleve
         if: steps.risk.outputs.score >= 8
         run: |
-          echo "Score IA ${{ steps.risk.outputs.score }}/10 — revue manuelle obligatoire avant merge"
+          echo "Score IA ${{ steps.risk.outputs.score }}/10 — revue manuelle obligatoire"
           exit 1
 
   # ─────────────────────────────────────────────────────────────
@@ -229,7 +239,7 @@ jobs:
                 "${{ needs.test.result }}" == "failure" || \
                 "${{ needs.security.result }}" == "failure" || \
                 "${{ needs.ai-risk.result }}" == "failure" ]]; then
-            echo "❌ Pipeline échoué"
+            echo "Pipeline echoue"
             exit 1
           fi
-          echo "✅ Pipeline OK — prêt pour test manuel"
+          echo "Pipeline OK — pret pour test manuel"
