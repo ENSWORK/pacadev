@@ -2,12 +2,27 @@
 # Rechargées à chaud (watch=true).
 #
 # Conventions :
-#   - <client>.pacadev.local  → Odoo client
-#   - dashboard.pacadev.local → Streamlit operator dashboard (Phase 6)
-#   - grafana.pacadev.local   → Grafana monitoring stack
+#   - pacadev.local / web.pacadev.local → Interface Web PACADEV (Next.js)
+#   - ws.pacadev.local                  → WebSocket service PACADEV (Socket.io)
+#   - dashboard.pacadev.local           → Streamlit operator dashboard (Phase 6)
+#   - grafana.pacadev.local             → Grafana monitoring stack
 
 http:
   routers:
+    # Interface Web PACADEV (Next.js — dev :3000)
+    pacadev-web:
+      rule: "Host(`pacadev.local`) || Host(`web.pacadev.local`)"
+      entryPoints:
+        - web
+      service: pacadev-web-svc
+
+    # WebSocket service PACADEV (Socket.io — port 3003)
+    pacadev-ws:
+      rule: "Host(`ws.pacadev.local`)"
+      entryPoints:
+        - web
+      service: pacadev-ws-svc
+
     # Dashboard Streamlit opérateur (à câbler Phase 6).
     pacadev-dashboard:
       rule: "Host(`dashboard.pacadev.local`)"
@@ -15,7 +30,7 @@ http:
         - web
       service: pacadev-dashboard-svc
 
-    # Grafana monitoring (déjà déployé sur :3000).
+    # Grafana monitoring.
     pacadev-grafana:
       rule: "Host(`grafana.pacadev.local`)"
       entryPoints:
@@ -23,6 +38,16 @@ http:
       service: pacadev-grafana-svc
 
   services:
+    pacadev-web-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3000"
+
+    pacadev-ws-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3003"
+
     pacadev-dashboard-svc:
       loadBalancer:
         servers:
@@ -31,4 +56,4 @@ http:
     pacadev-grafana-svc:
       loadBalancer:
         servers:
-          - url: "http://host.docker.internal:3000"
+          - url: "http://host.docker.internal:3005"
