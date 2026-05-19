@@ -213,26 +213,3 @@ class ResCompany(models.Model):
         "et tous les templates (ENS, DB, MEC). "
         "Après modification, pensez à vider le cache Odoo et régénérer les PDFs.",
     )
-
-    # ==========================================
-    # Configuration des tailles de tableau
-    # ==========================================
-
-    table_font_size = fields.Integer(
-        string="Taille de police du tableau (px)",
-        default=13,
-        help="Taille de police pour le contenu du tableau des articles "
-        "dans les rapports (devis, factures, BL). "
-        "Valeur par défaut : 13px. "
-        "S'applique à tous les templates (ENS, DB, MEC, WATER). "
-        "Après modification, pensez à vider le cache Odoo et régénérer les PDFs.",
-    )
-
-    table_title_font_size = fields.Integer(
-        string="Taille de police des titres du tableau (px)",
-        default=14,
-        help="Taille de police pour les titres des articles dans le tableau. "
-        "Valeur par défaut : 14px. "
-        "S'applique à tous les templates (ENS, DB, MEC, WATER). "
-        "Après modification, pensez à vider le cache Odoo et régénérer les PDFs.",
-    )
