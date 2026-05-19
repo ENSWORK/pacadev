@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ==================== HEADER SECTION ==================== -->
+    <template id="external_layout_header_invoice_mec">
+        <div class="header">
+            <!-- Option 1: Image pleine largeur pour factures -->
+            <t t-if="o.company_id.invoice_mec_header_type == 'image' and o.company_id.header_image_invoice_mec">
+                <img t-att-src="image_data_uri(o.company_id.header_image_invoice_mec)"
+                     alt="Header Facture Template MEC"
+                     style="width: 100%; max-width: 100%; max-height: 40mm; object-fit: contain; display: block;"/>
+            </t>
+            <!-- Option 2: Logo normal (par défaut) -->
+            <t t-if="o.company_id.invoice_mec_header_type == 'logo' and o.company_id.logo">
+                <img t-att-src="image_data_uri(o.company_id.logo)"
+                     alt="Logo"
+                     t-attf-style="max-height: #{o.company_id.logo_height}px; max-width: #{o.company_id.logo_width}px; display: block;"/>
+            </t>
+        </div>
+    </template>
+
+<template id="external_layout_footer_invoice_mec">
+    <div class="footer">
+        <div style="margin-bottom: 10px;">
+            <span style="float: right; font-size: 13px;">Page N° <span class="page"/>/<span class="topage"/></span>
+            <div style="clear: both;"></div>
+        </div>
+        <t t-if="o.company_id.footer_image_mec">
+            <img t-att-src="image_data_uri(o.company_id.footer_image_mec)" alt="Footer" style="width: 100%; max-height: 120px;"/>
+        </t>
+    </div>
+</template>
+
+    <template id="external_layout_invoice_mec">
+        <div class="article o_report_layout_standard">
+            <!-- Header uniquement si print_with_header est activé -->
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_header_invoice_mec"/>
+            </t>
+            <t t-raw="0"/>
+            <!-- Footer uniquement si print_with_header est activé -->
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_footer_invoice_mec"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ==================== DOCUMENT TEMPLATE ==================== -->
+    <template id="report_invoice_mec_document">
+        <!-- Invoice Header Information -->
+        <table style="width:100%; border-collapse: separate; border-spacing: 0; border: 0;">
+            <tr>
+                <!-- Invoice Details Column -->
+                <td style="width:45%; border: 0;">
+                    <table style="width:100%; border-collapse: separate;">
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <strong style="font-size: 20px;">Facture N°: </strong><span t-field="o.name" style="font-size: 20px;"/>
+                            </td>
+                        </tr>
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <strong>Date: </strong><span t-field="o.invoice_date" t-options='{"format": "dd.MM.yyyy"}'/>
+                            </td>
+                        </tr>
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <strong>Notre Référence: </strong><span t-field="o.invoice_origin"/>
+                            </td>
+                        </tr>
+<!-- Commande et Date Commande avec conditions t-if -->
+<tr style="border: 0;">
+    <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+        <!-- Afficher "Votre Commande" seulement si o.ref est défini -->
+        <t t-if="o.ref">
+            <strong>Votre Commande: </strong><span t-field="o.ref"/>
+        </t>
+    </td>
+</tr>
+<tr style="border: 0;">
+    <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+        <!-- Afficher "Date Commande" seulement si la date est définie -->
+        <t t-if="o.line_ids and o.line_ids.sale_line_ids and o.line_ids.sale_line_ids[0].order_id.date_order">
+            <strong>Date Commande: </strong>
+            <span t-field="o.line_ids.sale_line_ids[0].order_id.date_order" t-options='{"format": "dd.MM.yyyy"}'/>
+        </t>
+    </td>
+</tr>
+                    </table>
+                </td>
+
+                <!-- Spacer Column -->
+                <td style="width:5%;"></td>
+
+<!-- Customer Information Column -->
+<td style="width:50%;">
+    <div style="border: 1px solid black; padding:8px;">
+        <table style="width:100%; border-collapse: separate;">
+            <tr>
+                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0; background-color: #f9f9f9;">
+                    <span t-field="o.partner_id.name" style="font-size: 18px; font-weight: bold;"/>
+                </td>
+            </tr>
+            <tr>
+<td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+    <t t-if="o.partner_id.street">
+        <span t-field="o.partner_id.street"/>
+        <t t-if="o.partner_id.street2 or o.partner_id.city or o.partner_id.state_id or o.partner_id.zip or o.partner_id.country_id">, </t>
+    </t>
+    <t t-if="o.partner_id.street2">
+        <span t-field="o.partner_id.street2"/>
+        <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip or o.partner_id.country_id">, </t>
+    </t>
+    <t t-if="o.partner_id.city">
+        <span t-field="o.partner_id.city"/>
+        <t t-if="o.partner_id.state_id or o.partner_id.zip or o.partner_id.country_id">, </t>
+    </t>
+    <t t-if="o.partner_id.state_id">
+        <span t-field="o.partner_id.state_id.name"/>
+        <t t-if="o.partner_id.zip or o.partner_id.country_id">, </t>
+    </t>
+    <t t-if="o.partner_id.zip">
+        <span t-field="o.partner_id.zip"/>
+        <t t-if="o.partner_id.country_id">, </t>
+    </t>
+    <t t-if="o.partner_id.country_id">
+        <span t-field="o.partner_id.country_id.name"/>
+    </t>
+</td>
+            </tr>
+            <tr>
+                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                    <!-- Afficher Tél, Mobile et Email selon les conditions -->
+                    <t t-if="o.partner_id.phone or o.partner_id.mobile">
+                        <strong>Tél:</strong>
+                        <t t-if="o.partner_id.phone">
+                            <span t-field="o.partner_id.phone"/>
+                        </t>
+                        <t t-if="o.partner_id.mobile">
+                            <t t-if="o.partner_id.phone"> / </t> <!-- Ajouter un séparateur seulement si phone existe -->
+                            <span t-field="o.partner_id.mobile"/>
+                        </t>
+                    </t>
+                    <t t-if="o.partner_id.email">
+                        <t t-if="o.partner_id.phone or o.partner_id.mobile">
+                            <br/> <!-- Passer à la ligne si un numéro est défini -->
+                        </t>
+                        <strong>Email:</strong>
+                        <span t-field="o.partner_id.email"/>
+                    </t>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                    <strong>ICE:</strong>
+                    <span t-field="o.partner_id.ice"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</td>
+            </tr>
+        </table>
+
+<!-- Information Table -->
+    <table style="width:100%; border-collapse: collapse; margin-top: 10px; padding: 8px;">
+        <tr>
+            <!-- Première colonne - Représentant (avec option) -->
+            <td t-if="o.print_with_representative" style="width:50%; vertical-align: top; padding: 8px; border-right: 0;">
+                <strong>Représentant :</strong>
+                <span t-field="o.invoice_user_id.name"/><br/>
+                <strong>Téléphone :</strong>
+                <span t-field="o.invoice_user_id.phone"/><br/>
+                <strong>E-mail :</strong>
+                <span t-field="o.invoice_user_id.email"/><br/>
+            </td>
+            <!-- Deuxième colonne -->
+            <td t-attf-style="width:{{o.print_with_representative and '50%' or '100%'}}; vertical-align: top; padding: 8px; border-left: 0;">
+                <strong>Conditions de livraison :</strong>
+                <span t-field="o.invoice_incoterm_id.name"/><br/>
+                <strong>Conditions de paiement :</strong>
+                <span t-field="o.invoice_payment_term_id.name"/><br/>
+                <strong>Date d'échéance :</strong>
+                <span t-field="o.invoice_date_due" t-options='{"widget": "date", "format": "dd.MM.yyyy"}'/><br/>
+            </td>
+        </tr>
+    </table>
+
+        <!-- Check for discount and délai -->
+        <t t-set="display_discount" t-value="any(l.discount for l in o.invoice_line_ids)"/>
+
+<!-- Add CSS classes -->
+<style>
+    .invoice-line-even {
+        background-color: #ffffff;
+    }
+    .invoice-line-odd {
+        background-color: #f9f9f9;
+    }
+    table.no-internal-borders,
+    .no-internal-borders tr,
+    .no-internal-borders td,
+    .no-internal-borders th {
+        border: none !important;
+    }
+</style>
+
+<!-- Invoice Line Items Table -->
+<table class="table table-sm no-internal-borders" style="width: 100%; margin-top: 20px; border-collapse: collapse; border: 1px solid #ABABAB;">
+    <thead>
+        <tr style="background-color: #f8f9fa;">
+            <th t-if="o.print_with_line_number" style="width: 5%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none; font-size: 14px; white-space: nowrap;">N°</th>
+            <th style="width: 10%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none; font-size: 14px; white-space: nowrap;">N° BL</th>
+            <th style="width: 53%; padding: 8px; background-color: #f8f9fa; border: none; font-size: 14px;">Référence / Description d'article</th>
+            <th style="width: 8%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none; font-size: 14px; white-space: nowrap;">Qté</th>
+                    <th style="width: 9%; text-align: right; padding: 8px; background-color: #f8f9fa; border: none; font-size: 14px; white-space: nowrap;">PU Net</th>
+                    <th t-if="any(line.discount != 0 for line in o.invoice_line_ids)"
+                        style="width: 6%; text-align: center; background-color: #f8f9fa; border: none; font-size: 14px; white-space: nowrap;">Remise</th>
+                    <th style="width: 14%; text-align: right; padding: 8px; background-color: #f8f9fa; border: none; font-size: 14px; white-space: nowrap;">Total HT</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr t-foreach="o.invoice_line_ids" t-as="line" t-att-class="line_index % 2 == 0 and 'invoice-line-even' or 'invoice-line-odd'" style="border: none;">
+            <td t-if="o.print_with_line_number" style="padding: 8px; text-align: center; border: none; vertical-align: middle; font-size: 14px;">
+                <span t-esc="line_index + 1"/>
+            </td>
+            <td style="padding: 8px; text-align: center; border: none; vertical-align: middle; font-size: 14px;">
+                <t t-if="line.sale_line_ids">
+                    <span t-field="line.sale_line_ids[0].move_ids[0].picking_id.name"/>
+                </t>
+            </td>
+            <td style="padding: 8px; border: none; vertical-align: middle; font-size: 14px;">
+                <t t-if="o.print_with_ref and line.product_id.default_code">
+                    <div style="font-size: 14px; font-weight: bold;"><span t-field="line.product_id.default_code"/></div>
+                    <div t-if="line.name" style="font-size: 14px;"><span t-field="line.name" t-options="{'widget': 'text'}"/></div>
+                </t>
+                <t t-if="not o.print_with_ref or not line.product_id.default_code">
+                    <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                </t>
+            </td>
+            <td style="text-align: center; padding: 8px; border: none; vertical-align: middle; font-size: 14px;">
+                <t t-set="qty_str" t-value="'{:.2f}'.format(line.quantity)"/>
+                <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/><br/>
+                <span t-field="line.product_uom_id.name" style="font-size: 10px; color: #666666;"/>
+            </td>
+            <td style="text-align: right; padding: 8px; border: none; vertical-align: middle; font-size: 14px;">
+                <span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}'/>
+            </td>
+            <td t-if="any(line.discount for line in o.invoice_line_ids)"
+                style="text-align: center; padding: 8px; border: none; vertical-align: middle; font-size: 14px;">
+                <t t-if="line.discount">
+                    <t t-set="discount_str" t-value="'{:.2f}'.format(line.discount)"/>
+                    <span t-esc="discount_str.rstrip('0').rstrip('.') if discount_str.endswith('.00') else discount_str"/>%
+                </t>
+            </td>
+            <td style="text-align: right; padding: 8px; border: none; vertical-align: middle; font-size: 14px;">
+                <span t-field="line.price_subtotal" t-options='{"widget": "float", "precision": 2}'/>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Montant en lettres et Totaux -->
+<table style="width: 100%; margin-top: 15px; margin-bottom: 15px; border-collapse: collapse; border: 1px solid black;">
+    <tr>
+        <!-- Section texte "Arrêtée la présente facture..." -->
+        <td style="width: 70%; vertical-align: top; padding-right: 20px; border: none !important;">
+            <div style="padding: 10px; box-sizing: border-box;">
+                <span style="display: block; margin-bottom: 10px !important;">
+                    Arrêtée la présente facture à la somme de:
+                </span>
+                <span style="display: block; font-weight: bold; margin-bottom: 10px !important;">
+                    <t t-esc="o.currency_id.amount_to_text(o.amount_total)" />
+                </span>
+            </div>
+        </td>
+
+        <!-- Section des totaux -->
+        <td style="width: 30%; vertical-align: top; border: none !important;">
+            <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                <!-- Total HT -->
+                <tr style="font-weight: bold; background-color: #F5F5F5;">
+                    <td style="padding: 5px 8px; text-align: left; border: 1px solid #ddd; border-bottom: none;">Total HT</td>
+                    <td style="padding: 5px 8px; text-align: right; border: 1px solid #ddd; border-bottom: none;">
+                        <span t-field="o.amount_untaxed" t-options='{"widget": "float", "precision": 2}'/>
+                        <span t-field="o.currency_id.symbol"/>
+                    </td>
+                </tr>
+                <!-- TVA dynamique regroupée par taux -->
+                <t t-set="tax_dict" t-value="{}" />
+                <!-- Calcul des totaux par taux de TVA -->
+                <t t-foreach="o.invoice_line_ids" t-as="line">
+                    <t t-foreach="line.tax_ids" t-as="tax">
+                        <t t-if="str(tax.amount) not in tax_dict">
+                            <t t-set="tax_dict" t-value="dict(tax_dict, **{str(tax.amount): 0})" />
+                        </t>
+                        <t t-set="current_tax" t-value="tax_dict[str(tax.amount)] + line.price_subtotal * (tax.amount / 100.0)" />
+                        <t t-set="tax_dict" t-value="dict(tax_dict, **{str(tax.amount): current_tax})" />
+                    </t>
+                </t>
+
+                <!-- Affichage des totaux de TVA -->
+                <t t-foreach="tax_dict.items()" t-as="tax_item">
+                    <tr style="background-color: #FAFAFA;">
+                        <td style="padding: 5px 8px; text-align: left; border: 1px solid #ddd; border-bottom: none; border-top: none;">
+                            TVA <t t-esc="int(float(tax_item[0]))"/>%
+                        </td>
+                        <td style="padding: 5px 8px; text-align: right; border: 1px solid #ddd; border-bottom: none; border-top: none;">
+                            <span t-esc="tax_item[1]" t-options='{"widget": "float", "precision": 2}'/>
+                            <span t-field="o.currency_id.symbol"/>
+                        </td>
+                    </tr>
+                </t>
+                <!-- Total TTC -->
+                <tr style="font-weight: bold; background-color: #EEEDED;">
+                    <td style="padding: 5px 8px; text-align: left; border: 1px solid #ddd;">Total TTC</td>
+                    <td style="padding: 5px 8px; text-align: right; border: 1px solid #ddd;">
+                        <span t-field="o.amount_total" t-options='{"widget": "float", "precision": 2}'/>
+                        <span t-field="o.currency_id.symbol"/>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+        <!-- Signature/Tampon en dehors du tableau -->
+        <t t-if="o.print_with_signature">
+            <div style="margin-top: 20px; padding-left: 10px;">
+                <!-- Utiliser l'image du tampon de la société si définie, sinon la signature utilisateur -->
+                <t t-if="o.company_id.stamp_image">
+                    <img t-att-src="image_data_uri(o.company_id.stamp_image)"
+                         alt="Tampon"
+                         style="max-width: 300px; max-height: 150px; display: block;"/>
+                </t>
+                <t t-elif="o.invoice_user_id.signature_image">
+                    <img t-att-src="image_data_uri(o.invoice_user_id.signature_image)"
+                         alt="Signature"
+                         style="max-width: 300px; max-height: 150px; display: block;"/>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- ==================== MAIN REPORT TEMPLATE ==================== -->
+    <template id="report_invoice_mec">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="custom_reports.external_layout_invoice_mec">
+                    <t t-call="custom_reports.report_invoice_mec_document"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ==================== REPORT ACTION ==================== -->
+    <record id="action_report_invoice_mec" model="ir.actions.report">
+        <field name="name">Facture MEC</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_reports.report_invoice_mec</field>
+        <field name="report_file">custom_reports.report_invoice_mec</field>
+        <field name="print_report_name">'Facture - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_standard"/>
+    </record>
+</odoo>

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ==================== HEADER SECTION ==================== -->
+    <template id="external_layout_header_delivery_ens">
+        <div class="header">
+            <div class="row">
+                <div class="col-3">
+                    <t t-if="o.company_id.logo">
+                        <img t-att-src="image_data_uri(o.company_id.logo)" alt="Logo" t-attf-style="max-height: #{o.company_id.logo_height}px; max-width: #{o.company_id.logo_width}px;"/>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="external_layout_footer_delivery_ens">
+        <div class="footer">
+            <div style="margin-bottom: 10px;">
+                <span style="float: left; font-size: 14px;">Etabli par : <span t-esc="env.user.name"/></span>
+                <span style="float: right; font-size: 14px;">Page N° <span class="page"/>/<span class="topage"/></span>
+                <div style="clear: both;"></div>
+            </div>
+            <div class="text-center" style="border-top: 1px solid black;">
+                <span t-field="o.company_id.name"/>
+            </div>
+        </div>
+    </template>
+
+    <template id="external_layout_delivery_ens">
+        <div class="article o_report_layout_standard">
+            <!-- Header uniquement si print_with_header est activé -->
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_header_delivery_ens"/>
+            </t>
+            <t t-raw="0"/>
+            <!-- Footer uniquement si print_with_header est activé -->
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_footer_delivery_ens"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ==================== DOCUMENT TEMPLATE ==================== -->
+    <template id="report_delivery_ens_document">
+        <!-- Delivery Order Header Information -->
+        <table style="width:100%; border-collapse: separate; border-spacing: 0; border: 0;">
+            <tr>
+                <!-- Delivery Order Details Column -->
+                <td style="width:45%; border: 0;">
+                    <table style="width:100%; border-collapse: separate;">
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <strong>Bon de Livraison N°: </strong><span t-field="o.name"/>
+                            </td>
+                        </tr>
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <strong>Date: </strong><span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
+                            </td>
+                        </tr>
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <strong>Votre Commande: </strong>
+                                <t t-if="o.origin">
+                                    <span t-field="o.origin"/>
+                                </t>
+                            </td>
+                        </tr>
+                        <tr style="border: 0;">
+                            <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                <strong>Notre référence: </strong>
+                                <t t-if="o.sale_id">
+                                    <span t-field="o.sale_id.name"/>
+                                </t>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+                <!-- Spacer Column -->
+                <td style="width:5%;"></td>
+
+                <!-- Customer Information Column -->
+                <td style="width:50%;">
+                    <div style="border: 1px solid black; padding:8px;">
+                        <table style="width:100%; border-collapse: separate;">
+                            <tr>
+                                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0; background-color: #f9f9f9;">
+                                    <span t-field="o.partner_id.name" style="font-size: 18px; font-weight: bold;"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                    <t t-if="o.partner_id.street">
+                                        <span t-field="o.partner_id.street"/>
+                                        <t t-if="o.partner_id.street2 or o.partner_id.city or o.partner_id.state_id or o.partner_id.zip or o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.street2">
+                                        <span t-field="o.partner_id.street2"/>
+                                        <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip or o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.city">
+                                        <span t-field="o.partner_id.city"/>
+                                        <t t-if="o.partner_id.state_id or o.partner_id.zip or o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.state_id">
+                                        <span t-field="o.partner_id.state_id.name"/>
+                                        <t t-if="o.partner_id.zip or o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.zip">
+                                        <span t-field="o.partner_id.zip"/>
+                                        <t t-if="o.partner_id.country_id">, </t>
+                                    </t>
+                                    <t t-if="o.partner_id.country_id">
+                                        <span t-field="o.partner_id.country_id.name"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                    <!-- Afficher Tél, Mobile et Email selon les conditions -->
+                                    <t t-if="o.partner_id.phone or o.partner_id.mobile">
+                                        <strong>Tél:</strong>
+                                        <t t-if="o.partner_id.phone">
+                                            <span t-field="o.partner_id.phone"/>
+                                        </t>
+                                        <t t-if="o.partner_id.mobile">
+                                            <t t-if="o.partner_id.phone"> / </t> <!-- Ajouter un séparateur seulement si phone existe -->
+                                            <span t-field="o.partner_id.mobile"/>
+                                        </t>
+                                    </t>
+                                    <t t-if="o.partner_id.email">
+                                        <t t-if="o.partner_id.phone or o.partner_id.mobile">
+                                            <br/> <!-- Passer à la ligne si un numéro est défini -->
+                                        </t>
+                                        <strong>Email:</strong>
+                                        <span t-field="o.partner_id.email"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr t-if="o.partner_id.ice">
+                                <td style="border: 0; border-bottom: 0; border-top: 0; border-left: 0; border-right: 0;">
+                                    <strong>ICE:</strong>
+                                    <span t-field="o.partner_id.ice"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Add CSS classes -->
+        <style>
+            .delivery-line-even {
+                background-color: #ffffff;
+            }
+            .delivery-line-odd {
+                background-color: #f9f9f9;
+            }
+            table.no-internal-borders,
+            .no-internal-borders tr,
+            .no-internal-borders td,
+            .no-internal-borders th {
+                border: none !important;
+            }
+        </style>
+
+        <!-- Vérification pour la présence de numéros de lot/série -->
+        <t t-set="has_lots" t-value="any(move.move_line_ids.filtered(lambda l: l.lot_id) for move in o.move_ids_without_package)"/>
+
+        <!-- Déplacer la table principale et formatage sans bordures -->
+        <div style="width: 100%; margin-top: 15px; margin-bottom: 15px;">
+            <table class="table table-sm" style="width: 100%; margin-top: 20px; border-collapse: collapse; border: none !important;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        <th style="width: 5%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none !important;">N°</th>
+                        <th style="width: 15%; padding: 8px; background-color: #f8f9fa; border: none !important;">Référence</th>
+                        <th style="width: 45%; padding: 8px; white-space: normal; word-wrap: break-word; background-color: #f8f9fa; border: none !important;">Description</th>
+                        <th t-if="has_lots" style="width: 10%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none !important;">Lot/Série</th>
+                        <th style="width: 15%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none !important;">Qté commandée</th>
+                        <th style="width: 10%; text-align: center; padding: 8px; background-color: #f8f9fa; border: none !important;">Qté livrée</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr t-foreach="o.move_ids_without_package" t-as="move" t-att-class="'delivery-line-' + (move_index % 2 == 0 and 'even' or 'odd')" style="border: none !important;">
+                    <td style="padding: 8px; text-align: center; border: none !important;">
+                        <span t-esc="move_index + 1"/>
+                    </td>
+                    <td style="padding: 8px; border: none !important;">
+                        <span t-field="move.product_id.default_code"/>
+                    </td>
+                    <td style="padding: 8px; border: none !important;">
+                        <span t-field="move.product_id.name"/>
+                        <t t-if="move.description_picking != move.product_id.name">
+                            <br/><span t-field="move.description_picking"/>
+                        </t>
+                    </td>
+                    <td t-if="has_lots" style="text-align: center; padding: 8px; border: none !important;">
+                        <t t-if="move.move_line_ids">
+                            <span t-esc="', '.join([line.lot_id.name for line in move.move_line_ids if line.lot_id])" />
+                        </t>
+                    </td>
+                    <td style="text-align: center; padding: 8px; border: none;">
+                        <t t-set="qty_str" t-value="'{:.2f}'.format(move.product_uom_qty)"/>
+                        <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/>
+                        <span t-field="move.product_uom" style="font-size: smaller; color: #666666;"/>
+                    </td>
+                    <td style="text-align: center; padding: 8px; border: none;">
+                        <t t-set="qty_done_str" t-value="'{:.2f}'.format(move.quantity)"/>
+                        <span t-esc="qty_done_str.rstrip('0').rstrip('.') if qty_done_str.endswith('.00') else qty_done_str"/>
+                        <span t-field="move.product_uom" style="font-size: smaller; color: #666666;"/>
+                    </td>
+                </tr>
+                            </tbody>
+            </table>
+        </div>
+
+<!-- Visa Section -->
+                        <t t-if="o.print_with_visa">
+                            <table style="border: 1px solid #ABABAB;color:#ABABAB;width:60%;margin-left:200px;page-break-inside: avoid;" name="table_visa">
+                                <tr style="color:black;">
+                                    <td colspan="2" style="border-color:#ABABAB"><center><strong>Visa</strong></center></td>
+                                </tr>
+                                <tr style="border: 1px solid #ABABAB">
+                                    <td style="width:40%;color:black;border-color:#ABABAB"><center><strong>Service Livraison</strong></center></td>
+                                    <td style="width:40%;color:black;border-color:#ABABAB"><center><strong>Client</strong></center></td>
+                                </tr>
+                                <tr style="border:1px solid #ABABAB">
+                                    <td style="width:40%;height:200px;color:black;border-color:#ABABAB"></td>
+                                    <td style="width:40%;height:200px;color:black;border-color:#ABABAB"></td>
+                                </tr>
+                            </table>
+                        </t>
+
+        <!-- Notes section if present -->
+        <t t-if="o.note">
+            <div style="margin-top: 20px; border: 1px solid #ddd; padding: 10px;">
+                <strong>Notes:</strong>
+                <span t-field="o.note"/>
+            </div>
+        </t>
+    </template>
+
+    <!-- ==================== MAIN REPORT TEMPLATE ==================== -->
+    <template id="report_delivery_ens">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="custom_reports.external_layout_delivery_ens">
+                    <t t-call="custom_reports.report_delivery_ens_document"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ==================== REPORT ACTION ==================== -->
+    <record id="action_report_delivery_ens" model="ir.actions.report">
+        <field name="name">Bon de Livraison ENS</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_reports.report_delivery_ens</field>
+        <field name="report_file">custom_reports.report_delivery_ens</field>
+        <field name="print_report_name">'BL_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_standard"/>
+    </record>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Action pour imprimer la facture proforma -->
+        <!-- Cette action sera disponible dans le menu "Action" des devis/commandes -->
+        <record id="action_print_proforma_invoice" model="ir.actions.server">
+            <field name="name">Imprimer Facture Proforma</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">action</field>
+            <field name="state">code</field>
+            <field name="code"><![CDATA[
+# Imprimer la facture proforma pour les devis/commandes sélectionnés
+if records:
+    action = {
+        'type': 'ir.actions.report',
+        'report_name': 'custom_reports.report_proforma_dynamic',
+        'report_type': 'qweb-pdf',
+    }
+]]></field>
+        </record>
+    </data>
+</odoo>

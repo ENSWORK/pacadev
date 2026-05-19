@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Forcer la mise à jour de la version du module -->
+        <!-- Ce fichier force Odoo à relire la version à chaque upgrade -->
+        <record id="module_version_update" model="ir.config_parameter">
+            <field name="key">custom_reports.version</field>
+            <field name="value">17.0.1.40</field>
+        </record>
+    </data>
+</odoo>

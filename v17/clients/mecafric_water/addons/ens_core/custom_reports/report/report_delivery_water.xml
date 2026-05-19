@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ==================== HEADER ==================== -->
+    <template id="external_layout_header_delivery_water">
+        <div class="header">
+            <table style="width:100%; border-collapse:collapse; border:none; padding:0; margin:0;">
+                <tr style="height:40mm;">
+                    <td style="width:50%; border:none; vertical-align:middle; padding:0;">
+                        <t t-if="o.company_id.logo">
+                            <img t-att-src="image_data_uri(o.company_id.logo)"
+                                 alt="Logo"
+                                 style="height:40mm; width:auto; max-width:100%; display:block; object-fit:contain;"/>
+                        </t>
+                    </td>
+                    <td style="width:50%; border:none; vertical-align:middle; padding:0; text-align:right;">
+                        <t t-if="o.company_id.header_image_mec">
+                            <img t-att-src="image_data_uri(o.company_id.header_image_mec)"
+                                 alt="Header"
+                                 style="height:40mm; width:auto; max-width:100%; display:block; margin-left:auto; object-fit:contain;"/>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </template>
+
+    <!-- ==================== FOOTER ==================== -->
+    <template id="external_layout_footer_delivery_water">
+        <div class="footer" style="min-height:35mm; position:relative;">
+            <t t-if="o.company_id.footer_image_mec">
+                <img t-att-src="image_data_uri(o.company_id.footer_image_mec)"
+                     alt="Footer"
+                     style="width:100%; max-width:100%; display:block;"/>
+            </t>
+            <div style="position:absolute; bottom:3px; right:0;">
+                <span style="font-size:11px;">Page <span class="page"/>/<span class="topage"/></span>
+            </div>
+        </div>
+    </template>
+
+    <!-- ==================== LAYOUT WRAPPER ==================== -->
+    <template id="external_layout_delivery_water">
+        <div class="article o_report_layout_standard">
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_header_delivery_water"/>
+            </t>
+            <t t-raw="0"/>
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_footer_delivery_water"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ==================== DOCUMENT ==================== -->
+    <template id="report_delivery_water_document">
+
+        <style>
+            .water-dl-even { background-color: #ffffff; }
+            .water-dl-odd  { background-color: #f7fbff; }
+        </style>
+
+        <!-- Blocs info : document (gauche) + client (droite) -->
+        <table style="width:100%; border-collapse:collapse; border:none; margin-top:15px;">
+            <tr>
+                <!-- LEFT : infos BL -->
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:1px solid #C5DFF0;">
+                    <div style="font-size:15px; font-weight:bold; margin-bottom:8px;">BON DE LIVRAISON</div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <td style="border:none; padding:2px 0; width:50%; white-space:nowrap;"><strong>N°</strong></td>
+                            <td style="border:none; padding:2px 0;">: <span t-field="o.name"/></td>
+                        </tr>
+                        <tr>
+                            <td style="border:none; padding:2px 0;"><strong>N°BC</strong></td>
+                            <td style="border:none; padding:2px 0;">:
+                                <t t-if="o.sale_id"><span t-field="o.sale_id.name"/></t>
+                                <t t-elif="o.origin"><span t-field="o.origin"/></t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border:none; padding:2px 0;"><strong>Date de livraison</strong></td>
+                            <td style="border:none; padding:2px 0;">:
+                                <t t-if="o.date_done">
+                                    <span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border:none; padding:2px 0;"><strong>Expédition</strong></td>
+                            <td style="border:none; padding:2px 0;">:
+                                <t t-if="o.carrier_id"><span t-field="o.carrier_id.name"/></t>
+                                <t t-else="">Nos soins</t>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+                <td style="width:4%; border:none;"></td>
+
+                <!-- RIGHT : infos client -->
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:1px solid #C5DFF0;">
+                    <div style="font-size:15px; font-weight:bold; margin-bottom:8px;">
+                        <span t-field="o.partner_id.name"/>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <td style="border:none; padding:2px 0; width:40%; white-space:nowrap;"><strong>Code client</strong></td>
+                            <td style="border:none; padding:2px 0;">:
+                                <t t-if="o.partner_id.ref"><span t-field="o.partner_id.ref"/></t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border:none; padding:2px 0;"><strong>Adresse</strong></td>
+                            <td style="border:none; padding:2px 0;">:
+                                <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border:none; padding:2px 0;"><strong>Tél.</strong></td>
+                            <td style="border:none; padding:2px 0;">:
+                                <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t>
+                                <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border:none; padding:2px 0;"><strong>ICE</strong></td>
+                            <td style="border:none; padding:2px 0;">: <span t-field="o.partner_id.ice"/></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Détection lots/séries -->
+        <t t-set="has_lots" t-value="any(move.move_line_ids.filtered(lambda l: l.lot_id) for move in o.move_ids_without_package)"/>
+
+        <!-- Tableau des lignes -->
+        <table style="width:100%; margin-top:15px; border-collapse:collapse;">
+            <thead>
+                <tr style="background-color:#f0f0f0; font-weight:bold; text-align:center;">
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:5%;">N°</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:15%;">Référence</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; text-align:left;">Désignation</th>
+                    <th t-if="has_lots" style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:10%; white-space:nowrap;">Lot/Série</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:12%; white-space:nowrap;">Qté commandée</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:12%; white-space:nowrap;">Qté Livrée</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="o.move_ids_without_package" t-as="move"
+                    t-att-class="move_index % 2 == 0 and 'water-dl-even' or 'water-dl-odd'">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                        <span t-esc="move_index + 1"/>
+                    </td>
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                        <span t-field="move.product_id.default_code"/>
+                    </td>
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; vertical-align:middle;">
+                        <span t-field="move.product_id.name"/>
+                        <t t-if="move.description_picking and move.description_picking != move.product_id.name">
+                            <br/><span t-field="move.description_picking" style="font-size:11px; color:#666;"/>
+                        </t>
+                    </td>
+                    <td t-if="has_lots" style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                        <t t-if="move.move_line_ids">
+                            <span t-esc="', '.join([l.lot_id.name for l in move.move_line_ids if l.lot_id])"/>
+                        </t>
+                    </td>
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                        <t t-set="qty_str" t-value="'{:.2f}'.format(move.product_uom_qty)"/>
+                        <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/>
+                    </td>
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                        <t t-set="qty_done_str" t-value="'{:.2f}'.format(move.quantity)"/>
+                        <span t-esc="qty_done_str.rstrip('0').rstrip('.') if qty_done_str.endswith('.00') else qty_done_str"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Visa -->
+        <t t-if="o.print_with_visa">
+            <table style="border:1px solid #ABABAB; width:70%; margin:20px auto 0 auto; border-collapse:collapse;">
+                <tr>
+                    <td colspan="2" style="border:1px solid #ABABAB; padding:6px; text-align:center; font-weight:bold; background-color:#f0f0f0;">
+                        SERVICE LIVRAISON
+                    </td>
+                    <td colspan="2" style="border:1px solid #ABABAB; padding:6px; text-align:center; font-weight:bold; background-color:#f0f0f0;">
+                        Client
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="border:1px solid #ABABAB; height:100px;"></td>
+                    <td colspan="2" style="border:1px solid #ABABAB; height:100px;"></td>
+                </tr>
+            </table>
+        </t>
+
+        <!-- Notes -->
+        <t t-if="o.note">
+            <div style="margin-top:15px; border:1px solid #ddd; padding:10px;">
+                <strong>Notes : </strong><span t-field="o.note"/>
+            </div>
+        </t>
+
+    </template>
+
+    <!-- ==================== RAPPORT PRINCIPAL ==================== -->
+    <template id="report_delivery_water">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="custom_reports.external_layout_delivery_water">
+                    <t t-call="custom_reports.report_delivery_water_document"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ==================== ACTION ==================== -->
+    <record id="action_report_delivery_water" model="ir.actions.report">
+        <field name="name">Bon de Livraison WATER</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_reports.report_delivery_water</field>
+        <field name="report_file">custom_reports.report_delivery_water</field>
+        <field name="print_report_name">'BL - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_water"/>
+    </record>
+</odoo>
