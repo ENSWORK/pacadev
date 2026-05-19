@@ -47,5 +47,25 @@
     <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_water"/>
 </record>
 
+<!-- Désactiver les rapports individuels - ils sont appelés par le rapport dynamique -->
+<record id="action_report_delivery_ens" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
+<record id="action_report_delivery_mec" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
+<record id="action_report_delivery_db" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
+<record id="action_report_delivery_water" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
+<record id="action_report_receipt_ens" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
+<record id="action_report_receipt_mec" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
+
 
 </odoo>

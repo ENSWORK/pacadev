@@ -3,24 +3,16 @@
     <!-- ==================== HEADER ==================== -->
     <template id="external_layout_header_delivery_water">
         <div class="header">
-            <table style="width:100%; border-collapse:collapse; border:none; padding:0; margin:0;">
-                <tr style="height:40mm;">
-                    <td style="width:50%; border:none; vertical-align:middle; padding:0;">
-                        <t t-if="o.company_id.logo">
-                            <img t-att-src="image_data_uri(o.company_id.logo)"
-                                 alt="Logo"
-                                 style="height:40mm; width:auto; max-width:100%; display:block; object-fit:contain;"/>
-                        </t>
-                    </td>
-                    <td style="width:50%; border:none; vertical-align:middle; padding:0; text-align:right;">
-                        <t t-if="o.company_id.header_image_mec">
-                            <img t-att-src="image_data_uri(o.company_id.header_image_mec)"
-                                 alt="Header"
-                                 style="height:40mm; width:auto; max-width:100%; display:block; margin-left:auto; object-fit:contain;"/>
-                        </t>
-                    </td>
-                </tr>
-            </table>
+            <t t-if="o.company_id.mec_header_type == 'image' and o.company_id.header_image_mec">
+                <img t-att-src="image_data_uri(o.company_id.header_image_mec)"
+                     alt="Header"
+                     style="width:100%; max-width:100%; max-height:40mm; object-fit:contain; display:block;"/>
+            </t>
+            <t t-elif="o.company_id.logo">
+                <img t-att-src="image_data_uri(o.company_id.logo)"
+                     alt="Logo"
+                     t-attf-style="max-height:#{o.company_id.logo_height}px; max-width:#{o.company_id.logo_width}px; display:block;"/>
+            </t>
         </div>
     </template>
 

@@ -1,6 +1,6 @@
 {  # noqa: B018
     "name": "Enswork Reports",
-    "version": "17.0.1.40",
+    "version": "17.0.1.46",
     "category": "Sales",
     "summary": "Custom report templates by Enswork",
     "author": "ENSWORK",
@@ -65,6 +65,7 @@
         "report/report_delivery_dynamic.xml",
         "report/report_invoice_dynamic.xml",
         "report/report_purchase_dynamic.xml",
+        "report/report_receipt_dynamic.xml",
         "report/report_rfq_dynamic.xml",
         "report/report_sale_dynamic.xml",
     ],

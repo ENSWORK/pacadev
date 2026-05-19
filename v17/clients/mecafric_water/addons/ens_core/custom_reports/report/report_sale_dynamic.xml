@@ -81,5 +81,8 @@
 <record id="action_report_saleorder_db_without_ref" model="ir.actions.report">
     <field name="binding_model_id" eval="False"/>
 </record>
+<record id="action_report_sale_order_water" model="ir.actions.report">
+    <field name="binding_model_id" eval="False"/>
+</record>
 
 </odoo>
