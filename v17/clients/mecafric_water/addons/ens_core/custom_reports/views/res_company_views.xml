@@ -68,6 +68,13 @@
                             <field name="logo_width"/>
                         </group>
                     </group>
+                    <separator string="Configuration des tailles de tableau"/>
+                    <group>
+                        <group string="Taille du contenu">
+                            <field name="table_font_size"/>
+                            <field name="table_title_font_size"/>
+                        </group>
+                    </group>
                 </page>
             </xpath>
         </field>

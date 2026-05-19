@@ -76,14 +76,10 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Mode de règlement</strong></td>
+                            <td style="border:none; padding:2px 0;"><strong>Incoterm</strong></td>
                             <td style="border:none; padding:2px 0;">:
-                                <t t-if="o.payment_term_id"><span t-field="o.payment_term_id"/></t>
+                                <t t-if="o.incoterm_id"><span t-field="o.incoterm_id.name"/></t>
                             </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Condition de livraison</strong></td>
-                            <td style="border:none; padding:2px 0;">:</td>
                         </tr>
                     </table>
                 </td>
@@ -136,44 +132,46 @@
         </div>
 
         <!-- Tableau des lignes -->
+        <t t-set="table_font_size" t-value="o.company_id.table_font_size"/>
+        <t t-set="table_title_font_size" t-value="o.company_id.table_title_font_size"/>
         <table style="width:100%; margin-top:12px; border-collapse:collapse;">
             <thead>
-                <tr style="background-color:#f0f0f0; font-weight:bold; text-align:center;">
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:5%;">N°</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:15%;">Référence</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; text-align:left;">Désignation</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:8%; white-space:nowrap;">Qté</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:12%; white-space:nowrap;">P.H.HT</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:12%; white-space:nowrap;">Total HT</th>
+                <tr t-attf-style="background-color:#f0f0f0; font-weight:bold; text-align:center; font-size:#{table_title_font_size}px;">
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; width:5%; vertical-align:middle;">N°</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; width:15%; vertical-align:middle;">Référence</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; text-align:left; vertical-align:middle;">Désignation</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; width:8%; white-space:nowrap; vertical-align:middle;">Qté</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; width:12%; white-space:nowrap; text-align:right; vertical-align:middle;">P.H.HT</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; width:12%; white-space:nowrap; text-align:right; vertical-align:middle;">Total HT</th>
                 </tr>
             </thead>
             <tbody>
                 <tr t-foreach="o.order_line" t-as="line"
                     t-att-class="line_index % 2 == 0 and 'water-sale-even' or 'water-sale-odd'">
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                    <td t-attf-style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:#{table_font_size}px; vertical-align:middle;">
                         <span t-esc="line_index + 1"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                    <td t-attf-style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:#{table_font_size}px; vertical-align:middle;">
                         <span t-field="line.product_id.default_code"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; vertical-align:middle;">
+                    <td t-attf-style="padding:7px 5px; border:1px solid #BBBBBB; font-size:#{table_font_size}px; vertical-align:middle; text-align:center;">
                         <span t-field="line.name" t-options="{'widget': 'text'}"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                    <td t-attf-style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:#{table_font_size}px; white-space:nowrap; vertical-align:middle;">
                         <t t-set="qty_str" t-value="'{:.2f}'.format(line.product_uom_qty)"/>
                         <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                    <td t-attf-style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:#{table_font_size}px; white-space:nowrap; vertical-align:middle;">
                         <span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}'/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                    <td t-attf-style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:#{table_font_size}px; white-space:nowrap; vertical-align:middle;">
                         <span t-field="line.price_subtotal" t-options='{"widget": "float", "precision": 2}'/>
                     </td>
                 </tr>
             </tbody>
         </table>
 
-        <!-- Totaux -->
+        <!-- Totaux et Signature -->
         <t t-set="tax_dict" t-value="{}"/>
         <t t-foreach="o.order_line" t-as="line">
             <t t-foreach="line.tax_id" t-as="tax">
@@ -185,49 +183,57 @@
             </t>
         </t>
 
-        <table style="width:40%; margin-left:auto; margin-top:10px; border-collapse:collapse;">
-            <tr style="background-color:#f0f0f0;">
-                <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL HT</td>
-                <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; font-weight:bold; white-space:nowrap;">
-                    <span t-field="o.amount_untaxed" t-options='{"widget": "float", "precision": 2}'/>
-                    <span> </span><span t-field="o.currency_id.symbol"/>
+        <table style="width:100%; margin-top:10px; border-collapse:collapse;">
+            <tr>
+                <!-- Signature à gauche -->
+                <td style="width:50%; vertical-align:top; padding-right:20px;">
+                    <t t-if="o.print_with_signature">
+                        <div>
+                            <t t-if="o.company_id.stamp_image">
+                                <img t-att-src="image_data_uri(o.company_id.stamp_image)"
+                                     alt="Tampon"
+                                     style="max-width:200px; max-height:100px; display:block;"/>
+                            </t>
+                            <t t-elif="o.user_id.signature_image">
+                                <img t-att-src="image_data_uri(o.user_id.signature_image)"
+                                     alt="Signature"
+                                     style="max-width:200px; max-height:100px; display:block;"/>
+                            </t>
+                        </div>
+                    </t>
                 </td>
-            </tr>
-            <t t-foreach="tax_dict.items()" t-as="tax_item">
-                <tr>
-                    <td style="padding:5px 10px; border:1px solid #BBBBBB; white-space:nowrap;">
-                        TVA <t t-esc="int(float(tax_item[0]))"/>%
-                    </td>
-                    <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; white-space:nowrap;">
-                        <span t-esc="tax_item[1]" t-options='{"widget": "float", "precision": 2}'/>
-                        <span> </span><span t-field="o.currency_id.symbol"/>
-                    </td>
-                </tr>
-            </t>
-            <tr style="background-color:#f0f0f0;">
-                <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL TTC</td>
-                <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; font-weight:bold; white-space:nowrap;">
-                    <span t-field="o.amount_total" t-options='{"widget": "float", "precision": 2}'/>
-                    <span> </span><span t-field="o.currency_id.symbol"/>
+                <!-- Totaux à droite -->
+                <td style="width:50%; vertical-align:top;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr style="background-color:#f0f0f0;">
+                            <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL HT</td>
+                            <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; font-weight:bold; white-space:nowrap;">
+                                <span t-field="o.amount_untaxed" t-options='{"widget": "float", "precision": 2}'/>
+                                <span> </span><span t-field="o.currency_id.symbol"/>
+                            </td>
+                        </tr>
+                        <t t-foreach="tax_dict.items()" t-as="tax_item">
+                            <tr>
+                                <td style="padding:5px 10px; border:1px solid #BBBBBB; white-space:nowrap;">
+                                    TVA <t t-esc="int(float(tax_item[0]))"/>%
+                                </td>
+                                <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; white-space:nowrap;">
+                                    <span t-esc="tax_item[1]" t-options='{"widget": "float", "precision": 2}'/>
+                                    <span> </span><span t-field="o.currency_id.symbol"/>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr style="background-color:#f0f0f0;">
+                            <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL TTC</td>
+                            <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; font-weight:bold; white-space:nowrap;">
+                                <span t-field="o.amount_total" t-options='{"widget": "float", "precision": 2}'/>
+                                <span> </span><span t-field="o.currency_id.symbol"/>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>
-
-        <!-- Signature/Tampon -->
-        <t t-if="o.print_with_signature">
-            <div style="margin-top:20px;">
-                <t t-if="o.company_id.stamp_image">
-                    <img t-att-src="image_data_uri(o.company_id.stamp_image)"
-                         alt="Tampon"
-                         style="max-width:250px; max-height:120px; display:block;"/>
-                </t>
-                <t t-elif="o.user_id.signature_image">
-                    <img t-att-src="image_data_uri(o.user_id.signature_image)"
-                         alt="Signature"
-                         style="max-width:250px; max-height:120px; display:block;"/>
-                </t>
-            </div>
-        </t>
 
     </template>
 
