@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_delivery_wizard" model="ir.actions.act_window">
+        <field name="name">Validate Delivery</field>
+        <field name="res_model">delivery.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <record id="view_order_form_inherit_delivery" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.delivery</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="picking_ids" invisible="1"/>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="%(action_delivery_wizard)d"
+                        string="Livraison"
+                        type="action"
+                        class="btn-primary"
+                        invisible="state not in ('sale', 'done') or not picking_ids"
+                        context="{'default_picking_id': picking_ids and picking_ids[0].id or False}"/>
+            </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="delivery_id" readonly="1" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
