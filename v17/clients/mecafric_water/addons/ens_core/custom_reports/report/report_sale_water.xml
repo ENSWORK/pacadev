@@ -55,20 +55,20 @@
         <table style="width:100%; border-collapse:collapse; border:none; margin-top:15px;">
             <tr>
                 <!-- LEFT : infos document -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:1px solid #C5DFF0;">
-                    <div style="font-size:15px; font-weight:bold; color:#0056A6; margin-bottom:8px;">OFFRE COMMERCIALE</div>
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">OFFRE COMMERCIALE</div>
                     <table style="width:100%; border-collapse:collapse;">
                         <tr>
-                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>N°</strong> :</td>
-                            <td style="border:none; padding:2px 0; padding-left:5px;"><span t-field="o.name"/></td>
+                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>N°</strong> :</td>
+                            <td style="border:none; padding:4px 0; padding-left:5px;"><span t-field="o.name"/></td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Date</strong> :</td>
-                            <td style="border:none; padding:2px 0; padding-left:5px;"><span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></td>
+                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Date</strong> :</td>
+                            <td style="border:none; padding:4px 0; padding-left:5px;"><span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Validité de l'offre</strong> :</td>
-                            <td style="border:none; padding:2px 0; padding-left:5px;">
+                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Validité de l'offre</strong> :</td>
+                            <td style="border:none; padding:4px 0; padding-left:5px;">
                                 <t t-if="o.validity_date">
                                     <t t-set="valid_days" t-value="(o.validity_date - o.date_order.date()).days"/>
                                     <span t-esc="valid_days"/> jours
@@ -76,14 +76,14 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Condition de livraison</strong> :</td>
-                            <td style="border:none; padding:2px 0; padding-left:5px;">
+                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Condition de livraison</strong> :</td>
+                            <td style="border:none; padding:4px 0; padding-left:5px;">
                                 <t t-if="o.incoterm"><span t-field="o.incoterm.name"/></t>
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Conditions de paiement</strong> :</td>
-                            <td style="border:none; padding:2px 0; padding-left:5px;">
+                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Conditions de paiement</strong> :</td>
+                            <td style="border:none; padding:4px 0; padding-left:5px;">
                                 <t t-if="o.payment_term_id"><span t-field="o.payment_term_id"/></t>
                             </td>
                         </tr>
@@ -93,33 +93,33 @@
                 <td style="width:4%; border:none;"></td>
 
                 <!-- RIGHT : infos client -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:1px solid #C5DFF0;">
-                    <div style="font-size:15px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>
                     <table style="width:100%; border-collapse:collapse;">
                         <tr>
-                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Code client</strong> :</td>
-                            <td style="border:none; padding:2px 0; padding-left:5px;">
+                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Code client</strong> :</td>
+                            <td style="border:none; padding:4px 0; padding-left:5px;">
                                 <t t-if="o.partner_id.ref"><span t-field="o.partner_id.ref"/></t>
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Adresse</strong> :</td>
-                            <td style="border:none; padding:2px 0; padding-left:5px;">
+                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Adresse</strong> :</td>
+                            <td style="border:none; padding:4px 0; padding-left:5px;">
                                 <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Tél.</strong> :</td>
-                            <td style="border:none; padding:2px 0; padding-left:5px;">
+                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Tél.</strong> :</td>
+                            <td style="border:none; padding:4px 0; padding-left:5px;">
                                 <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t>
                                 <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>ICE</strong> :</td>
-                            <td style="border:none; padding:2px 0; padding-left:5px;"><span t-field="o.partner_id.ice"/></td>
+                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>ICE</strong> :</td>
+                            <td style="border:none; padding:4px 0; padding-left:5px;"><span t-field="o.partner_id.ice"/></td>
                         </tr>
                     </table>
                 </td>
@@ -127,7 +127,7 @@
         </table>
 
         <!-- Message de remerciement -->
-        <div style="margin-top:15px; text-align:center; font-weight:bold; text-decoration:underline; font-size:13px;">
+        <div style="margin-top:15px; text-align:center; font-weight:bold; text-decoration:underline; font-size:15px;">
             Nous vous remercions de votre demande et vous prions de bien vouloir trouver ci-dessous notre meilleure offre.
         </div>
 
@@ -190,12 +190,12 @@
                             <t t-if="o.company_id.stamp_image">
                                 <img t-att-src="image_data_uri(o.company_id.stamp_image)"
                                      alt="Tampon"
-                                     style="max-width:200px; max-height:120px; display:inline-block;"/>
+                                     style="max-width:250px; max-height:160px; display:inline-block;"/>
                             </t>
                             <t t-elif="o.user_id.signature_image">
                                 <img t-att-src="image_data_uri(o.user_id.signature_image)"
                                      alt="Signature"
-                                     style="max-width:200px; max-height:120px; display:inline-block;"/>
+                                     style="max-width:250px; max-height:160px; display:inline-block;"/>
                             </t>
                         </div>
                     </t>
