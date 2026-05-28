@@ -163,7 +163,7 @@
                 </td>
                 <!-- Totaux -->
                 <td style="width:35%; vertical-align:top; border:none;">
-                    <table style="width:100%; border-collapse:collapse;">
+                    <table style="width:100%; border-collapse:collapse; font-size:14px;">
                         <tr style="background-color:#f0f0f0;">
                             <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL HT</td>
                             <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; font-weight:bold; white-space:nowrap;">
