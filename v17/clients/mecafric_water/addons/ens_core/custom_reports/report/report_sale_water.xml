@@ -47,8 +47,8 @@
     <template id="report_sale_order_water_document">
 
         <style>
-            .water-sale-even { background-color: #ffffff; }
-            .water-sale-odd  { background-color: #f7fbff; }
+            .water-sale-even { }
+            .water-sale-odd  { }
         </style>
 
         <!-- Blocs info : document (gauche) + client (droite) -->
@@ -57,18 +57,18 @@
                 <!-- LEFT : infos document -->
                 <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">OFFRE COMMERCIALE</div>
-                    <div style="padding:3px 0;"><strong>N°</strong> : <span t-field="o.name"/></div>
-                    <div style="padding:3px 0;"><strong>Date</strong> : <span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></div>
-                    <div style="padding:3px 0;"><strong>Validité de l'offre</strong> :
+                    <div style="padding:5px 0;"><strong>N°</strong> : <span t-field="o.name"/></div>
+                    <div style="padding:5px 0;"><strong>Date</strong> : <span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></div>
+                    <div style="padding:5px 0;"><strong>Validité de l'offre</strong> :
                         <t t-if="o.validity_date">
                             <t t-set="valid_days" t-value="(o.validity_date - o.date_order.date()).days"/>
                             <span t-esc="valid_days"/> jours
                         </t>
                     </div>
-                    <div style="padding:3px 0;"><strong>Condition de livraison</strong> :
+                    <div style="padding:5px 0;"><strong>Condition de livraison</strong> :
                         <t t-if="o.incoterm"><span t-field="o.incoterm.name"/></t>
                     </div>
-                    <div style="padding:3px 0;"><strong>Conditions de paiement</strong> :
+                    <div style="padding:5px 0;"><strong>Conditions de paiement</strong> :
                         <t t-if="o.payment_term_id"><span t-field="o.payment_term_id"/></t>
                     </div>
                 </td>
@@ -80,17 +80,17 @@
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>
-                    <div style="padding:3px 0;"><strong>Code client</strong> :
+                    <div style="padding:5px 0;"><strong>Code client</strong> :
                         <t t-if="o.partner_id.company_registry"><span t-field="o.partner_id.company_registry"/></t>
                     </div>
-                    <div style="padding:3px 0;"><strong>Adresse</strong> :
+                    <div style="padding:5px 0;"><strong>Adresse</strong> :
                         <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
                     </div>
-                    <div style="padding:3px 0;"><strong>Tél.</strong> :
+                    <div style="padding:5px 0;"><strong>Tél.</strong> :
                         <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t>
                         <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
                     </div>
-                    <div style="padding:3px 0;"><strong>ICE</strong> : <span t-field="o.partner_id.ice"/></div>
+                    <div style="padding:5px 0;"><strong>ICE</strong> : <span t-field="o.partner_id.ice"/></div>
                 </td>
             </tr>
         </table>
@@ -103,7 +103,7 @@
         <!-- Tableau des lignes -->
         <table style="width:100%; margin-top:12px; border-collapse:collapse;">
             <thead>
-                <tr style="background-color:#f0f0f0; font-weight:bold; text-align:center;">
+                <tr style="font-weight:bold; text-align:center;">
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:5%; vertical-align:middle;">N°</th>
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:15%; vertical-align:middle;">Référence</th>
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; text-align:center; vertical-align:middle;">Désignation</th>
@@ -159,12 +159,12 @@
                             <t t-if="o.company_id.stamp_image">
                                 <img t-att-src="image_data_uri(o.company_id.stamp_image)"
                                      alt="Tampon"
-                                     style="max-width:250px; max-height:160px; display:inline-block;"/>
+                                     style="max-width:320px; max-height:210px; display:inline-block;"/>
                             </t>
                             <t t-elif="o.user_id.signature_image">
                                 <img t-att-src="image_data_uri(o.user_id.signature_image)"
                                      alt="Signature"
-                                     style="max-width:250px; max-height:160px; display:inline-block;"/>
+                                     style="max-width:320px; max-height:210px; display:inline-block;"/>
                             </t>
                         </div>
                     </t>
