@@ -57,37 +57,20 @@
                 <!-- LEFT : infos document -->
                 <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">OFFRE COMMERCIALE</div>
-                    <table style="width:100%; border-collapse:collapse;">
-                        <tr>
-                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>N°</strong> :</td>
-                            <td style="border:none; padding:4px 0; padding-left:5px;"><span t-field="o.name"/></td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Date</strong> :</td>
-                            <td style="border:none; padding:4px 0; padding-left:5px;"><span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Validité de l'offre</strong> :</td>
-                            <td style="border:none; padding:4px 0; padding-left:5px;">
-                                <t t-if="o.validity_date">
-                                    <t t-set="valid_days" t-value="(o.validity_date - o.date_order.date()).days"/>
-                                    <span t-esc="valid_days"/> jours
-                                </t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Condition de livraison</strong> :</td>
-                            <td style="border:none; padding:4px 0; padding-left:5px;">
-                                <t t-if="o.incoterm"><span t-field="o.incoterm.name"/></t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Conditions de paiement</strong> :</td>
-                            <td style="border:none; padding:4px 0; padding-left:5px;">
-                                <t t-if="o.payment_term_id"><span t-field="o.payment_term_id"/></t>
-                            </td>
-                        </tr>
-                    </table>
+                    <div style="padding:3px 0;"><strong>N°</strong> : <span t-field="o.name"/></div>
+                    <div style="padding:3px 0;"><strong>Date</strong> : <span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></div>
+                    <div style="padding:3px 0;"><strong>Validité de l'offre</strong> :
+                        <t t-if="o.validity_date">
+                            <t t-set="valid_days" t-value="(o.validity_date - o.date_order.date()).days"/>
+                            <span t-esc="valid_days"/> jours
+                        </t>
+                    </div>
+                    <div style="padding:3px 0;"><strong>Condition de livraison</strong> :
+                        <t t-if="o.incoterm"><span t-field="o.incoterm.name"/></t>
+                    </div>
+                    <div style="padding:3px 0;"><strong>Conditions de paiement</strong> :
+                        <t t-if="o.payment_term_id"><span t-field="o.payment_term_id"/></t>
+                    </div>
                 </td>
 
                 <td style="width:4%; border:none;"></td>
@@ -97,31 +80,17 @@
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>
-                    <table style="width:100%; border-collapse:collapse;">
-                        <tr>
-                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Code client</strong> :</td>
-                            <td style="border:none; padding:4px 0; padding-left:5px;">
-                                <t t-if="o.partner_id.ref"><span t-field="o.partner_id.ref"/></t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Adresse</strong> :</td>
-                            <td style="border:none; padding:4px 0; padding-left:5px;">
-                                <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>Tél.</strong> :</td>
-                            <td style="border:none; padding:4px 0; padding-left:5px;">
-                                <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t>
-                                <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:4px 0; white-space:nowrap;"><strong>ICE</strong> :</td>
-                            <td style="border:none; padding:4px 0; padding-left:5px;"><span t-field="o.partner_id.ice"/></td>
-                        </tr>
-                    </table>
+                    <div style="padding:3px 0;"><strong>Code client</strong> :
+                        <t t-if="o.partner_id.ref"><span t-field="o.partner_id.ref"/></t>
+                    </div>
+                    <div style="padding:3px 0;"><strong>Adresse</strong> :
+                        <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
+                    </div>
+                    <div style="padding:3px 0;"><strong>Tél.</strong> :
+                        <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t>
+                        <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
+                    </div>
+                    <div style="padding:3px 0;"><strong>ICE</strong> : <span t-field="o.partner_id.ice"/></div>
                 </td>
             </tr>
         </table>
