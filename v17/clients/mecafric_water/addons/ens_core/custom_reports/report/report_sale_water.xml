@@ -56,19 +56,19 @@
             <tr>
                 <!-- LEFT : infos document -->
                 <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:1px solid #C5DFF0;">
-                    <div style="font-size:15px; font-weight:bold; margin-bottom:8px;">OFFRE COMMERCIALE</div>
+                    <div style="font-size:15px; font-weight:bold; color:#0056A6; margin-bottom:8px;">OFFRE COMMERCIALE</div>
                     <table style="width:100%; border-collapse:collapse;">
                         <tr>
-                            <td style="border:none; padding:2px 0; width:55%; white-space:nowrap;"><strong>N°</strong></td>
-                            <td style="border:none; padding:2px 0;">: <span t-field="o.name"/></td>
+                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>N°</strong> :</td>
+                            <td style="border:none; padding:2px 0; padding-left:5px;"><span t-field="o.name"/></td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Date</strong></td>
-                            <td style="border:none; padding:2px 0;">: <span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></td>
+                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Date</strong> :</td>
+                            <td style="border:none; padding:2px 0; padding-left:5px;"><span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Validité de l'offre</strong></td>
-                            <td style="border:none; padding:2px 0;">:
+                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Validité de l'offre</strong> :</td>
+                            <td style="border:none; padding:2px 0; padding-left:5px;">
                                 <t t-if="o.validity_date">
                                     <t t-set="valid_days" t-value="(o.validity_date - o.date_order.date()).days"/>
                                     <span t-esc="valid_days"/> jours
@@ -76,17 +76,17 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Condition de livrasion</strong></td>
-                            <td style="border:none; padding:2px 0;">:
+                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Condition de livraison</strong> :</td>
+                            <td style="border:none; padding:2px 0; padding-left:5px;">
                                 <t t-if="o.incoterm"><span t-field="o.incoterm.name"/></t>
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Conditions de paiement</strong></td>
-                            <td style="border:none; padding:2px 0;">:
+                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Conditions de paiement</strong> :</td>
+                            <td style="border:none; padding:2px 0; padding-left:5px;">
                                 <t t-if="o.payment_term_id"><span t-field="o.payment_term_id"/></t>
                             </td>
-                        </tr>                    
+                        </tr>
                     </table>
                 </td>
 
@@ -94,32 +94,32 @@
 
                 <!-- RIGHT : infos client -->
                 <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:1px solid #C5DFF0;">
-                    <div style="font-size:15px; font-weight:bold; margin-bottom:8px;">
+                    <div style="font-size:15px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>
                     <table style="width:100%; border-collapse:collapse;">
                         <tr>
-                            <td style="border:none; padding:2px 0; width:52%; white-space:nowrap;"><strong>Code client</strong></td>
-                            <td style="border:none; padding:2px 0;">:
+                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Code client</strong> :</td>
+                            <td style="border:none; padding:2px 0; padding-left:5px;">
                                 <t t-if="o.partner_id.ref"><span t-field="o.partner_id.ref"/></t>
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Adresse</strong></td>
-                            <td style="border:none; padding:2px 0;">:
+                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Adresse</strong> :</td>
+                            <td style="border:none; padding:2px 0; padding-left:5px;">
                                 <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Tél.</strong></td>
-                            <td style="border:none; padding:2px 0;">:
+                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>Tél.</strong> :</td>
+                            <td style="border:none; padding:2px 0; padding-left:5px;">
                                 <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t>
                                 <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
                             </td>
                         </tr>
                         <tr>
-                            <td style="border:none; padding:2px 0;"><strong>ICE</strong></td>
-                            <td style="border:none; padding:2px 0;">: <span t-field="o.partner_id.ice"/></td>
+                            <td style="border:none; padding:2px 0; white-space:nowrap;"><strong>ICE</strong> :</td>
+                            <td style="border:none; padding:2px 0; padding-left:5px;"><span t-field="o.partner_id.ice"/></td>
                         </tr>
                     </table>
                 </td>
@@ -184,24 +184,24 @@
         <table style="width:100%; margin-top:10px; border-collapse:collapse;">
             <tr>
                 <!-- Signature à gauche -->
-                <td style="width:50%; vertical-align:top; padding-right:20px;">
+                <td style="width:65%; vertical-align:middle; text-align:center; padding-right:20px;">
                     <t t-if="o.print_with_signature">
-                        <div>
+                        <div style="text-align:center;">
                             <t t-if="o.company_id.stamp_image">
                                 <img t-att-src="image_data_uri(o.company_id.stamp_image)"
                                      alt="Tampon"
-                                     style="max-width:200px; max-height:100px; display:block;"/>
+                                     style="max-width:200px; max-height:120px; display:inline-block;"/>
                             </t>
                             <t t-elif="o.user_id.signature_image">
                                 <img t-att-src="image_data_uri(o.user_id.signature_image)"
                                      alt="Signature"
-                                     style="max-width:200px; max-height:100px; display:block;"/>
+                                     style="max-width:200px; max-height:120px; display:inline-block;"/>
                             </t>
                         </div>
                     </t>
                 </td>
                 <!-- Totaux à droite -->
-                <td style="width:50%; vertical-align:top;">
+                <td style="width:35%; vertical-align:top;">
                     <table style="width:100%; border-collapse:collapse; font-size:14px;">
                         <tr style="background-color:#f0f0f0;">
                             <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL HT</td>
