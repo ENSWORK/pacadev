@@ -55,70 +55,42 @@
         <table style="width:100%; border-collapse:collapse; border:none; margin-top:15px;">
             <tr>
                 <!-- LEFT : infos BL -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:1px solid #C5DFF0;">
-                    <div style="font-size:15px; font-weight:bold; margin-bottom:8px;">BON DE LIVRAISON</div>
-                    <table style="width:100%; border-collapse:collapse;">
-                        <tr>
-                            <td style="border:none; padding:2px 0; width:50%; white-space:nowrap;"><strong>N°</strong></td>
-                            <td style="border:none; padding:2px 0;">: <span t-field="o.name"/></td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:2px 0;"><strong>N°BC</strong></td>
-                            <td style="border:none; padding:2px 0;">:
-                                <t t-if="o.sale_id"><span t-field="o.sale_id.name"/></t>
-                                <t t-elif="o.origin"><span t-field="o.origin"/></t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Date de livraison</strong></td>
-                            <td style="border:none; padding:2px 0;">:
-                                <t t-if="o.date_done">
-                                    <span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
-                                </t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Expédition</strong></td>
-                            <td style="border:none; padding:2px 0;">:
-                                <t t-if="o.carrier_id"><span t-field="o.carrier_id.name"/></t>
-                                <t t-else="">Nos soins</t>
-                            </td>
-                        </tr>
-                    </table>
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">BON DE LIVRAISON</div>
+                    <div style="padding:5px 0;"><strong>N°</strong> : <span t-field="o.name"/></div>
+                    <div style="padding:5px 0;"><strong>N°BC</strong> :
+                        <t t-if="o.sale_id"><span t-field="o.sale_id.name"/></t>
+                        <t t-elif="o.origin"><span t-field="o.origin"/></t>
+                    </div>
+                    <div style="padding:5px 0;"><strong>Date de livraison</strong> :
+                        <t t-if="o.date_done">
+                            <span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
+                        </t>
+                    </div>
+                    <div style="padding:5px 0;"><strong>Expédition</strong> :
+                        <t t-if="o.carrier_id"><span t-field="o.carrier_id.name"/></t>
+                        <t t-else="">Nos soins</t>
+                    </div>
                 </td>
 
                 <td style="width:4%; border:none;"></td>
 
                 <!-- RIGHT : infos client -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:1px solid #C5DFF0;">
-                    <div style="font-size:15px; font-weight:bold; margin-bottom:8px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>
-                    <table style="width:100%; border-collapse:collapse;">
-                        <tr>
-                            <td style="border:none; padding:2px 0; width:40%; white-space:nowrap;"><strong>Code client</strong></td>
-                            <td style="border:none; padding:2px 0;">:
-                                <t t-if="o.partner_id.ref"><span t-field="o.partner_id.ref"/></t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Adresse</strong></td>
-                            <td style="border:none; padding:2px 0;">:
-                                <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:2px 0;"><strong>Tél.</strong></td>
-                            <td style="border:none; padding:2px 0;">:
-                                <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t>
-                                <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border:none; padding:2px 0;"><strong>ICE</strong></td>
-                            <td style="border:none; padding:2px 0;">: <span t-field="o.partner_id.ice"/></td>
-                        </tr>
-                    </table>
+                    <div style="padding:5px 0;"><strong>Code client</strong> :
+                        <t t-if="o.partner_id.company_registry"><span t-field="o.partner_id.company_registry"/></t>
+                    </div>
+                    <div style="padding:5px 0;"><strong>Adresse</strong> :
+                        <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
+                    </div>
+                    <div style="padding:5px 0;"><strong>Tél.</strong> :
+                        <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t>
+                        <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
+                    </div>
+                    <div style="padding:5px 0;"><strong>ICE</strong> : <span t-field="o.partner_id.ice"/></div>
                 </td>
             </tr>
         </table>
