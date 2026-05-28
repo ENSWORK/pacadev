@@ -67,10 +67,7 @@
                             <span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
                         </t>
                     </div>
-                    <div style="padding:5px 0;"><strong>Expédition</strong> :
-                        <t t-if="o.carrier_id"><span t-field="o.carrier_id.name"/></t>
-                        <t t-else="">Nos soins</t>
-                    </div>
+
                 </td>
 
                 <td style="width:4%; border:none;"></td>

@@ -155,14 +155,14 @@
         <table style="width:100%; margin-top:12px; border-collapse:collapse; border:none;">
             <tr>
                 <!-- Montant en lettres -->
-                <td style="width:58%; vertical-align:top; border:none; padding-right:15px;">
+                <td style="width:65%; vertical-align:top; border:none; padding-right:15px;">
                     <div style="margin-top:10px;">
                         <span style="display:block; margin-bottom:5px;">La présente facture est arrêtée à la somme TTC de :</span>
                         <strong><t t-esc="o.currency_id.amount_to_text(o.amount_total)"/></strong>
                     </div>
                 </td>
                 <!-- Totaux -->
-                <td style="width:42%; vertical-align:top; border:none;">
+                <td style="width:35%; vertical-align:top; border:none;">
                     <table style="width:100%; border-collapse:collapse;">
                         <tr style="background-color:#f0f0f0;">
                             <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL HT</td>
