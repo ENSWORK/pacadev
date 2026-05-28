@@ -74,6 +74,9 @@
                     <div style="padding:5px 0;"><strong>Date de facturation</strong> :
                         <span t-field="o.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/>
                     </div>
+                    <div style="padding:5px 0;"><strong>Conditions de paiement</strong> :
+                        <t t-if="o.invoice_payment_term_id"><span t-field="o.invoice_payment_term_id"/></t>
+                    </div>
                 </td>
 
                 <td style="width:4%; border:none;"></td>
@@ -94,9 +97,7 @@
                         <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
                     </div>
                     <div style="padding:5px 0;"><strong>ICE</strong> : <span t-field="o.partner_id.ice"/></div>
-                    <div style="padding:5px 0;"><strong>Conditions de paiement</strong> :
-                        <t t-if="o.invoice_payment_term_id"><span t-field="o.invoice_payment_term_id"/></t>
-                    </div>
+
                 </td>
             </tr>
         </table>
