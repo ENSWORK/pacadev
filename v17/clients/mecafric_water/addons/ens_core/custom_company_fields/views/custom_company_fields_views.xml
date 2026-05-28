@@ -1,0 +1,52 @@
+<!-- views/custom_company_fields_views.xml -->
+
+<odoo>
+    <record id="view_res_company_form_inherit" model="ir.ui.view">
+        <field name="name">res.company.form.inherit</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <!-- Ajouter après le champ Devise -->
+            <xpath expr="//field[@name='currency_id']" position="after">
+                <group>
+                    <field name="custom_field_text_1" />
+                    <field name="custom_field_text_2" />
+
+                    <!-- Champ de sélection -->
+                    <field name="custom_field_selection" />
+
+                    <!-- Affichage conditionnel du champ dynamique -->
+                    <div class="oe_selection_addon">
+                        <!-- Mode texte -->
+                        <field name="custom_field_dynamic"
+                               widget="char"
+                               invisible="custom_field_selection != 'text'"
+                               string="Texte"/>
+
+                        <!-- Mode image -->
+                        <field name="custom_field_dynamic"
+                               widget="image"
+                               invisible="custom_field_selection != 'image'"
+                               options="{'preview_image': 'custom_field_dynamic'}"
+                               string="Image"/>
+                    </div> <br/>
+                        <field name="custom_field_text_4" />
+                      <field name="custom_field_image_5"
+                           widget="image"
+                           options="{'preview_image': 'custom_field_image_5'}"
+                           string="Champ 5 - Image"/>
+                    <field name="custom_field_image_5"
+                           widget="image"
+                           options="{'preview_image': 'custom_field_image_5'}"
+                           string="Champ 5 - Image"/>
+                    <field name="custom_field_image_6"
+                           widget="image"
+                           options="{'preview_image': 'custom_field_image_6'}"
+                           string="Champ 6 - Image"/>
+
+                </group>
+
+            </xpath>
+        </field>
+    </record>
+</odoo>

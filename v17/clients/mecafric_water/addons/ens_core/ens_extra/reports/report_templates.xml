@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="external_layout_inherit" inherit_id="web.external_layout">
+        <xpath expr="//t[@t-call='web.external_layout_standard']" position="replace">
+            <div t-attf-class="article o_report_layout_standard">
+                <div class="pt-5">
+                    <!-- En-tête -->
+                    <div class="row">
+                        <div class="col-3">
+                            <img t-if="doc.company_id.logo" t-att-src="image_data_uri(doc.company_id.logo)"
+                                 style="max-height: 120px;" alt="Logo"/>
+                        </div>
+                        <div class="col-9 text-end" style="margin-top:22px;">
+                            <div t-field="doc.company_id.partner_id"
+                                 t-options='{"widget": "contact", "fields": ["name", "address", "phone"], "no_marker": True}'/>
+                            <t t-if="doc.company_id.vat">
+                                <div>VAT: <span t-field="doc.company_id.vat"/></div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Ligne de séparation -->
+                    <div class="row mt-4 mb-4">
+                        <div class="col-12">
+                            <div style="border-bottom: 1px solid black;"/>
+                        </div>
+                    </div>
+
+                    <!-- Contenu principal -->
+                    <t t-raw="0"/>
+
+                    <!-- Pied de page -->
+                    <div class="footer o_standard_footer">
+                        <div class="text-center">
+                            <ul class="list-inline mb-4">
+                                <li t-if="doc.company_id.phone" class="list-inline-item">
+                                    Phone: <span t-field="doc.company_id.phone"/>
+                                </li>
+                                <li t-if="doc.company_id.email" class="list-inline-item">
+                                    Email: <span t-field="doc.company_id.email"/>
+                                </li>
+                                <li t-if="doc.company_id.website" class="list-inline-item">
+                                    Web: <span t-field="doc.company_id.website"/>
+                                </li>
+                                <li t-if="doc.company_id.vat" class="list-inline-item">
+                                    VAT: <span t-field="doc.company_id.vat"/>
+                                </li>
+                            </ul>
+
+                            <div class="text-muted">
+                                Page: <span class="page"/> / <span class="topage"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

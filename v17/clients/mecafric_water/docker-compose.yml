@@ -9,17 +9,19 @@
 #
 services:
   mecafric_water_odoo:
-    image: odoo:17.0
+    build:
+      context: ../../
+      dockerfile: Dockerfile
     container_name: mecafric_water_odoo
     environment:
       HOST: pacadev_postgres_shared
-      USER: ${POSTGRES_USER:-odoo}
-      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
-      DB_NAME: mecafric_water_prod
-      ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?Set via sops -d core/secrets/mecafric_water.enc.yaml}
+      PORT: "5432"
+      USER: odoo
+      PASSWORD: odoo
     volumes:
-      - /home/abdelali/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core:ro
       - ./addons/oca:/mnt/extra-addons/oca:ro
+      - ./addons/ens_core:/mnt/extra-addons/ens_core:ro
+      - /home/abdelali/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core_shared:ro
       - ./config:/etc/odoo
       - ./filestore:/var/lib/odoo/filestore
     ports:
@@ -30,6 +32,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    extra_hosts:
+      - "pacadev_postgres_shared:172.27.0.1"
     networks:
       - pacadev-network
     labels:
