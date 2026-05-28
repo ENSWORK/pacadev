@@ -130,39 +130,39 @@
         <table style="width:100%; margin-top:15px; border-collapse:collapse;">
             <thead>
                 <tr style="background-color:#f0f0f0; font-weight:bold; text-align:center;">
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:5%;">N°</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:15%;">Référence</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; text-align:left;">Désignation</th>
-                    <th t-if="has_lots" style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:10%; white-space:nowrap;">Lot/Série</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:12%; white-space:nowrap;">Qté commandée</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:12%; white-space:nowrap;">Qté Livrée</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:5%;">N°</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:15%;">Référence</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; text-align:left;">Désignation</th>
+                    <th t-if="has_lots" style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:10%; white-space:nowrap;">Lot/Série</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:12%; white-space:nowrap;">Qté commandée</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:12%; white-space:nowrap;">Qté Livrée</th>
                 </tr>
             </thead>
             <tbody>
                 <tr t-foreach="o.move_ids_without_package" t-as="move"
                     t-att-class="move_index % 2 == 0 and 'water-dl-even' or 'water-dl-odd'">
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; vertical-align:middle;">
                         <span t-esc="move_index + 1"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; vertical-align:middle;">
                         <span t-field="move.product_id.default_code"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; vertical-align:middle;">
                         <span t-field="move.product_id.name"/>
                         <t t-if="move.description_picking and move.description_picking != move.product_id.name">
                             <br/><span t-field="move.description_picking" style="font-size:11px; color:#666;"/>
                         </t>
                     </td>
-                    <td t-if="has_lots" style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                    <td t-if="has_lots" style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; vertical-align:middle;">
                         <t t-if="move.move_line_ids">
                             <span t-esc="', '.join([l.lot_id.name for l in move.move_line_ids if l.lot_id])"/>
                         </t>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; white-space:nowrap; vertical-align:middle;">
                         <t t-set="qty_str" t-value="'{:.2f}'.format(move.product_uom_qty)"/>
                         <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; white-space:nowrap; vertical-align:middle;">
                         <t t-set="qty_done_str" t-value="'{:.2f}'.format(move.quantity)"/>
                         <span t-esc="qty_done_str.rstrip('0').rstrip('.') if qty_done_str.endswith('.00') else qty_done_str"/>
                     </td>

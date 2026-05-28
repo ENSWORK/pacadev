@@ -136,34 +136,34 @@
         <table style="width:100%; margin-top:15px; border-collapse:collapse;">
             <thead>
                 <tr style="background-color:#f0f0f0; font-weight:bold; text-align:center;">
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:5%;">N°</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:15%;">Référence</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; text-align:left;">Désignation</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:8%; white-space:nowrap;">Qté</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:12%; white-space:nowrap;">P.H.HT</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; width:12%; white-space:nowrap;">Total HT</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:5%;">N°</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:15%;">Référence</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; text-align:left;">Désignation</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:8%; white-space:nowrap;">Qté</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:12%; white-space:nowrap;">P.H.HT</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:12%; white-space:nowrap;">Total HT</th>
                 </tr>
             </thead>
             <tbody>
                 <tr t-foreach="o.invoice_line_ids" t-as="line"
                     t-att-class="line_index % 2 == 0 and 'water-inv-even' or 'water-inv-odd'">
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; vertical-align:middle;">
                         <span t-esc="line_index + 1"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; vertical-align:middle;">
                         <span t-field="line.product_id.default_code"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; font-size:13px; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; vertical-align:middle;">
                         <span t-field="line.name" t-options="{'widget': 'text'}"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; white-space:nowrap; vertical-align:middle;">
                         <t t-set="qty_str" t-value="'{:.2f}'.format(line.quantity)"/>
                         <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:14px; white-space:nowrap; vertical-align:middle;">
                         <span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}'/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:13px; white-space:nowrap; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:14px; white-space:nowrap; vertical-align:middle;">
                         <span t-field="line.price_subtotal" t-options='{"widget": "float", "precision": 2}'/>
                     </td>
                 </tr>
