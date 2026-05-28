@@ -47,8 +47,8 @@
     <template id="report_delivery_water_document">
 
         <style>
-            .water-dl-even { background-color: #ffffff; }
-            .water-dl-odd  { background-color: #f7fbff; }
+            .water-dl-even { }
+            .water-dl-odd  { }
         </style>
 
         <!-- Blocs info : document (gauche) + client (droite) -->
@@ -129,7 +129,7 @@
         <!-- Tableau des lignes -->
         <table style="width:100%; margin-top:15px; border-collapse:collapse;">
             <thead>
-                <tr style="background-color:#f0f0f0; font-weight:bold; text-align:center;">
+                <tr style="font-weight:bold; text-align:center;">
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:5%;">N°</th>
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:15%;">Référence</th>
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; text-align:left;">Désignation</th>
