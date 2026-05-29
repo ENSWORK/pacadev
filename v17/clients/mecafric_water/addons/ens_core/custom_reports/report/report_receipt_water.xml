@@ -140,18 +140,18 @@
 
         <!-- Visa -->
         <t t-if="o.print_with_visa">
-            <table style="border:1px solid #ABABAB; width:70%; margin:20px auto 0 auto; border-collapse:collapse;">
+            <table style="border:1px solid #ABABAB; width:80%; margin:20px auto 0 auto; border-collapse:collapse; table-layout:fixed;">
                 <tr>
-                    <td colspan="2" style="border:1px solid #ABABAB; padding:6px; text-align:center; font-weight:bold; background-color:#f0f0f0;">
+                    <td style="width:50%; border:1px solid #ABABAB; padding:8px; text-align:center; font-weight:bold; background-color:#f0f0f0;">
                         SERVICE RÉCEPTION
                     </td>
-                    <td colspan="2" style="border:1px solid #ABABAB; padding:6px; text-align:center; font-weight:bold; background-color:#f0f0f0;">
+                    <td style="width:50%; border:1px solid #ABABAB; padding:8px; text-align:center; font-weight:bold; background-color:#f0f0f0;">
                         Fournisseur
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2" style="border:1px solid #ABABAB; height:100px;"></td>
-                    <td colspan="2" style="border:1px solid #ABABAB; height:100px;"></td>
+                    <td style="width:50%; border:1px solid #ABABAB; height:100px;"></td>
+                    <td style="width:50%; border:1px solid #ABABAB; height:100px;"></td>
                 </tr>
             </table>
         </t>
