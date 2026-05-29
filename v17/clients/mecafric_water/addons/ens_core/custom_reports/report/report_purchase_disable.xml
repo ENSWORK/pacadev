@@ -13,4 +13,7 @@
     <record id="action_report_purchase_water" model="ir.actions.report">
         <field name="binding_model_id" eval="False"/>
     </record>
+    <record id="action_report_purchase_order_mec_en" model="ir.actions.report">
+        <field name="binding_model_id" eval="False"/>
+    </record>
 </odoo>
