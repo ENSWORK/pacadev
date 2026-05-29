@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ==================== HEADER ==================== -->
+    <template id="external_layout_header_rfq_water">
+        <div class="header">
+            <t t-if="o.company_id.mec_header_type == 'image' and o.company_id.header_image_mec">
+                <img t-att-src="image_data_uri(o.company_id.header_image_mec)"
+                     alt="Header"
+                     style="width:100%; max-width:100%; max-height:40mm; object-fit:contain; display:block;"/>
+            </t>
+            <t t-elif="o.company_id.logo">
+                <img t-att-src="image_data_uri(o.company_id.logo)"
+                     alt="Logo"
+                     t-attf-style="max-height:#{o.company_id.logo_height}px; max-width:#{o.company_id.logo_width}px; display:block;"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ==================== FOOTER ==================== -->
+    <template id="external_layout_footer_rfq_water">
+        <div class="footer" style="min-height:35mm; position:relative;">
+            <t t-if="o.company_id.footer_image_mec">
+                <img t-att-src="image_data_uri(o.company_id.footer_image_mec)"
+                     alt="Footer"
+                     style="width:100%; max-width:100%; display:block;"/>
+            </t>
+            <div style="position:absolute; bottom:3px; right:0;">
+                <span style="font-size:11px;">Page <span class="page"/>/<span class="topage"/></span>
+            </div>
+        </div>
+    </template>
+
+    <!-- ==================== LAYOUT WRAPPER ==================== -->
+    <template id="external_layout_rfq_water">
+        <div class="article o_report_layout_standard">
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_header_rfq_water"/>
+            </t>
+            <t t-raw="0"/>
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_footer_rfq_water"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ==================== DOCUMENT ==================== -->
+    <template id="report_rfq_water_document">
+
+        <!-- Blocs info : document (gauche) + fournisseur (droite) -->
+        <table style="width:100%; border-collapse:collapse; border:none; margin-top:15px;">
+            <tr>
+                <!-- LEFT : infos demande de prix -->
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">DEMANDE DE PRIX</div>
+                    <div style="padding:5px 0;"><strong>N°</strong> : <span t-field="o.name"/></div>
+                    <div style="padding:5px 0;"><strong>Date</strong> :
+                        <span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/>
+                    </div>
+                    <div style="padding:5px 0;"><strong>Réf. fournisseur</strong> :
+                        <t t-if="o.partner_ref"><span t-field="o.partner_ref"/></t>
+                    </div>
+                    <t t-if="o.incoterm_id">
+                        <div style="padding:5px 0;"><strong>Condition de livraison</strong> :
+                            <span t-field="o.incoterm_id.name"/>
+                        </div>
+                    </t>
+                    <t t-if="o.payment_term_id">
+                        <div style="padding:5px 0;"><strong>Conditions de paiement</strong> :
+                            <span t-field="o.payment_term_id.name"/>
+                        </div>
+                    </t>
+                </td>
+
+                <td style="width:4%; border:none;"></td>
+
+                <!-- RIGHT : infos fournisseur -->
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
+                        <span t-field="o.partner_id.name"/>
+                    </div>
+                    <div style="padding:5px 0;"><strong>Code fournisseur</strong> :
+                        <t t-if="o.partner_id.company_registry"><span t-field="o.partner_id.company_registry"/></t>
+                    </div>
+                    <div style="padding:5px 0;"><strong>Adresse</strong> :
+                        <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
+                    </div>
+                    <div style="padding:5px 0;"><strong>Tél.</strong> :
+                        <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t>
+                        <t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t>
+                    </div>
+                    <div style="padding:5px 0;"><strong>ICE</strong> : <span t-field="o.partner_id.ice"/></div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Tableau des lignes -->
+        <table style="width:100%; margin-top:12px; border-collapse:collapse;">
+            <thead>
+                <tr style="font-weight:bold; text-align:center;">
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:5%; vertical-align:middle;">N°</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:15%; vertical-align:middle;">Référence</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; text-align:center; vertical-align:middle;">Désignation</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:8%; white-space:nowrap; vertical-align:middle;">Qté</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:12%; white-space:nowrap; text-align:right; vertical-align:middle;">P.U. HT</th>
+                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:12%; white-space:nowrap; text-align:right; vertical-align:middle;">Total HT</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="o.order_line" t-as="line">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; vertical-align:middle;">
+                        <span t-esc="line_index + 1"/>
+                    </td>
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; vertical-align:middle;">
+                        <span t-field="line.product_id.default_code"/>
+                    </td>
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; vertical-align:middle; text-align:center;">
+                        <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                    </td>
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; white-space:nowrap; vertical-align:middle;">
+                        <t t-set="qty_str" t-value="'{:.2f}'.format(line.product_qty)"/>
+                        <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/>
+                    </td>
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:14px; white-space:nowrap; vertical-align:middle;">
+                        <span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}'/>
+                    </td>
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:14px; white-space:nowrap; vertical-align:middle;">
+                        <span t-field="line.price_subtotal" t-options='{"widget": "float", "precision": 2}'/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Totaux -->
+        <t t-set="tax_dict" t-value="{}"/>
+        <t t-foreach="o.order_line" t-as="line">
+            <t t-foreach="line.taxes_id" t-as="tax">
+                <t t-if="str(tax.amount) not in tax_dict">
+                    <t t-set="tax_dict" t-value="dict(tax_dict, **{str(tax.amount): 0})"/>
+                </t>
+                <t t-set="current_tax" t-value="tax_dict[str(tax.amount)] + line.price_subtotal * (tax.amount / 100.0)"/>
+                <t t-set="tax_dict" t-value="dict(tax_dict, **{str(tax.amount): current_tax})"/>
+            </t>
+        </t>
+
+        <table style="width:100%; margin-top:10px; border-collapse:collapse;">
+            <tr>
+                <td style="width:65%; border:none;"></td>
+                <td style="width:35%; vertical-align:top;">
+                    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                        <tr style="background-color:#f0f0f0;">
+                            <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL HT</td>
+                            <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; font-weight:bold; white-space:nowrap;">
+                                <span t-field="o.amount_untaxed" t-options='{"widget": "float", "precision": 2}'/>
+                                <span> </span><span t-field="o.currency_id.symbol"/>
+                            </td>
+                        </tr>
+                        <t t-foreach="tax_dict.items()" t-as="tax_item">
+                            <tr>
+                                <td style="padding:5px 10px; border:1px solid #BBBBBB; white-space:nowrap;">
+                                    TVA <t t-esc="int(float(tax_item[0]))"/>%
+                                </td>
+                                <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; white-space:nowrap;">
+                                    <span t-esc="tax_item[1]" t-options='{"widget": "float", "precision": 2}'/>
+                                    <span> </span><span t-field="o.currency_id.symbol"/>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr style="background-color:#f0f0f0;">
+                            <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL TTC</td>
+                            <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; font-weight:bold; white-space:nowrap;">
+                                <span t-field="o.amount_total" t-options='{"widget": "float", "precision": 2}'/>
+                                <span> </span><span t-field="o.currency_id.symbol"/>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Notes -->
+        <t t-if="o.notes">
+            <div style="margin-top:15px; border:1px solid #ddd; padding:10px; font-size:13px;">
+                <strong>Notes : </strong><span t-field="o.notes"/>
+            </div>
+        </t>
+
+    </template>
+
+    <!-- ==================== RAPPORT PRINCIPAL ==================== -->
+    <template id="report_rfq_water">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="custom_reports.external_layout_rfq_water">
+                    <t t-call="custom_reports.report_rfq_water_document"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ==================== ACTION (désactivée — appelée via routeur dynamique) ==================== -->
+    <record id="action_report_rfq_water" model="ir.actions.report">
+        <field name="name">Demande de Prix WATER</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_reports.report_rfq_water</field>
+        <field name="report_file">custom_reports.report_rfq_water</field>
+        <field name="print_report_name">'Demande de prix - %s' % (object.name)</field>
+        <field name="binding_model_id" eval="False"/>
+        <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_water"/>
+    </record>
+</odoo>

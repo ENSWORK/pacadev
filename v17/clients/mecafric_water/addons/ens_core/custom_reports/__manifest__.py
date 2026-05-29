@@ -1,6 +1,6 @@
 {  # noqa: B018
     "name": "Enswork Reports",
-    "version": "17.0.1.51",
+    "version": "17.0.1.52",
     "category": "Sales",
     "summary": "Custom report templates by Enswork",
     "author": "ENSWORK",
@@ -56,6 +56,7 @@
         "report/report_sale_water.xml",
         "report/report_invoice_water.xml",
         "report/report_delivery_water.xml",
+        "report/report_rfq_water.xml",
         "report/report_purchase_water.xml",
         "report/report_receipt_water.xml",
         "report/report_delivery_disable.xml",
