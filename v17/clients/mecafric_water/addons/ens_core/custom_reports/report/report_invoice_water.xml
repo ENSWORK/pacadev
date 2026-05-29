@@ -142,7 +142,7 @@
                     </td>
                 </tr>
             <!-- Lignes vides pour remplir jusqu'à 13 lignes -->
-            <t t-set="empty_lines" t-value="max(13 - len(o.invoice_line_ids), 0)"/>
+            <t t-set="empty_lines" t-value="max(10 - len(o.invoice_line_ids), 0)"/>
             <t t-foreach="range(empty_lines)" t-as="i">
                 <tr style="height:30px;">
                     <td style="border-left:1px solid #BBBBBB; border-right:1px solid #BBBBBB;"></td>
