@@ -17,7 +17,12 @@
                         <t t-call="custom_reports.report_receipt_ens_document"/>
                     </t>
                 </t>
-                <t t-elif="o.company_id.print_template in ('mec', 'water')">
+                <t t-elif="o.company_id.print_template == 'water'">
+                    <t t-call="custom_reports.external_layout_receipt_water">
+                        <t t-call="custom_reports.report_receipt_water_document"/>
+                    </t>
+                </t>
+                <t t-elif="o.company_id.print_template == 'mec'">
                     <t t-call="custom_reports.external_layout_receipt_mec">
                         <t t-call="custom_reports.report_receipt_mec_document"/>
                     </t>
