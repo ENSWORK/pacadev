@@ -161,7 +161,10 @@
                 <!-- Montant en lettres -->
                 <td style="width:65%; vertical-align:top; border:none; padding-right:15px;">
                     <div style="margin-top:10px;">
-                        <span style="display:block; margin-bottom:5px;">La présente facture est arrêtée à la somme TTC de :</span>
+                        <span style="display:block; margin-bottom:5px;">
+                            <t t-if="o.move_type == 'out_refund'">Le présent avoir est arrêté à la somme TTC de :</t>
+                            <t t-else="">La présente facture est arrêtée à la somme TTC de :</t>
+                        </span>
                         <strong><t t-esc="o.currency_id.amount_to_text(o.amount_total)"/></strong>
                     </div>
                 </td>
