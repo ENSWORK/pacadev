@@ -16,9 +16,6 @@
     <record id="action_report_receipt_mec" model="ir.actions.report">
         <field name="binding_model_id" eval="False"/>
     </record>
-    <record id="action_report_receipt_db" model="ir.actions.report">
-        <field name="binding_model_id" eval="False"/>
-    </record>
     <record id="action_report_receipt_water" model="ir.actions.report">
         <field name="binding_model_id" eval="False"/>
     </record>

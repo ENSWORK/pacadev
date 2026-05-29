@@ -197,15 +197,4 @@
         </t>
     </template>
 
-    <!-- ==================== ACTION (désactivée — appelée via routeur dynamique) ==================== -->
-    <record id="action_report_rfq_water" model="ir.actions.report">
-        <field name="name">Demande de Prix WATER</field>
-        <field name="model">purchase.order</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">custom_reports.report_rfq_water</field>
-        <field name="report_file">custom_reports.report_rfq_water</field>
-        <field name="print_report_name">'Demande de prix - %s' % (object.name)</field>
-        <field name="binding_model_id" eval="False"/>
-        <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_water"/>
-    </record>
 </odoo>
