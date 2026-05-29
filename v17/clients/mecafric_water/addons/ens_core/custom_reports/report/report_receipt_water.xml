@@ -3,9 +3,9 @@
     <!-- ==================== HEADER ==================== -->
     <template id="external_layout_header_receipt_water">
         <div class="header">
-            <t t-if="o.company_id.mec_header_type == 'image' and o.company_id.header_image_mec">
-                <img t-att-src="image_data_uri(o.company_id.header_image_mec)"
-                     alt="Header"
+            <t t-if="o.company_id.header_image_delivery_mec">
+                <img t-att-src="image_data_uri(o.company_id.header_image_delivery_mec)"
+                     alt="Header BR"
                      style="width:100%; max-width:100%; max-height:40mm; object-fit:contain; display:block;"/>
             </t>
             <t t-elif="o.company_id.logo">

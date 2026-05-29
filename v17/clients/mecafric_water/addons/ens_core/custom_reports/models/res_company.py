@@ -129,6 +129,12 @@ class ResCompany(models.Model):
         "- Image pleine largeur : Utilise l'image personnalisée (header_image_invoice_mec)",
     )
 
+
+    header_image_delivery_mec = fields.Binary(
+        string="Image En-tête BL/BR Template WATER",
+        help="Image d'en-tête pour les bons de livraison et réception WATER. "
+        "Format recommandé : PNG/JPG, largeur min 800px.",
+    )
     header_image_invoice_mec = fields.Binary(
         string="Image En-tête Facture MEC",
         help="Image d'en-tête pour les factures Template MEC (pleine largeur). "

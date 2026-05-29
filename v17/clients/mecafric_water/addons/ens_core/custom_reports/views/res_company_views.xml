@@ -26,6 +26,12 @@
                             <field name="mec_show_closing_message"/>
                         </group>
                     </group>
+                    <separator string="Images Template WATER - Bons de Livraison / Réception"/>
+                    <group>
+                        <group string="En-tête BL/BR">
+                            <field name="header_image_delivery_mec" widget="image" class="oe_avatar"/>
+                        </group>
+                    </group>
                     <separator string="Images Template MEC - Devis"/>
                     <group>
                         <group string="En-tête Template MEC">
