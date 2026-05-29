@@ -64,14 +64,11 @@
                     <div style="padding:5px 0;"><strong>Réf. fournisseur</strong> :
                         <t t-if="o.partner_ref"><span t-field="o.partner_ref"/></t>
                     </div>
-                    <div style="padding:5px 0;"><strong>Livraison prévue</strong> :
-                        <t t-if="o.date_planned">
-                            <span t-field="o.date_planned" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
-                        </t>
-                    </div>
-                    <div style="padding:5px 0;"><strong>Condition de livraison</strong> :
-                        <t t-if="o.incoterm_id"><span t-field="o.incoterm_id.name"/></t>
-                    </div>
+                    <t t-if="o.incoterm_id">
+                        <div style="padding:5px 0;"><strong>Condition de livraison</strong> :
+                            <span t-field="o.incoterm_id.name"/>
+                        </div>
+                    </t>
                     <div style="padding:5px 0;"><strong>Conditions de paiement</strong> :
                         <t t-if="o.payment_term_id"><span t-field="o.payment_term_id.name"/></t>
                     </div>
@@ -107,7 +104,6 @@
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:13%; vertical-align:middle;">Référence</th>
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; text-align:center; vertical-align:middle;">Désignation</th>
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:8%; white-space:nowrap; vertical-align:middle;">Qté</th>
-                    <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:10%; white-space:nowrap; text-align:center; vertical-align:middle;">TVA</th>
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:12%; white-space:nowrap; text-align:right; vertical-align:middle;">P.U. HT</th>
                     <th style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; width:12%; white-space:nowrap; text-align:right; vertical-align:middle;">Total HT</th>
                 </tr>
@@ -127,12 +123,6 @@
                     <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; white-space:nowrap; vertical-align:middle;">
                         <t t-set="qty_str" t-value="'{{:.2f}}'.format(line.product_qty)"/>
                         <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/>
-                    </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; vertical-align:middle;">
-                        <t t-foreach="line.taxes_id" t-as="tax">
-                            <span t-esc="tax.name"/>
-                            <t t-if="tax_index &lt; len(line.taxes_id) - 1">, </t>
-                        </t>
                     </td>
                     <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:right; font-size:14px; white-space:nowrap; vertical-align:middle;">
                         <span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}'/>
