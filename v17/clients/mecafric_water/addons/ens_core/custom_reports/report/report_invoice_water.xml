@@ -153,6 +153,12 @@
                     <td style="border-right:1px solid #BBBBBB;"></td>
                 </tr>
             </t>
+            <!-- Fermeture du tableau -->
+            <t t-if="empty_lines > 0">
+                <tr style="height:1px; line-height:0;">
+                    <td colspan="6" style="border-top:1px solid #BBBBBB; padding:0;"></td>
+                </tr>
+            </t>
             </tbody>
         </table>
 
