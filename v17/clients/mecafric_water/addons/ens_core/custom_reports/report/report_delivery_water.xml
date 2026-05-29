@@ -136,12 +136,24 @@
                         <span t-esc="qty_done_str.rstrip('0').rstrip('.') if qty_done_str.endswith('.00') else qty_done_str"/>
                     </td>
                 </tr>
+            <!-- Lignes vides pour remplir jusqu'à 13 lignes -->
+            <t t-set="empty_lines" t-value="max(13 - len(o.move_ids_without_package), 0)"/>
+            <t t-foreach="range(empty_lines)" t-as="i">
+                <tr style="height:30px;">
+                    <td style="border-left:1px solid #BBBBBB; border-right:1px solid #BBBBBB;"></td>
+                    <td style="border-right:1px solid #BBBBBB;"></td>
+                    <td style="border-right:1px solid #BBBBBB;"></td>
+                    <t t-if="has_lots"><td style="border-right:1px solid #BBBBBB;"></td></t>
+                    <td style="border-right:1px solid #BBBBBB;"></td>
+                    <td style="border-right:1px solid #BBBBBB;"></td>
+                </tr>
+            </t>
             </tbody>
         </table>
 
         <!-- Visa -->
         <t t-if="o.print_with_visa">
-            <table style="border:1px solid #ABABAB; width:80%; margin:20px auto 0 auto; border-collapse:collapse; table-layout:fixed;">
+            <table style="border:1px solid #ABABAB; width:80%; margin:20px auto 0 auto; border-collapse:collapse; table-layout:fixed; page-break-inside:avoid;">
                 <tr>
                     <td style="width:50%; border:1px solid #ABABAB; padding:8px; text-align:center; font-weight:bold; background-color:#f0f0f0;">
                         SERVICE LIVRAISON
