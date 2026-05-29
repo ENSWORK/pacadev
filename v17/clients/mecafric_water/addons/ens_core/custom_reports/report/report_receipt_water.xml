@@ -127,11 +127,11 @@
                         </t>
                     </td>
                     <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; white-space:nowrap; vertical-align:middle;">
-                        <t t-set="qty_str" t-value="'{{:.2f}}'.format(move.product_uom_qty)"/>
+                        <t t-set="qty_str" t-value="'{:.2f}'.format(move.product_uom_qty)"/>
                         <span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/>
                     </td>
                     <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; white-space:nowrap; vertical-align:middle;">
-                        <t t-set="qty_done_str" t-value="'{{:.2f}}'.format(move.quantity)"/>
+                        <t t-set="qty_done_str" t-value="'{:.2f}'.format(move.quantity)"/>
                         <span t-esc="qty_done_str.rstrip('0').rstrip('.') if qty_done_str.endswith('.00') else qty_done_str"/>
                     </td>
                 </tr>
