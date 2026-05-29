@@ -135,6 +135,18 @@
                         <span t-field="line.price_subtotal" t-options='{"widget": "float", "precision": 2}'/>
                     </td>
                 </tr>
+            <!-- Lignes vides pour remplir jusqu'à 10 lignes -->
+            <t t-set="empty_lines" t-value="max(10 - len(o.order_line), 0)"/>
+            <t t-foreach="range(empty_lines)" t-as="i">
+                <tr style="height:30px;">
+                    <td style="border-left:1px solid #BBBBBB; border-right:1px solid #BBBBBB;"></td>
+                    <td style="border-right:1px solid #BBBBBB;"></td>
+                    <td style="border-right:1px solid #BBBBBB;"></td>
+                    <td style="border-right:1px solid #BBBBBB;"></td>
+                    <td style="border-right:1px solid #BBBBBB;"></td>
+                    <td style="border-right:1px solid #BBBBBB; border-left:1px solid #BBBBBB;"></td>
+                </tr>
+            </t>
             </tbody>
         </table>
 
