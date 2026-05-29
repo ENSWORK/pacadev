@@ -1,6 +1,6 @@
 {  # noqa: B018
     "name": "Enswork Reports",
-    "version": "17.0.1.54",
+    "version": "17.0.1.55",
     "category": "Sales",
     "summary": "Custom report templates by Enswork",
     "author": "ENSWORK",

@@ -61,9 +61,13 @@
             <tr>
                 <!-- LEFT : infos facture -->
                 <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
-                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">FACTURE</div>
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
+                        <t t-if="o.move_type == 'out_refund'">AVOIR</t>
+                        <t t-else="">FACTURE</t>
+                    </div>
                     <div style="padding:5px 0;"><strong>Réf.</strong> : <span t-field="o.name"/></div>
-                    <div style="padding:5px 0;"><strong>N°BC</strong> :
+                    <div style="padding:5px 0;">
+                        <strong><t t-if="o.move_type == 'out_refund'">Facture d'origine</t><t t-else="">N°BC</t></strong> :
                         <t t-if="o.invoice_origin"><span t-field="o.invoice_origin"/></t>
                     </div>
                     <div style="padding:5px 0;"><strong>N° BL</strong> :
@@ -71,7 +75,7 @@
                             <span t-field="o.invoice_line_ids[0].sale_line_ids[0].move_ids[0].picking_id.name"/>
                         </t>
                     </div>
-                    <div style="padding:5px 0;"><strong>Date de facturation</strong> :
+                    <div style="padding:5px 0;"><strong><t t-if="o.move_type == 'out_refund'">Date d'avoir</t><t t-else="">Date de facturation</t></strong> :
                         <span t-field="o.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/>
                     </div>
                     <div style="padding:5px 0;"><strong>Conditions de paiement</strong> :
