@@ -149,16 +149,14 @@
                 </tr>
             </t>
             <!-- Fermeture du tableau -->
-            <t t-if="empty_lines > 0">
-                <tr style="height:1px; line-height:0;">
-                    <t t-if="has_lots">
-                        <td colspan="6" style="border-top:1px solid #BBBBBB; padding:0;"></td>
-                    </t>
-                    <t t-else="">
-                        <td colspan="5" style="border-top:1px solid #BBBBBB; padding:0;"></td>
-                    </t>
-                </tr>
-            </t>
+            <tr style="height:1px; line-height:0;">
+                <t t-if="has_lots">
+                    <td colspan="6" style="border-top:1px solid #BBBBBB; padding:0;"></td>
+                </t>
+                <t t-else="">
+                    <td colspan="5" style="border-top:1px solid #BBBBBB; padding:0;"></td>
+                </t>
+            </tr>
             </tbody>
         </table>
 
