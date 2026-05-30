@@ -91,7 +91,7 @@
                         <span t-field="o.partner_id.name"/>
                     </div>
                     <div style="padding:5px 0;"><strong>Code client</strong> :
-                        <t t-if="o.partner_id.company_registry"><span t-field="o.partner_id.company_registry"/></t>
+                        <t t-if="o.partner_id.ref"><span t-field="o.partner_id.ref"/></t>
                     </div>
                     <div style="padding:5px 0;"><strong>Adresse</strong> :
                         <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
