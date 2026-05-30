@@ -18,15 +18,15 @@
 
     <!-- ==================== FOOTER ==================== -->
     <template id="external_layout_footer_rfq_water">
-        <div class="footer" style="min-height:35mm; position:relative;">
+        <div class="footer" style="min-height:35mm;">
+            <div style="text-align:right; font-size:11px; padding:2px 0 3px 0;">
+                Page <span class="page"/>/<span class="topage"/>
+            </div>
             <t t-if="o.company_id.footer_image_mec">
                 <img t-att-src="image_data_uri(o.company_id.footer_image_mec)"
                      alt="Footer"
                      style="width:100%; max-width:100%; display:block;"/>
             </t>
-            <div style="position:absolute; bottom:3px; right:0;">
-                <span style="font-size:11px;">Page <span class="page"/>/<span class="topage"/></span>
-            </div>
         </div>
     </template>
 
