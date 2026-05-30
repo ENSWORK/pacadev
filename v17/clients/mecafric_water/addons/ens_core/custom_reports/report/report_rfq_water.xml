@@ -52,7 +52,7 @@
                 <!-- LEFT : infos demande de prix -->
                 <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">DEMANDE DE PRIX</div>
-                    <div style="padding:5px 0;"><strong>N°</strong> : <span t-field="o.name"/></div>
+                    <div style="padding:5px 0;"><strong>N°</strong> : <strong><span t-field="o.name"/></strong></div>
                     <div style="padding:5px 0;"><strong>Date</strong> :
                         <span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/>
                     </div>

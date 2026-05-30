@@ -65,7 +65,7 @@
                         <t t-if="o.move_type == 'out_refund'">AVOIR</t>
                         <t t-else="">FACTURE</t>
                     </div>
-                    <div style="padding:5px 0;"><strong>Réf.</strong> : <span t-field="o.name"/></div>
+                    <div style="padding:5px 0;"><strong>Réf.</strong> : <strong><span t-field="o.name"/></strong></div>
                     <div style="padding:5px 0;">
                         <strong><t t-if="o.move_type == 'out_refund'">Facture d'origine</t><t t-else="">N°BC</t></strong> :
                         <t t-if="o.ref"><span t-field="o.ref"/></t>

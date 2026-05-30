@@ -57,7 +57,7 @@
                 <!-- LEFT : infos bon de réception -->
                 <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">BON DE RÉCEPTION</div>
-                    <div style="padding:5px 0;"><strong>N°</strong> : <span t-field="o.name"/></div>
+                    <div style="padding:5px 0;"><strong>N°</strong> : <strong><span t-field="o.name"/></strong></div>
                     <div style="padding:5px 0;"><strong>N° BC</strong> :
                         <t t-if="o.purchase_id"><span t-field="o.purchase_id.name"/></t>
                         <t t-elif="o.origin"><span t-field="o.origin"/></t>
