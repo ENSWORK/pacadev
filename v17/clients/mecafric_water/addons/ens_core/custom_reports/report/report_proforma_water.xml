@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ==================== HEADER ==================== -->
+    <template id="external_layout_header_proforma_water">
+        <div class="header">
+            <t t-if="o.company_id.invoice_mec_header_type == 'image' and o.company_id.header_image_invoice_mec">
+                <img t-att-src="image_data_uri(o.company_id.header_image_invoice_mec)"
+                     alt="Header Facture Proforma"
+                     style="width:100%; max-width:100%; max-height:40mm; object-fit:contain; display:block;"/>
+            </t>
+            <t t-elif="o.company_id.invoice_mec_header_type == 'image' and o.company_id.header_image_mec">
+                <img t-att-src="image_data_uri(o.company_id.header_image_mec)"
+                     alt="Header"
+                     style="width:100%; max-width:100%; max-height:40mm; object-fit:contain; display:block;"/>
+            </t>
+            <t t-elif="o.company_id.logo">
+                <img t-att-src="image_data_uri(o.company_id.logo)"
+                     alt="Logo"
+                     t-attf-style="max-height:#{o.company_id.logo_height}px; max-width:#{o.company_id.logo_width}px; display:block;"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ==================== FOOTER ==================== -->
+    <template id="external_layout_footer_proforma_water">
+        <div class="footer" style="min-height:35mm;">
+            <div style="text-align:right; font-size:11px; padding:2px 0 3px 0;">
+                Page <span class="page"/><span>/</span><span class="topage"/>
+            </div>
+            <t t-if="o.company_id.footer_image_mec">
+                <img t-att-src="image_data_uri(o.company_id.footer_image_mec)"
+                     alt="Footer"
+                     style="width:100%; max-width:100%; display:block;"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ==================== LAYOUT WRAPPER ==================== -->
+    <template id="external_layout_proforma_water">
+        <div class="article o_report_layout_standard">
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_header_proforma_water"/>
+            </t>
+            <t t-raw="0"/>
+            <t t-if="o.print_with_header">
+                <t t-call="custom_reports.external_layout_footer_proforma_water"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ==================== DOCUMENT ==================== -->
+    <template id="report_proforma_water_document">
+        <style>
+            .water-proforma-even { background-color: #ffffff; }
+            .water-proforma-odd { background-color: #f5f8fb; }
+            .water-totals th, .water-totals td {
+                padding: 6px 10px;
+                border: 1px solid #bbbbbb;
+                font-size: 13px;
+            }
+        </style>
+
+        <table style="width:100%; border-collapse:collapse; border:none; margin-top:15px;">
+            <tr>
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:12px;">
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:10px;">FACTURE PROFORMA</div>
+                    <div style="padding:5px 0;"><strong>Réf.</strong> : <strong><span t-field="o.name"/></strong></div>
+                    <div style="padding:5px 0;"><strong>N° BC client</strong> : <t t-if="o.client_order_ref"><span t-field="o.client_order_ref"/></t></div>
+                    <div style="padding:5px 0;"><strong>Date</strong> : <span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></div>
+                    <div style="padding:5px 0;"><strong>Date d'expiration</strong> : <t t-if="o.validity_date"><span t-field="o.validity_date" t-options='{"format": "dd/MM/yyyy"}'/></t></div>
+                    <div style="padding:5px 0;"><strong>Conditions de paiement</strong> : <t t-if="o.payment_term_id"><span t-field="o.payment_term_id"/></t></div>
+                </td>
+                <td style="width:4%; border:none;"></td>
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:12px;">
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:10px;"><span t-field="o.partner_id.name"/></div>
+                    <div style="padding:5px 0;"><strong>Code client</strong> : <t t-if="o.partner_id.ref"><span t-field="o.partner_id.ref"/></t></div>
+                    <div style="padding:5px 0;"><strong>Adresse</strong> : <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t></div>
+                    <div style="padding:5px 0;"><strong>Tél.</strong> : <t t-if="o.partner_id.phone"><span t-field="o.partner_id.phone"/></t><t t-elif="o.partner_id.mobile"><span t-field="o.partner_id.mobile"/></t></div>
+                    <div style="padding:5px 0;"><strong>ICE</strong> : <span t-field="o.partner_id.ice"/></div>
+                </td>
+            </tr>
+        </table>
+
+        <table style="width:100%; margin-top:15px; border-collapse:collapse;">
+            <thead>
+                <tr style="font-weight:bold; text-align:center; background-color:#f8f9fa;">
+                    <th style="padding:8px 6px; border:1px solid #bbbbbb; width:5%;">N°</th>
+                    <th style="padding:8px 6px; border:1px solid #bbbbbb; width:20%;">Référence</th>
+                    <th style="padding:8px 6px; border:1px solid #bbbbbb; text-align:left;">Désignation</th>
+                    <th style="padding:8px 6px; border:1px solid #bbbbbb; width:10%;">Qté</th>
+                    <th style="padding:8px 6px; border:1px solid #bbbbbb; width:15%;">P.U. HT</th>
+                    <th style="padding:8px 6px; border:1px solid #bbbbbb; width:15%;">Total HT</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="o.order_line" t-as="line" t-att-class="line_index % 2 == 0 and 'water-proforma-even' or 'water-proforma-odd'">
+                    <td style="padding:8px 6px; border:1px solid #bbbbbb; text-align:center;"><span t-esc="line_index + 1"/></td>
+                    <td style="padding:8px 6px; border:1px solid #bbbbbb; text-align:center;"><t t-if="line.product_id.default_code"><span t-field="line.product_id.default_code"/></t></td>
+                    <td style="padding:8px 6px; border:1px solid #bbbbbb; text-align:left;"><span t-field="line.name" t-options='{"widget": "text"}'/></td>
+                    <td style="padding:8px 6px; border:1px solid #bbbbbb; text-align:center;"><t t-set="qty_str" t-value="'{:.2f}'.format(line.product_uom_qty)"/><span t-esc="qty_str.rstrip('0').rstrip('.') if qty_str.endswith('.00') else qty_str"/></td>
+                    <td style="padding:8px 6px; border:1px solid #bbbbbb; text-align:right;"><span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}'/></td>
+                    <td style="padding:8px 6px; border:1px solid #bbbbbb; text-align:right;"><span t-field="line.price_subtotal" t-options='{"widget": "float", "precision": 2}'/></td>
+                </tr>
+                <t t-set="empty_lines" t-value="max(8 - len(o.order_line), 0)"/>
+                <t t-foreach="range(empty_lines)" t-as="i">
+                    <tr style="height:25px;">
+                        <td style="border:1px solid #bbbbbb;"></td>
+                        <td style="border:1px solid #bbbbbb;"></td>
+                        <td style="border:1px solid #bbbbbb;"></td>
+                        <td style="border:1px solid #bbbbbb;"></td>
+                        <td style="border:1px solid #bbbbbb;"></td>
+                        <td style="border:1px solid #bbbbbb;"></td>
+                    </tr>
+                </t>
+            </tbody>
+        </table>
+
+        <t t-set="tax_dict" t-value="{}"/>
+        <t t-foreach="o.order_line" t-as="line">
+            <t t-foreach="line.tax_id" t-as="tax">
+                <t t-if="str(tax.amount) not in tax_dict">
+                    <t t-set="tax_dict" t-value="dict(tax_dict, **{str(tax.amount): 0})"/>
+                </t>
+                <t t-set="current_tax" t-value="tax_dict[str(tax.amount)] + line.price_subtotal * (tax.amount / 100.0)"/>
+                <t t-set="tax_dict" t-value="dict(tax_dict, **{str(tax.amount): current_tax})"/>
+            </t>
+        </t>
+
+        <table class="water-totals" style="width:100%; margin-top:15px; border-collapse:collapse;">
+            <tr>
+                <td style="width:65%; border:none; vertical-align:top; padding-right:15px;">
+                    <div style="font-size:12px; line-height:18px;">
+                        <strong>Montant en lettres :</strong>
+                        <div style="margin-top:6px;"><t t-esc="o.currency_id.amount_to_text(o.amount_total)"/></div>
+                    </div>
+                </td>
+                <td style="width:35%; border:none; vertical-align:top;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <th class="water-totals">Total HT</th>
+                            <td class="water-totals" style="text-align:right;"><span t-field="o.amount_untaxed" t-options='{"widget": "float", "precision": 2}'/> <span t-field="o.currency_id.symbol"/></td>
+                        </tr>
+                        <t t-foreach="tax_dict.items()" t-as="tax_item">
+                            <tr>
+                                <td class="water-totals">TVA <t t-esc="int(float(tax_item[0]))"/>%</td>
+                                <td class="water-totals" style="text-align:right;"><span t-esc="tax_item[1]" t-options='{"widget": "float", "precision": 2}'/> <span t-field="o.currency_id.symbol"/></td>
+                            </tr>
+                        </t>
+                        <tr>
+                            <th class="water-totals">Total TTC</th>
+                            <td class="water-totals" style="text-align:right;"><span t-field="o.amount_total" t-options='{"widget": "float", "precision": 2}'/> <span t-field="o.currency_id.symbol"/></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <t t-if="o.print_with_signature">
+            <div style="margin-top:20px; text-align:center;">
+                <t t-if="o.company_id.stamp_image">
+                    <img t-att-src="image_data_uri(o.company_id.stamp_image)"
+                         alt="Tampon"
+                         style="max-width:320px; max-height:200px; display:inline-block;"/>
+                </t>
+                <t t-elif="o.user_id.signature_image">
+                    <img t-att-src="image_data_uri(o.user_id.signature_image)"
+                         alt="Signature"
+                         style="max-width:320px; max-height:200px; display:inline-block;"/>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_proforma_water">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="custom_reports.external_layout_proforma_water">
+                    <t t-call="custom_reports.report_proforma_water_document"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_proforma_water" model="ir.actions.report">
+        <field name="name">Facture Proforma WATER</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_reports.report_proforma_water</field>
+        <field name="report_file">custom_reports.report_proforma_water</field>
+        <field name="print_report_name">'Facture Proforma - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_water"/>
+    </record>
+</odoo>

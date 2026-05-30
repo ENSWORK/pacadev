@@ -16,9 +16,14 @@
                         <t t-call="custom_reports.report_proforma_ens_document"/>
                     </t>
                 </t>
-                <t t-elif="o.company_id.print_template in ('mec', 'water')">
+                <t t-elif="o.company_id.print_template == 'mec'">
                     <t t-call="custom_reports.external_layout_proforma_mec">
                         <t t-call="custom_reports.report_proforma_mec_document"/>
+                    </t>
+                </t>
+                <t t-elif="o.company_id.print_template == 'water'">
+                    <t t-call="custom_reports.external_layout_proforma_water">
+                        <t t-call="custom_reports.report_proforma_water_document"/>
                     </t>
                 </t>
                 <t t-else="">
@@ -32,7 +37,7 @@
     </template>
 
 <record id="action_report_proforma_dynamic" model="ir.actions.report">
-    <field name="name">Print Facture Proforma</field>
+    <field name="name">Facture Proforma</field>
     <field name="model">sale.order</field>
     <field name="report_type">qweb-pdf</field>
     <field name="report_name">custom_reports.report_proforma_dynamic</field>
