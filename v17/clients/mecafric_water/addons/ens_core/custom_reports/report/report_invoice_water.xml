@@ -68,7 +68,7 @@
                     <div style="padding:5px 0;"><strong>Réf.</strong> : <span t-field="o.name"/></div>
                     <div style="padding:5px 0;">
                         <strong><t t-if="o.move_type == 'out_refund'">Facture d'origine</t><t t-else="">N°BC</t></strong> :
-                        <t t-if="o.invoice_origin"><span t-field="o.invoice_origin"/></t>
+                        <t t-if="o.ref"><span t-field="o.ref"/></t>
                     </div>
                     <div style="padding:5px 0;"><strong>N° BL</strong> :
                         <t t-if="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].move_ids and o.invoice_line_ids[0].sale_line_ids[0].move_ids[0].picking_id">
@@ -127,7 +127,7 @@
                     <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; vertical-align:middle;">
                         <span t-field="line.product_id.default_code"/>
                     </td>
-                    <td style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; vertical-align:middle;">
+                    <td style="padding:7px 5px; border:1px solid #BBBBBB; font-size:14px; vertical-align:middle; text-align:center;">
                         <span t-field="line.name" t-options="{'widget': 'text'}"/>
                     </td>
                     <td style="padding:7px 5px; border:1px solid #BBBBBB; text-align:center; font-size:14px; white-space:nowrap; vertical-align:middle;">
