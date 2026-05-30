@@ -189,12 +189,7 @@
                 <td style="width:65%; vertical-align:middle; text-align:center; padding-right:20px;">
                     <t t-if="o.print_with_signature">
                         <div style="text-align:center;">
-                            <t t-if="o.company_id.stamp_image">
-                                <img t-att-src="image_data_uri(o.company_id.stamp_image)"
-                                     alt="Tampon"
-                                     style="max-width:320px; max-height:210px; display:inline-block;"/>
-                            </t>
-                            <t t-elif="o.user_id.signature_image">
+                            <t t-if="o.user_id.signature_image">
                                 <img t-att-src="image_data_uri(o.user_id.signature_image)"
                                      alt="Signature"
                                      style="max-width:320px; max-height:210px; display:inline-block;"/>
