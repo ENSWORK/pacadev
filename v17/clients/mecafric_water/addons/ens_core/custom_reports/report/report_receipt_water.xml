@@ -56,13 +56,18 @@
             <tr>
                 <!-- LEFT : infos bon de réception -->
                 <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
-                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">BON DE RÉCEPTION</div>
+                    <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
+                        <t t-if="o.location_id.usage == 'customer'">BON DE RETOUR CLIENT</t>
+                        <t t-else="">BON DE RÉCEPTION</t>
+                    </div>
                     <div style="padding:5px 0;"><strong>N°</strong> : <strong><span t-field="o.name"/></strong></div>
-                    <div style="padding:5px 0;"><strong>N° BC</strong> :
+                    <div style="padding:5px 0;">
+                        <strong><t t-if="o.location_id.usage == 'customer'">N° BL d'origine</t><t t-else="">N° BC</t></strong> :
                         <t t-if="o.purchase_id"><span t-field="o.purchase_id.name"/></t>
                         <t t-elif="o.origin"><span t-field="o.origin"/></t>
                     </div>
-                    <div style="padding:5px 0;"><strong>Date de réception</strong> :
+                    <div style="padding:5px 0;">
+                        <strong><t t-if="o.location_id.usage == 'customer'">Date de retour</t><t t-else="">Date de réception</t></strong> :
                         <t t-if="o.date_done">
                             <span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
                         </t>
@@ -76,7 +81,8 @@
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>
-                    <div style="padding:5px 0;"><strong>Code fournisseur</strong> :
+                    <div style="padding:5px 0;">
+                        <strong><t t-if="o.location_id.usage == 'customer'">Code client</t><t t-else="">Code fournisseur</t></strong> :
                         <t t-if="o.partner_id.ref"><span t-field="o.partner_id.ref"/></t>
                     </div>
                     <div style="padding:5px 0;"><strong>Adresse</strong> :
