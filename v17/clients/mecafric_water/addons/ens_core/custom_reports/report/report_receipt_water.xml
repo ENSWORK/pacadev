@@ -52,10 +52,10 @@
         </style>
 
         <!-- Blocs info : document (gauche) + fournisseur (droite) -->
-        <table style="width:100%; border-collapse:collapse; border:none; margin-top:15px;">
+        <table style="width:100%; border-collapse:separate; border-spacing:0; border:0; margin-top:15px;">
             <tr>
                 <!-- LEFT : infos bon de réception -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:0;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <t t-if="o.location_id.usage == 'customer'">BON DE RETOUR CLIENT</t>
                         <t t-else="">BON DE RÉCEPTION</t>
@@ -74,10 +74,10 @@
                     </div>
                 </td>
 
-                <td style="width:4%; border:none;"></td>
+                <td style="width:4%; border:0;"></td>
 
                 <!-- RIGHT : infos fournisseur -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:0;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>

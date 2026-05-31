@@ -57,10 +57,10 @@
         </style>
 
         <!-- Blocs info : document (gauche) + client (droite) -->
-        <table style="width:100%; border-collapse:collapse; border:none; margin-top:15px;">
+        <table style="width:100%; border-collapse:separate; border-spacing:0; border:0; margin-top:15px;">
             <tr>
                 <!-- LEFT : infos facture -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:0;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <t t-if="o.move_type == 'out_refund'">AVOIR</t>
                         <t t-else="">FACTURE</t>
@@ -83,10 +83,10 @@
                     </div>
                 </td>
 
-                <td style="width:4%; border:none;"></td>
+                <td style="width:4%; border:0;"></td>
 
                 <!-- RIGHT : infos client -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:0;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>
@@ -172,10 +172,10 @@
             </t>
         </t>
 
-        <table style="width:100%; margin-top:12px; border-collapse:collapse; border:none; page-break-inside:avoid;">
+        <!-- Amount in letters (no border) -->
+        <table style="width:65%; margin-top:12px; border-collapse:separate; border-spacing:0; border:0; page-break-inside:avoid; float:left;">
             <tr>
-                <!-- Montant en lettres -->
-                <td style="width:65%; vertical-align:top; border:none; padding-right:15px;">
+                <td style="vertical-align:top; border:0; padding-right:15px;">
                     <div style="margin-top:10px;">
                         <span style="display:block; margin-bottom:5px;">
                             <t t-if="o.move_type == 'out_refund'">Le présent avoir est arrêté à la somme TTC de :</t>
@@ -184,9 +184,13 @@
                         <strong><t t-esc="o.currency_id.amount_to_text(o.amount_total)"/></strong>
                     </div>
                 </td>
-                <!-- Totaux -->
-                <td style="width:35%; vertical-align:top; border:none;">
-                    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            </tr>
+        </table>
+        <!-- Totals table (separate, framed) -->
+        <table style="width:35%; margin-top:12px; border-collapse:separate; border-spacing:0; page-break-inside:avoid; float:right;">
+            <tr>
+                <td style="vertical-align:top; border:0;">
+                    <table style="width:100%; border-collapse:collapse; font-size:14px; border:1px solid #BBBBBB;">
                         <tr style="background-color:#f0f0f0;">
                             <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL HT</td>
                             <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; font-weight:bold; white-space:nowrap;">
@@ -216,6 +220,7 @@
                 </td>
             </tr>
         </table>
+        <div style="clear:both;"></div>
 
         <!-- Signature/Tampon -->
         <t t-if="o.print_with_signature">

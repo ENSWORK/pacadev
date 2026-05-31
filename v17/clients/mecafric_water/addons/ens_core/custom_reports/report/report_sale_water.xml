@@ -52,10 +52,10 @@
         </style>
 
         <!-- Blocs info : document (gauche) + client (droite) -->
-        <table style="width:100%; border-collapse:collapse; border:none; margin-top:15px;">
+        <table style="width:100%; border-collapse:separate; border-spacing:0; border:0; margin-top:15px;">
             <tr>
                 <!-- LEFT : infos document -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:0;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">OFFRE COMMERCIALE</div>
                     <div style="padding:5px 0;"><strong>N°</strong> : <strong><span t-field="o.name"/></strong></div>
                     <div style="padding:5px 0;"><strong>Date</strong> : <span t-field="o.date_order" t-options='{"format": "dd/MM/yyyy"}'/></div>
@@ -73,10 +73,10 @@
                     </div>
                 </td>
 
-                <td style="width:4%; border:none;"></td>
+                <td style="width:4%; border:0;"></td>
 
                 <!-- RIGHT : infos client -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:0;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>
@@ -183,10 +183,10 @@
             </t>
         </t>
 
-        <table style="width:100%; margin-top:10px; border-collapse:collapse; page-break-inside:avoid;">
+        <!-- Signature block -->
+        <table style="width:65%; margin-top:10px; border-collapse:separate; border-spacing:0; page-break-inside:avoid; float:left;">
             <tr>
-                <!-- Signature à gauche -->
-                <td style="width:65%; vertical-align:middle; text-align:center; padding-right:20px;">
+                <td style="vertical-align:middle; text-align:center; padding-right:20px; border:0;">
                     <t t-if="o.print_with_signature">
                         <div style="text-align:center;">
                             <t t-if="o.user_id.signature_image">
@@ -197,9 +197,13 @@
                         </div>
                     </t>
                 </td>
-                <!-- Totaux à droite -->
-                <td style="width:35%; vertical-align:top;">
-                    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            </tr>
+        </table>
+        <!-- Totals block -->
+        <table style="width:35%; margin-top:10px; border-collapse:separate; border-spacing:0; page-break-inside:avoid; float:right;">
+            <tr>
+                <td style="vertical-align:top; border:0;">
+                    <table style="width:100%; border-collapse:collapse; font-size:14px; border:1px solid #BBBBBB;">
                         <tr style="background-color:#f0f0f0;">
                             <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL HT</td>
                             <td style="padding:5px 10px; border:1px solid #BBBBBB; text-align:right; font-weight:bold; white-space:nowrap;">
@@ -229,6 +233,7 @@
                 </td>
             </tr>
         </table>
+        <div style="clear:both;"></div>
 
     </template>
 

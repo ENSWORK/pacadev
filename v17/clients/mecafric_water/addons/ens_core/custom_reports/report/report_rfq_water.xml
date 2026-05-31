@@ -47,10 +47,10 @@
     <template id="report_rfq_water_document">
 
         <!-- Blocs info : document (gauche) + fournisseur (droite) -->
-        <table style="width:100%; border-collapse:collapse; border:none; margin-top:15px;">
+        <table style="width:100%; border-collapse:separate; border-spacing:0; border:0; margin-top:15px;">
             <tr>
                 <!-- LEFT : infos demande de prix -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:0;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">DEMANDE DE PRIX</div>
                     <div style="padding:5px 0;"><strong>N°</strong> : <strong><span t-field="o.name"/></strong></div>
                     <div style="padding:5px 0;"><strong>Date</strong> :
@@ -71,10 +71,10 @@
                     </t>
                 </td>
 
-                <td style="width:4%; border:none;"></td>
+                <td style="width:4%; border:0;"></td>
 
                 <!-- RIGHT : infos fournisseur -->
-                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px;">
+                <td style="width:48%; vertical-align:top; background-color:#EBF5FB; padding:10px 12px; border:0;">
                     <div style="font-size:17px; font-weight:bold; color:#0056A6; margin-bottom:8px;">
                         <span t-field="o.partner_id.name"/>
                     </div>
@@ -160,8 +160,8 @@
 
         <table style="width:100%; margin-top:10px; border-collapse:collapse; page-break-inside:avoid;">
             <tr>
-                <td style="width:65%; border:none;"></td>
-                <td style="width:35%; vertical-align:top;">
+                <td style="width:65%; border: none !important;"></td>
+                <td style="width:35%; vertical-align:top; border: none !important;">
                     <table style="width:100%; border-collapse:collapse; font-size:14px;">
                         <tr style="background-color:#f0f0f0;">
                             <td style="padding:5px 10px; border:1px solid #BBBBBB; font-weight:bold; white-space:nowrap;">TOTAL HT</td>
