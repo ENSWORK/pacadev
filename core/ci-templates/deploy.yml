@@ -55,7 +55,7 @@ jobs:
         run: |
           TAG="${{ inputs.tag || github.ref_name }}"
           ssh ${{ vars.DEPLOY_HOST }} \
-            "cd /data/Pacadev && git fetch --tags && git checkout $TAG && \
+            "cd /home/pacadev/pacadev && git fetch --tags && git checkout $TAG && \
              pacadev deploy approve \
                --client ${{ inputs.client }} \
                --env ${{ inputs.environment }}"

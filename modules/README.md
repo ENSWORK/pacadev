@@ -1,7 +1,7 @@
 # Modules ENS — Centralisés dans pacadev
 
 **Date d'import :** 2026-05-14
-**Source :** `/home/abdelali/OpenEnsdev/main-dev-repo/ens_core-17/`
+**Source :** `/home/pacadev/OpenEnsdev/main-dev-repo/ens_core-17/`
 **Méthode :** copie monorepo (rsync sans `__pycache__`, `*.pyc`)
 
 ## Vue d'ensemble
@@ -27,7 +27,7 @@ Les clients bind-montent ce dossier en lecture seule :
 services:
   odoo:
     volumes:
-      - /home/abdelali/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core:ro
+      - /home/pacadev/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core:ro
 ```
 
 Et la config Odoo :
@@ -168,7 +168,7 @@ Aucun module ne contient de dossier `tests/`. À créer lors de prochaines évol
 
 ### Stratégie de bind-mount
 
-Les clients doivent bind-monter ce dossier **en lecture seule** (`:ro`). Le `docker-compose.yml` de chaque client doit pointer vers `/home/abdelali/pacadev/modules/ens_core-17`.
+Les clients doivent bind-monter ce dossier **en lecture seule** (`:ro`). Le `docker-compose.yml` de chaque client doit pointer vers `/home/pacadev/pacadev/modules/ens_core-17`.
 
 ### Workflow modification
 

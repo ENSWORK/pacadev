@@ -57,8 +57,8 @@ services:
     container_name: pacadev_promtail
     volumes:
       - /var/log:/var/log:ro
-      - /data/Pacadev:/data/Pacadev:ro
-      - /home/abdelali/.pacadev/logs:/pacadev-logs:ro
+      - /home/pacadev/pacadev:/home/pacadev/pacadev:ro
+      - /home/pacadev/.pacadev/logs:/pacadev-logs:ro
       - ./promtail:/etc/promtail:ro
     command: -config.file=/etc/promtail/promtail.yml
     networks:

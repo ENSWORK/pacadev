@@ -165,7 +165,7 @@ def start(issue: int, branch: str, repo: str):
 
 ### Tester la FSM
 ```bash
-cd /home/abdelali/pacadev
+cd /home/pacadev/pacadev
 python -m pytest core/workflow/test_fsm.py -v
 ```
 

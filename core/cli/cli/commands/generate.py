@@ -8,8 +8,8 @@ from cli.utils.state import get_client_config, PACADEV_ROOT
 app = typer.Typer(help="Génération des fichiers projet (devcontainer, CI, config)")
 console = Console()
 
-TEMPLATES_DIR = Path("/data/Pacadev/core/templates/devcontainer")
-CI_TEMPLATES_DIR = Path("/data/Pacadev/core/ci-templates")
+TEMPLATES_DIR = Path("/home/pacadev/pacadev/core/templates/devcontainer")
+CI_TEMPLATES_DIR = Path("/home/pacadev/pacadev/core/ci-templates")
 
 ODOO_PORTS = {"14": "8069", "17": "8069", "19": "8070"}
 

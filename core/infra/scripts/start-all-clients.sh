@@ -4,13 +4,13 @@
 # Vérifie l'état de chaque conteneur après démarrage.
 #
 # Variables :
-#   PACADEV_ROOT (def: /home/abdelali/pacadev)
+#   PACADEV_ROOT (def: /home/pacadev/pacadev)
 #   PACADEV_SKIP_INFRA (def: 0) — si 1, ne démarre pas l'infra partagée
 #
 
 set -euo pipefail
 
-PACADEV_ROOT="${PACADEV_ROOT:-/home/abdelali/pacadev}"
+PACADEV_ROOT="${PACADEV_ROOT:-/home/pacadev/pacadev}"
 LOG_DIR="${HOME}/.pacadev/logs"
 LOG_FILE="${LOG_DIR}/start-all-clients-$(date +%Y%m%d_%H%M%S).log"
 

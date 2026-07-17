@@ -1,9 +1,14 @@
-# PACADEV v1.0 — Architecture
+# PACADEV — Architecture Serveur
+
+> Serveur: VM Proxmox — Ubuntu 24.04 — 6GB RAM — 100GB disk
+> IP: 192.168.11.20 — SSH: `pacadev@192.168.11.20`
+
+---
 
 ## Arborescence
 
 ```
-/data/Pacadev/
+/home/pacadev/pacadev/
 ├── core/
 │   ├── cli/                     # CLI Typer — pacadev
 │   │   └── cli/
@@ -22,89 +27,184 @@
 │   │           ├── git.py       # branches, status
 │   │           ├── docker.py    # compose, healthcheck
 │   │           └── secrets.py   # SOPS/age decrypt
+│   ├── workflow/                 # FSM — 13 états, 20 transitions
+│   │   └── fsm.py
+│   ├── security/                 # RBAC + ApprovalManager (tokens HMAC)
+│   │   ├── rbac.py              # 4 rôles: admin/lead/dev/viewer
+│   │   ├── tokens.py            # HMAC tokens (fixé: vérification réelle)
+│   │   └── approval.py          # Single-use approval manager
+│   ├── audit/                    # Logs immuables (hash chaîné SHA256)
+│   │   ├── logger.py
+│   │   └── verifier.py
 │   ├── ci-templates/
 │   │   ├── pipeline-base.yml    # lint→test→security→IA→tag
 │   │   └── deploy.yml           # deploy + rollback auto
-│   ├── templates/devcontainer/
-│   │   ├── docker-compose.dev.yml
-│   │   ├── devcontainer.json
-│   │   ├── continue.json        # Continue.dev (Claude)
-│   │   ├── odoo.conf
-│   │   └── .aiignore
 │   ├── secrets/
 │   │   ├── .sops.yaml           # règles chiffrement age
 │   │   ├── .env.template.yaml   # template secrets
 │   │   └── <client>.enc.yaml    # secrets chiffrés par client
-│   └── monitoring/ (référence)  # configs copiées dans ~/.pacadev/monitoring/
+│   ├── monitoring/
+│   │   └── docker-compose.yml   # Prometheus + Grafana + Loki + Promtail
+│   ├── infra/
+│   │   ├── traefik/
+│   │   │   ├── docker-compose.yml
+│   │   │   └── dynamic/pacadev.yml
+│   │   └── scripts/
+│   │       ├── recreate-containers.sh
+│   │       └── start-all-clients.sh
+│   └── scripts/
+│       └── init-acmecorp.sh
 │
-├── v14/clients/<slug>/          # Projets Odoo 14
-├── v17/clients/<slug>/          # Projets Odoo 17
-│   └── acmecorp/
-│       ├── addons/custom/       # Modules rw
-│       ├── addons/oca/          # Submodules OCA (ro)
-│       ├── config/odoo.conf
-│       ├── .devcontainer/
-│       ├── .github/workflows/   # CI/CD généré
-│       ├── .vscode/continue.json
-│       ├── .aiignore
-│       ├── .env.example
-│       ├── docker-compose.dev.yml
-│       └── .pacadev/metadata.json
-├── v19/clients/
-├── migration/
+├── v14/clients/                  # Projets Odoo 14 (innovation_electrique, sofilair)
+├── v17/clients/                  # Projets Odoo 17
+│   ├── afrequip/                 # :8070 — DEV
+│   ├── maxelec/                  # :8082
+│   ├── mecafric/                 # :8092
+│   └── mecafric_water/           # :8076
+├── v19/clients/                  # Projets Odoo 19 (pacadai)
+├── modules/                      # Modules ENS partagés (ens_core-17)
+├── web/                          # Dashboard Next.js (port 3000)
+│   ├── src/app/api/              # API routes (32 endpoints)
+│   └── .next/                    # Build output
 └── docs/
-    ├── RUNBOOK.md               # Ce fichier
-    └── ARCHITECTURE.md
+    ├── ARCHITECTURE.md           # Ce fichier
+    ├── RUNBOOK.md                # Procédures d'urgence
+    ├── RAPPORT_MIGRATION_SERVEUR.md
+    ├── CLI_REFERENCE.md          # Référence complète CLI
+    ├── WORKFLOW.md               # Workflow complet
+    └── SERVEUR_SETUP.md          # Guide installation serveur
 
-~/.pacadev/                      # État global (ext4)
-├── config.yaml
+~/.pacadev/                      # État global
+├── config.yaml                  # Configuration globale
+├── secret.key                   # Clé HMAC (générée automatiquement)
+├── tokens.jsonl                 # Token data pour vérification HMAC
 ├── state/
 │   ├── versions.json            # Source de vérité clients
-│   └── audit-log.jsonl          # Historique actions
-├── secrets/ (vide — dans core/secrets/)
+│   ├── audit-log.jsonl          # Historique actions (hash chaîné)
+│   └── approvals.jsonl          # Historique approbations
+├── secrets/
+│   └── age/keys.txt             # Clé SOPS/age
 ├── logs/
-└── monitoring/                  # Configs Docker (ext4 requis)
-    ├── docker-compose.yml
-    ├── prometheus/
-    ├── grafana/
-    ├── loki/
-    └── promtail/
+└── monitoring/
 ```
 
-## Flux de Travail
+---
+
+## Infrastructure Docker
 
 ```
-GitHub Issue #XYZ
-      ↓
-pacadev work start --client acmecorp --issue XYZ
-      ↓
-Branche: dev/acmecorp/XYZ-feature
-Dev dans VS Code + Devcontainer Odoo
-      ↓
-git push → GitHub Actions
-  ├── Lint (ruff, black, pylint-odoo)
-  ├── Tests (pytest-odoo, DB isolée)
-  ├── Security (bandit, safety, trivy)
-  └── IA Risk Score (Claude Haiku 0.0–1.0)
-        ↓
-Score < 0.5 → Auto-merge + Tag auto
-Score ≥ 0.5 → Review humaine requise
-        ↓
-pacadev deploy approve --client acmecorp --env prod
-  ├── Backup atomique (DB + filestore + config)
-  ├── Déploiement code
-  ├── Healthchecks
-  └── Rollback auto si échec
-        ↓
-Monitoring passif (Grafana + Loki)
+┌──────────────────────────────────────────────────────┐
+│                   pacadev-network                     │
+│                                                       │
+│  ┌──────────────┐    ┌──────────────────────┐        │
+│  │ traefik       │    │ postgres_shared       │        │
+│  │ :8090 (web)   │    │ PG 14                 │        │
+│  │ :8091 (dash)  │    │ :5434→5432            │        │
+│  └──────┬───────┘    └──────────┬───────────┘        │
+│         │                       │                     │
+│  ┌──────┼───────────────────────┼──────────┐         │
+│  │      │                       │          │         │
+│  ▼      ▼                       ▼          ▼         │
+│ afrequip maxelec           mecafric   mecafric_water  │
+│ _odoo    _odoo              _odoo       _odoo         │
+│ :8070    :8082              :8092       :8076         │
+└──────────────────────────────────────────────────────┘
 ```
+
+---
+
+## CLI — Commandes principales
+
+```bash
+# Infrastructure
+pacadev infra start              # Démarrer PostgreSQL + Traefik
+pacadev infra stop               # Tout arrêter
+pacadev infra status             # État de l'infra
+
+# Workflow
+pacadev work start --client <c> --issue <N>   # Créer branche + work
+pacadev work stop --client <c>                # Arrêter le travail
+pacadev work status --client <c>              # État FSM
+
+# Déploiement
+pacadev deploy approve --client <c> --env prod   # Déployer
+pacadev deploy approve --client <c> --dry-run    # Dry-run
+
+# Backup / Rollback
+pacadev backup create --client <c>    # Backup DB + filestore
+pacadev rollback --client <c>         # Rollback dernier backup
+
+# Sécurité
+pacadev secrets show <client>         # Voir les secrets
+pacadev secrets edit <client>         # Éditer (éditeur)
+
+# Monitoring
+pacadev monitor start                 # Démarrer Prometheus+Grafana+Loki
+pacadev health --all                  # Healthcheck tous les clients
+```
+
+---
+
+## Workflow FSM
+
+```
+IDLE → DEV → SELF_REVIEW → TEST_MANUAL → CI_PENDING → STAGING → PROD_APPROVAL → PROD_DEPLOYED → CLOSED
+  ↑         ↑                                                                        │
+  └─────────┘ ←── failed (loop back to DEV)                                          │
+  ↑                                                                                   │
+  └───── CLOSED ←─────────────────────────────────────────────────────────────────────┘
+```
+
+13 états, 20 transitions. Chaque transition est loggée dans l'audit log.
+
+---
+
+## Sécurité
+
+| Mécanisme         | Détail                                                  |
+|-------------------|---------------------------------------------------------|
+| **RBAC**          | Rôles `admin / lead / dev / viewer` par client          |
+| **Approval token**| Signé HMAC-SHA256, TTL 15 min, usage unique             |
+| **SOPS + age**    | Secrets chiffrés dans `core/secrets/<client>.enc.yaml`  |
+| **Audit log**     | `~/.pacadev/state/audit-log.jsonl` — SHA256 hash chain  |
+| **Secrets masking**| `SecretsMasker` — 9 patterns, jamais en clair dans logs |
+
+---
+
+## Clients configurés
+
+| Client          | Port host | Port container | DB             | Statut   |
+|-----------------|-----------|----------------|----------------|----------|
+| afrequip        | 8070      | 8070           | afrequip (150MB)| DEV     |
+| maxelec         | 8082      | 8082           | maxelec (23MB)  | Init    |
+| mecafric        | 8092      | 8092           | mecafric_prod   | Init    |
+| mecafric_water  | 8076      | 8076           | mecafric_water  | Init    |
+
+---
+
+## Dashboard Next.js
+
+Port: `3000` — 32 API endpoints
+
+| Endpoint                  | Description                          |
+|---------------------------|--------------------------------------|
+| `/api/clients`            | Liste des clients                    |
+| `/api/clients/[slug]`     | Détail client                        |
+| `/api/clients/[slug]/logs`| Logs Odoo temps réel                 |
+| `/api/services`           | État services Docker                 |
+| `/api/dashboard`          | Stats globales                       |
+| `/api/security/scan`      | Scan sécurité (bandit/gitleaks)      |
+| `/api/audit/stream`       | Stream audit log                     |
+
+---
 
 ## Décisions Techniques
 
 | Décision | Raison |
 |----------|--------|
-| Configs monitoring dans `~/.pacadev/` | `/data/Pacadev` sur FUSE (NTFS) — Docker ne peut pas bind-mount |
-| SOPS + age (pas GPG) | Plus simple, pas de serveur de clés, clés dans fichier local |
-| Claude Haiku pour risk score | Rapide et peu coûteux pour l'analyse de diff |
+| PostgreSQL shared (1 container) | Economie RAM, backup centralisé |
+| Traefik v2 | Routing dynamique par labels, auto-HTTPS |
+| SOPS + age | Pas de serveur de clés, clés en fichier local |
 | Typer pour le CLI | Auto-help, typage Python, completion shell |
-| Jinja2 pour les templates | Standard Python, pas de dépendance externe lourde |
+| HMAC tokens stockés | Vérification réelle de signature (pas fail-open) |
+| SHA256 hash chain audit | Intégrité vérifiable, détection altération |

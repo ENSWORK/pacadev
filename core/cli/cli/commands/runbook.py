@@ -7,8 +7,8 @@ from rich.markdown import Markdown
 app = typer.Typer(help="Accès rapide aux procédures d'urgence")
 console = Console()
 
-RUNBOOK = Path("/data/Pacadev/docs/RUNBOOK.md")
-ARCH = Path("/data/Pacadev/docs/ARCHITECTURE.md")
+RUNBOOK = Path("/home/pacadev/pacadev/docs/RUNBOOK.md")
+ARCH = Path("/home/pacadev/pacadev/docs/ARCHITECTURE.md")
 
 SECTIONS = {
     "p0-down":      "P0 — Odoo Production Down",

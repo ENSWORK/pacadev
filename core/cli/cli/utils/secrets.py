@@ -2,7 +2,7 @@ import subprocess
 import yaml
 from pathlib import Path
 
-SECRETS_DIR = Path("/data/Pacadev/core/secrets")
+SECRETS_DIR = Path("/home/pacadev/pacadev/core/secrets")
 SOPS_AGE_KEY = Path.home() / ".config" / "sops" / "age" / "keys.txt"
 
 
@@ -18,7 +18,7 @@ def load_secrets(client: str) -> dict:
     if not secret_file.exists():
         return {}
     result = subprocess.run(
-        ["sops", "-d", str(secret_file)],
+        ["/home/pacadev/bin/sops", "-d", str(secret_file)],
         capture_output=True, text=True, env=_sops_env()
     )
     if result.returncode != 0:
@@ -39,6 +39,6 @@ def init_client_secrets(client: str):
         return
     dest.write_text(template.read_text())
     subprocess.run(
-        ["sops", "-e", "-i", str(dest)],
+        ["/home/pacadev/bin/sops", "-e", "-i", str(dest)],
         env=_sops_env(), check=True
     )

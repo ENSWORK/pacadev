@@ -5,10 +5,13 @@
 
 services:
   afrequip_odoo:
-    image: odoo:17
+    build:
+      context: ../../
+      dockerfile: Dockerfile
     container_name: afrequip_odoo
     environment:
       HOST: pacadev_postgres_shared
+      POSTGRES_DB: afrequip
       PORT: "5432"
       USER: odoo
       PASSWORD: odoo
@@ -18,12 +21,13 @@ services:
       - ./filestore:/var/lib/odoo/filestore
       - ./addons/oca:/mnt/extra-addons/oca:ro
       - ./addons/ens_core:/mnt/extra-addons/ens_core:ro
-      - /home/abdelali/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core_shared:ro
+      - /home/pacadev/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core_shared:ro
       - ./odoo.conf:/etc/odoo/odoo.conf:ro
     restart: unless-stopped
     labels:
       - traefik.enable=true
       - traefik.http.routers.afrequip.rule=Host(`afrequip.pacadev.local`)
+      - traefik.http.routers.afrequip.entrypoints=web
       - traefik.http.services.afrequip.loadbalancer.server.port=8069
     networks:
       - pacadev-network

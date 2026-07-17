@@ -7,7 +7,7 @@
 #
 set -euo pipefail
 
-PACADEV_ROOT="${PACADEV_ROOT:-/home/abdelali/pacadev}"
+PACADEV_ROOT="${PACADEV_ROOT:-/home/pacadev/pacadev}"
 INFRA_ROOT="$PACADEV_ROOT/core/infra"
 LOG_DIR="${HOME}/.pacadev/logs"
 LOG_FILE="${LOG_DIR}/recreate-containers-$(date +%Y%m%d-%H%M%S).log"
