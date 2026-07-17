@@ -81,13 +81,16 @@ Migrer l'orchestrateur de développement PACADEV (multi-clients Odoo) du poste l
 | Port | 3000 |
 | Database | SQLite (custom.db) |
 | Status | running |
-| API | /api/clients, /api/services, /api/dashboard — fonctionnelles |
+| API | 32 endpoints — fonctionnels |
+| Repo | dans le repo principal (web/) |
 
 ### 3.6 Outils Installés
 
 | Outil | Version |
 |---|---|
 | Node.js | v20.19.0 |
+| npm | 10.8.2 |
+| Python | 3.12 |
 | SOPS | 3.9.4 |
 | Age | v1.2.0 |
 | Docker | 29.6.1 |
@@ -104,7 +107,7 @@ Migrer l'orchestrateur de développement PACADEV (multi-clients Odoo) du poste l
 
 ### Phase 2 — Transfert vers le Serveur
 
-4. **Rsync du code complet** — Repo git, modules, configs (hors `.git`, `node_modules`, `.venv`, `postgres/data`, `export/`)
+4. **Rsync du code complet** — Repo git, modules, configs
 5. **Rsync du dossier `.git/`** — Historique complet
 6. **Rsync des dumps DB** — `afrequip.sql` (95 MB)
 7. **Rsync des filestores** — afrequip (51 MB), mecafric (77 MB), mecafric_water (123 MB)
@@ -118,86 +121,155 @@ Migrer l'orchestrateur de développement PACADEV (multi-clients Odoo) du poste l
 ### Phase 4 — Bases de Données
 
 11. **Restauration DB afrequip** — `createdb` + `psql` restore depuis dump (95 MB)
-12. **Création DBs vides** — `maxelec`, `mecafric_prod`, `mecafric_water` (pas de dumps disponibles en local)
+12. **Création DBs vides** — `maxelec`, `mecafric_prod`, `mecafric_water`
 13. **Init DBs avec `-i base`** — `odoo -d <db> -i base --stop-after-init` pour initialiser le schéma Odoo
 
 ### Phase 5 — Containers Odoo
 
 14. **Pull image `odoo:17`** — Image de base
-15. **Build images custom** — Dockerfile avec wkhtmltopdf + boto3 + paramiko (via `requirements.txt`)
-16. **Tag image** — `pacadev-odoo17:latest` pour réutilisation
+15. **Build images custom** — Dockerfile avec wkhtmltopdf + boto3 + paramiko
+16. **Tag image** — `pacadev-odoo17:latest`
 17. **Démarrage des 4 containers** — afrequip, maxelec, mecafric, mecafric_water
 
-### Phase 6 — Corrections de Migration
+### Phase 6 — Corrections de Migration (initiale)
 
-18. **Paths `/data/Pacadev`** → `/home/pacadev/pacadev` — 7 fichiers corrigés (`state.py`, `runbook.py`, `generate.py`, `secrets.py`, `deploy.yml`, `promtail.yml`, `docker-compose.yml`, `setup-github-client.sh`)
-19. **Ven shebangs** — `/home/abdelali/...` → `/home/pacadev/...` dans tous les scripts `.venv/bin/`
-20. **`DB_NAME`** → `POSTGRES_DB` dans les docker-compose (puis abandonné au profit de `db_name` dans `odoo.conf`)
-21. **`db_name` dans `odoo.conf`** — Ajouté pour chaque client, puis **supprimé** pour permettre l'accès au database manager
-22. **`list_db = True`** — Ajouté à tous les `odoo.conf` pour activer le database manager
-23. **`db_port` mecafric_water** — Corrigé de `5434` (port host) à `5432` (port container)
-24. **`extra_hosts` mecafric_water** — Supprimé (mauvaise IP vers PostgreSQL)
-25. **`db_user`/`db_password` mecafric** — `$USER`/`$PASSWORD` → `odoo`/`odoo`
-26. **SOPS secrets mecafric** — Fichier `.env` créé avec `ODOO_ADMIN_PASSWD=B@hou1983`
-27. **SOPS age key** — Copiée dans `~/.config/sops/age/keys.txt` (emplacement par défaut)
-28. **sops binary path** — Hardcodé `/home/pacadev/bin/sops` dans `core/cli/cli/utils/secrets.py`
-29. **Traefik labels** — `entrypoints=web` ajouté pour afrequip et maxelec
-30. **Node.js installé** — v20.19.0 via binaire précompilé (pas de sudo disponible)
-31. **Bun** — Non installé (pas de `unzip` disponible), Node.js utilisé à la place
+18. **Paths `/data/Pacadev`** → `/home/pacadev/pacadev` — 7 fichiers
+19. **Ven shebangs** — `/home/abdelali/...` → `/home/pacadev/...`
+20. **`db_name` supprimé** de tous les odoo.conf (permet database manager)
+21. **`list_db = True`** ajouté dans tous les odoo.conf
+22. **`db_port`** mecafric_water corrigé: 5434 → 5432
+23. **`extra_hosts`** mecafric_water supprimé (mauvaise IP)
+24. **`db_user`/`db_password`** mecafric: `abdelali`/`` → `odoo`/`odoo`
+25. **SOPS secrets mecafric** — Fichier `.env` créé
+26. **SOPS age key** — Copiée dans `~/.config/sops/age/keys.txt`
+27. **sops binary path** — Hardcodé dans `core/cli/cli/utils/secrets.py`
+28. **Traefik labels** — `entrypoints=web` ajouté pour afrequip et maxelec
+29. **Node.js** — v20.19.0 installé via binaire précompilé
 
 ### Phase 7 — Tests Core PACADEV
 
-32. **CLI `pacadev`** — Réinstallé via `pip install -e .` dans le venv
-33. **FSM** — Test complet : 13 états, 20 transitions, happy path INIT→CLOSED validé (13 transitions)
-34. **PreFlight Validators** — `check_branch_name` et `check_git_repo` OK
-35. **Audit Logger** — JSONL + SHA256 hash chain, 3 entrées loguées et vérifiées
-36. **Audit Verifier** — Intégrité de chaîne validée
-37. **HMAC Tokens** — Génération OK, expiration OK, mais **`verify()` retourne toujours True** (HMAC non vérifié — bug connu)
-38. **RBAC** — 4 rôles (admin/lead/dev/viewer), permissions correctes
-39. **Approval Manager** — Single-use enforcement OK, réutilisation bloquée
-40. **Secrets Masker** — mask_text/contains_secret OK (9 patterns)
-41. **Secrets CLI** — `secrets show afrequip` fonctionne, affiche les clés masquées
-42. **Infra Status** — PostgreSQL + Traefik + Network détectés correctement
-43. **Memory (Ollama)** — Non disponible (Ollama/ChromaDB non installés)
+30. **CLI `pacadev`** — Réinstallé via `pip install -e .`
+31. **FSM** — 13 états, 20 transitions, happy path validé
+32. **PreFlight Validators** — `check_branch_name`, `check_git_repo` OK
+33. **Audit Logger + Verifier** — JSONL + SHA256 hash chain, intégrité validée
+34. **HMAC Tokens** — Génération + expiration OK
+35. **RBAC** — 4 rôles, permissions correctes
+36. **Approval Manager** — Single-use enforcement OK
+37. **Secrets Masker** — 9 patterns, OK
+38. **Infra Status** — PostgreSQL + Traefik + Network détectés
 
 ### Phase 8 — Dashboard Web
 
-44. **Prisma generate** — Client DB généré
-45. **Next.js build** — Build standalone réussi
-46. **Démarrage** — Port 3000, 6 services détectés via API
-47. **Fix `.env`** — Paths corrigés (`DATABASE_URL`, `PACADEV_HOME`, `PACADEV_WORKSPACE`)
+39. **Next.js build** — Build standalone réussi
+40. **Démarrage** — Port 3000, APIs fonctionnelles
+41. **Fix `.env`** — Paths corrigés
 
 ---
 
-## 5. Bugs Corrigés
+## 5. Nettoyage Post-Migration (17 Juillet 2026)
+
+### Phase 9 — Suppression Dossiers Obsolètes
+
+42. **Supprimé `.claude/worktrees/`** — 2 worktrees (migration-guide, migration-wsl2) contenant des centaines de paths `/home/abdelali` stale
+43. **Supprimé `web/upload/extracted_core/`** — Copie extraite inutile du core
+44. **Supprimé `Previous Migraton to WSL/`** — Archive ancienne migration WSL
+45. **Supprimé `migration-wsl2/`** — Scripts de migration WSL (secrets obsolètes inclus)
+46. **Supprimé `migration/from-openensdev/`** — Scripts de migration depuis OpenEnsdev
+
+### Phase 10 — Nettoyage Documentation Obsolète
+
+47. **Supprimé `docs/FUSION_OPENENSDEV_TO_PACADEV.md`** — Historique fusion (2400+ lignes)
+48. **Supprimé `core/PHASE_A_DELIVERY.md`** — Phase A terminée
+49. **Supprimé `core/PHASE_A_INTEGRATION.md`** — Phase A terminée
+50. **Supprimé `core/PHASE_B_DELIVERY.md`** — Phase B terminée
+51. **Supprimé `RUNBOOK_PHASE_AB.md`** — Obsolète
+52. **Supprimé `VALIDATION_E2E_REPORT.md`** — Rapport initial
+
+### Phase 11 — Correction Paths Stale
+
+53. **Corrigé 16 fichiers** — Toutes les occurrences `/home/abdelali` → `/home/pacadev` dans :
+    - `.pacadev/config.yaml`
+    - `core/scripts/init-acmecorp.sh`
+    - `core/infra/scripts/recreate-containers.sh`
+    - `core/infra/scripts/start-all-clients.sh`
+    - `core/monitoring/docker-compose.yml`
+    - `core/WORKFLOW_README.md`
+    - `modules/README.md`
+    - `web/src/lib/pacadev-service.ts`
+    - `web/src/app/api/audit/stream/route.ts`
+    - `web/src/app/api/clients/[slug]/branches/route.ts`
+    - `v14/clients/innovation_electrique/addons/ens_core/tools/ensdev/ensdev_learn.py`
+    - `v14/clients/sofilair/addons/ens_core/tools/ensdev/ensdev_learn.py`
+    - `v19/clients/pacadai/addons/ens_core/tools/ensdev/ensdev_learn.py`
+
+### Phase 12 — Fix Bug Critique HMAC Tokens
+
+54. **Bug : `ApprovalToken.verify()` fail-open** — Retournait toujours `True` sans vérifier la signature
+55. **Correction implémentée** dans `core/security/tokens.py` :
+    - Ajout de `tokens.jsonl` pour stocker les données signées lors de `generate()`
+    - `verify()` vérifie maintenant : format, expiration, client, action, **et signature HMAC-SHA256**
+    - Utilisation de `hmac.compare_digest()` pour la comparaison (timing-safe)
+    - `get_info()` retourne maintenant les métadonnées du token (client, action, user, reason)
+
+### Phase 13 — Nouvelle Documentation
+
+56. **Réécrit `docs/ARCHITECTURE.md`** — Refléte l'état réel du serveur VM Proxmox
+57. **Créé `docs/SERVEUR_SETUP.md`** — Guide d'installation des outils serveur
+58. **Créé `docs/CLI_REFERENCE.md`** — Référence complète des 16 commandes CLI
+59. **Créé `docs/WORKFLOW.md`** — Workflow complet (FSM + cycle de vie ticket + RBAC + audit)
+
+### Phase 14 — Absorption Web dans le Repo Principal
+
+60. **Décision** — `web/` absorbé dans le repo principal (pas de repo séparé)
+61. **`web/.git` supprimé** — Plus de repo git séparé pour web
+62. **`web/.gitignore` créé** — Exclut `node_modules/`, `.next/`, `.env`, `*.db`
+63. **184 fichiers trackés** — Dashboard Next.js (src/, components, API routes, etc.)
+64. **Même branch strategy** — `dev/web/<ticket>-<action>` pour les tickets dashboard
+65. **Rebuild `.next`** — Dashboard rebuildé sans paths stale
+
+### Phase 15 — Push Final
+
+66. **Commit principal** — Tous les changements poussés sur `dev/mecafric_water/8-water-templates`
+67. **3 commits** :
+    - `72e55da` — cleanup: nettoyage serveur + docs + fix HMAC tokens
+    - `1253ddf` — Revert absorption (temporaire)
+    - `e74e0b2` — refactor: web/ absorbe dans repo principal
+
+---
+
+## 6. Bugs Corrigés
 
 | # | Bug | Correction | Fichier(s) |
 |---|---|---|---|
-| 1 | Paths `/data/Pacadev` hardcodés | Remplacement par `/home/pacadev/pacadev` | 7 fichiers Python/YAML/SH |
-| 2 | Ven shebangs pointent vers `/home/abdelali/` | Remplacement par `/home/pacadev/pacadev/` | `.venv/bin/*` |
-| 3 | `db_name` filtre le database manager | Supprimé de tous les `odoo.conf` | 4 fichiers odoo.conf |
-| 4 | `list_db` non défini | `list_db = True` ajouté | 4 fichiers odoo.conf |
-| 5 | `db_port = 5434` (port host) | Corrigé à `5432` (port container) | mecafric_water/config/odoo.conf |
-| 6 | `extra_hosts` avec mauvaise IP | Supprimé | mecafric_water/docker-compose.yml |
-| 7 | `$USER`/`$PASSWORD` littéraux | Valeurs réelles (`odoo`/`odoo`) | mecafric/config/odoo.conf |
-| 8 | SOPS age key au mauvais emplacement | Copiée dans `~/.config/sops/age/keys.txt` | — |
-| 9 | sops binary pas dans PATH | Path hardcodé dans le CLI | core/cli/cli/utils/secrets.py |
-| 10 | Traefik labels incomplets | `entrypoints=web` ajouté | afrequip/maxelec docker-compose.yml |
-| 11 | Dashboard `.env` avec paths locaux | Corrigés pour le serveur distant | web/.env |
-
-## 6. Bugs Connus Non Corrigés
-
-| # | Bug | Sévérité | Description |
-|---|---|---|---|
-| 1 | `ApprovalToken.verify()` fail-open | **Critique** | La vérification HMAC de la signature n'est pas implémentée. `verify()` retourne toujours `True` après vérification d'expiration. Nécessite implémentation de la reconstruction HMAC. |
-| 2 | `check_github_issue` non testé | Moyen | Nécessite accès GitHub (token non configuré sur le serveur) |
-| 3 | Ollama/ChromaDB non installés | Faible | Système de mémoire IA non fonctionnel |
+| 1 | Paths `/data/Pacadev` hardcodés | Remplacement par `/home/pacadev/pacadev` | 7 fichiers |
+| 2 | Ven shebangs `/home/abdelali/` | Remplacement par `/home/pacadev/` | `.venv/bin/*` |
+| 3 | `db_name` filtre database manager | Supprimé des odoo.conf | 4 fichiers |
+| 4 | `list_db` non défini | `list_db = True` ajouté | 4 fichiers |
+| 5 | `db_port = 5434` (port host) | Corrigé à `5432` | mecafric_water |
+| 6 | `extra_hosts` mauvaise IP | Supprimé | mecafric_water |
+| 7 | `abdelali`/`` littéraux | `odoo`/`odoo` | mecafric |
+| 8 | SOPS age key au mauvais endroit | Copiée dans `~/.config/sops/age/` | — |
+| 9 | sops binary pas dans PATH | Path hardcodé | secrets.py |
+| 10 | Traefik labels incomplets | `entrypoints=web` ajouté | afrequip/maxelec |
+| 11 | Dashboard `.env` paths locaux | Corrigés pour serveur | web/.env |
+| 12 | Paths `/home/abdelali` dans 16 fichiers | Tous corrigés | Voir Phase 11 |
+| 13 | **`ApprovalToken.verify()` fail-open** | **Vérification HMAC-SHA256 réelle** | core/security/tokens.py |
+| 14 | web/ était un repo git séparé | Absorbé dans le repo principal | web/ |
 
 ---
 
-## 7. URLs d'Accès
+## 7. Bugs Connus Non Corrigés
 
-### Depuis le serveur (curl)
+| # | Bug | Sévérité | Description |
+|---|---|---|---|
+| 1 | `check_github_issue` non testé | Moyen | Nécessite accès GitHub (token non configuré) |
+| 2 | Ollama/ChromaDB non installés | Faible | Mémoire IA non fonctionnelle |
+
+---
+
+## 8. URLs d'Accès
+
+### Depuis le serveur
 
 | Service | URL |
 |---|---|
@@ -205,28 +277,18 @@ Migrer l'orchestrateur de développement PACADEV (multi-clients Odoo) du poste l
 | maxelec | `http://localhost:8082` |
 | mecafric | `http://localhost:8092` |
 | mecafric_water | `http://localhost:8076` |
-| Dashboard PACADEV | `http://localhost:3000` |
+| Dashboard | `http://localhost:3000` |
 | Traefik Dashboard | `http://localhost:8091` |
 
-### Via Traefik (hostname)
-
-Pour y accéder depuis un navigateur, ajouter dans `/etc/hosts` :
+### Via Traefik
 
 ```
 192.168.11.20  afrequip.pacadev.local maxelec.pacadev.local mecafric.pacadev.local mecafric_water.pacadev.local pacadev.local web.pacadev.local
 ```
 
-| Service | URL Traefik |
-|---|---|
-| afrequip | `http://afrequip.pacadev.local` |
-| maxelec | `http://maxelec.pacadev.local` |
-| mecafric | `http://mecafric.pacadev.local` |
-| mecafric_water | `http://mecafric_water.pacadev.local` |
-| Dashboard | `http://pacadev.local` |
-
 ---
 
-## 8. Structure du Serveur
+## 9. Structure du Serveur
 
 ```
 /home/pacadev/pacadev/
@@ -236,13 +298,12 @@ Pour y accéder depuis un navigateur, ajouter dans `/etc/hosts` :
 │   ├── cli/                     # CLI Typer (pacadev command)
 │   ├── workflow/                # FSM (13 états, 20 transitions)
 │   ├── audit/                   # Logger JSONL + Verifier SHA256
-│   ├── security/                # Tokens HMAC, RBAC, Approval
+│   ├── security/                # Tokens HMAC (fixé), RBAC, Approval
 │   ├── memory/                  # Ollama + ChromaDB (non installés)
 │   ├── monitoring/              # Prometheus + Grafana + Loki
 │   ├── infra/
-│   │   ├── postgres/            # PostgreSQL shared (PG 14)
 │   │   ├── traefik/             # Traefik v2.11 + dynamic config
-│   │   └── scripts/             # start/stop/verify/configure
+│   │   └── scripts/             # start/stop/verify
 │   ├── ci-templates/            # GitHub Actions (pipeline + deploy)
 │   ├── secrets/                 # Fichiers .enc.yaml + age keys
 │   └── templates/               # Devcontainer templates
@@ -255,16 +316,66 @@ Pour y accéder depuis un navigateur, ajouter dans `/etc/hosts` :
 │       ├── mecafric/            # Port 8092
 │       └── mecafric_water/      # Port 8076
 ├── web/                         # Dashboard Next.js (port 3000)
-├── docs/                        # Documentation
+│   ├── src/app/api/             # 32 API endpoints
+│   ├── src/components/          # UI components
+│   ├── src/lib/                 # pacadev-service.ts (connecteur CLI)
+│   └── .gitignore               # node_modules, .next, .env, *.db
+├── docs/
+│   ├── ARCHITECTURE.md          # Architecture serveur
+│   ├── SERVEUR_SETUP.md         # Guide installation
+│   ├── CLI_REFERENCE.md         # Référence CLI
+│   ├── WORKFLOW.md              # Workflow complet
+│   └── RAPPORT_MIGRATION_SERVEUR.md  # Ce fichier
 └── README.md
 ```
 
 ---
 
-## 9. Commandes Utiles
+## 10. Stratégie de Branches
+
+### Clients Odoo
+
+```
+dev/<client>/<ticket>-<action>
+```
+
+| Exemple | Description |
+|---|---|
+| `dev/afrequip/42-fix-invoice-report` | Fix bug ticket #42 pour afrequip |
+| `dev/mecafric/43-add-module` | Nouveau module ticket #43 |
+
+### Dashboard Web
+
+```
+dev/web/<ticket>-<action>
+```
+
+| Exemple | Description |
+|---|---|
+| `dev/web/44-add-dark-mode` | Feature dashboard ticket #44 |
+| `dev/web/45-fix-metrics-api` | Fix API ticket #45 |
+
+### Workflow par ticket
+
+```
+1. Issue GitHub créée (tag: client:<slug>)
+2. pacadev work start --client <slug> --issue <N>
+   → Branche créée: dev/<slug>/<N>-<description>
+   → FSM: IDLE → DEV
+3. Développement + commits
+4. pacadev work review → SELF_REVIEW
+5. pacadev work test-manual → TEST_MANUAL
+6. pacadev work commit --push → CI_PENDING
+7. CI/CD GitHub Actions → STAGING
+8. pacadev deploy approve → PROD_APPROVAL → PROD_DEPLOYED → CLOSED
+```
+
+---
+
+## 11. Commandes Utiles
 
 ```bash
-# Connexion au serveur
+# Connexion
 ssh pacadev@192.168.11.20
 
 # Pacadev CLI
@@ -278,13 +389,9 @@ cd /home/pacadev/pacadev
 # Docker
 docker ps
 docker logs <container_name>
-docker compose -f v17/clients/afrequip/docker-compose.yml restart
 
 # PostgreSQL
 docker exec pacadev_postgres_shared psql -U odoo -d postgres -c '\l'
-
-# Database Manager
-curl -s -X POST http://localhost:8070/web/database/list -H 'Content-Type: application/json' -d '{}'
 
 # Dashboard
 curl -s http://localhost:3000/api/services
@@ -293,11 +400,10 @@ curl -s http://localhost:3000/api/clients
 
 ---
 
-## 10. Prochaines Étapes
+## 12. Prochaines Étapes
 
-1. **Fix `ApprovalToken.verify()`** — Implémenter la vérification HMAC réelle
-2. **Configurer `/etc/hosts`** sur la machine locale pour l'accès Traefik
-3. **Installer Ollama + ChromaDB** si le système de mémoire IA est souhaité
-4. **Configurer GitHub token** pour les commandes `pacadev issue` et CI/CD
-5. **Dashboard web** — Configuration production (HTTPS via Traefik, base PostgreSQL au lieu de SQLite)
-6. **Monitoring** — `docker compose -f core/monitoring/docker-compose.yml up -d` (Prometheus + Grafana + Loki)
+1. **Configurer `/etc/hosts`** sur Windows pour accès Traefik
+2. **GitHub token** — Configurer pour CI/CD et commandes `pacadev issue`
+3. **Monitoring** — `docker compose -f core/monitoring/docker-compose.yml up -d`
+4. **Ollama + ChromaDB** — Si mémoire IA souhaitée
+5. **Dashboard production** — HTTPS via Traefik, base PostgreSQL au lieu de SQLite
