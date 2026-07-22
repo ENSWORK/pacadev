@@ -1,5 +1,5 @@
 # PACADEV — Reverse proxy Traefik
-# Ports host : 8090 (web) / 8091 (dashboard) — alternatifs pour coexistence avec OpenEnsdev (80/8080)
+# Ports host : 80 (web) / 8091 (dashboard)
 # Container  : pacadev_traefik
 # Network    : pacadev-network (externe)
 
@@ -18,7 +18,7 @@ services:
       - "--log.level=INFO"
       - "--accesslog=true"
     ports:
-      - "${PACADEV_TRAEFIK_WEB_PORT:-8090}:80"
+      - "${PACADEV_TRAEFIK_WEB_PORT:-80}:80"
       - "${PACADEV_TRAEFIK_DASHBOARD_PORT:-8091}:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

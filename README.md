@@ -57,7 +57,7 @@ Un seul réseau Docker (`pacadev-network`) connecte tous les services :
 ┌───────────────────────────────────────────────────────────────────┐
 │  pacadev_dns             pacadev_traefik      pacadev_postgres    │
 │  dnsmasq                 traefik:v2.11        postgres:14         │
-│  :53 (UDP/TCP)           :8090 (web)          :5434 (host)        │
+│  :53 (UDP/TCP)           :80 (web)            :5434 (host)        │
 │  *.pacadev.local          :8091 (dashboard)                       │
 │        │                        │                 │               │
 │        └─────────────────── pacadev-network ─────────────────────┘
@@ -143,12 +143,12 @@ DEV (prêt push)
 
 | Client          | Version Odoo | Port host | URL locale (via Traefik)      | Statut      |
 |-----------------|-------------|-----------|-------------------------------|-------------|
-| afrequip        | 17          | 8070      | afrequip.pacadev.local:8090   | DEV         |
-| mecafric        | 17          | 8092      | mecafric.pacadev.local:8090   | DEV         |
-| mecafric_water  | 17          | 8076      | mecafric_water.pacadev.local:8090 | DEV      |
-| maxelec         | 17          | 8082      | maxelec.pacadev.local:8090    | DEV         |
+| afrequip        | 17          | 8070      | afrequip.pacadev.local        | DEV         |
+| mecafric        | 17          | 8092      | mecafric.pacadev.local        | DEV         |
+| mecafric_water  | 17          | 8076      | mecafric_water.pacadev.local  | DEV         |
+| maxelec         | 17          | 8082      | maxelec.pacadev.local         | DEV         |
 
-Les URLs `*.pacadev.local:8090` sont routées automatiquement par Traefik.  
+Les URLs `*.pacadev.local` sont routées automatiquement par Traefik (port 80).  
 La résolution DNS est automatique pour tout `*.pacadev.local` via le conteneur dnsmasq (`core/infra/dns/`).
 
 ---
@@ -235,7 +235,7 @@ pacadev health --all
 dig afrequip.pacadev.local @192.168.11.20 +short  # → 192.168.11.20
 
 # 4. Accéder à un client
-open http://afrequip.pacadev.local:8090  # via Traefik
+open http://afrequip.pacadev.local  # via Traefik (port 80)
 # ou directement
 open http://localhost:8070
 ```

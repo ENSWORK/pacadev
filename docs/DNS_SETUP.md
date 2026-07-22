@@ -9,7 +9,7 @@ tout `*.pacadev.local` vers l'IP du serveur (`192.168.11.20`).
 
 ```
 Client Windows ──→ pacadev_dns (dnsmasq) ──→ pacadev_traefik ──→ <client>_odoo
-   nslookup           :53 UDP/TCP              :8090                 :8069
+   nslookup           :53 UDP/TCP              :80                   :8069
    *.pacadev.local    192.168.11.20         Host routing           Container
 ```
 
@@ -36,11 +36,13 @@ nslookup maxelec.pacadev.local
 ### Accès aux clients Odoo
 
 ```cmd
-start http://afrequip.pacadev.local:8090
-start http://maxelec.pacadev.local:8090
-start http://mecafric.pacadev.local:8090
-start http://mecafric_water.pacadev.local:8090
+start http://afrequip.pacadev.local
+start http://maxelec.pacadev.local
+start http://mecafric.pacadev.local
+start http://mecafric_water.pacadev.local
 ```
+
+> **Note :** Le port 80 étant le port HTTP par défaut, `http://afrequip.pacadev.local` suffit — plus besoin de préciser `:8090`.
 
 ## Configuration Linux (serveur)
 
@@ -65,7 +67,7 @@ sudo systemctl restart systemd-resolved
 dig afrequip.pacadev.local @192.168.11.20 +short
 # → 192.168.11.20
 
-curl -s -o /dev/null -w "%{http_code}" http://afrequip.pacadev.local:8090/web/login
+curl -s -o /dev/null -w "%{http_code}" http://afrequip.pacadev.local/web/login
 # → 303
 ```
 

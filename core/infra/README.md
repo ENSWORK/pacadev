@@ -11,7 +11,7 @@ Reproduction adaptée de l'architecture infrastructure d'OpenEnsdev pour pacadev
 │  ┌──────────────────┐  ┌──────────────────┐  ┌───────────────┐  │
 │  │ pacadev_dns      │  │ pacadev_traefik  │  │ pacadev_pg    │  │
 │  │ dnsmasq          │  │ traefik:v2.11    │  │ postgres:14   │  │
-│  │ :53 (UDP/TCP)    │  │ :8090 (web)      │  │ :5434 (host)  │  │
+│  │ :53 (UDP/TCP)    │  │ :80 (web)      │  │ :5434 (host)  │  │
 │  │ *.pacadev.local  │  │ :8091 (dash.)    │  │ → 5432 (cont) │  │
 │  └────────┬─────────┘  └────────┬─────────┘  └──────┬────────┘  │
 │           │                     │                    │           │
@@ -33,20 +33,18 @@ Reproduction adaptée de l'architecture infrastructure d'OpenEnsdev pour pacadev
 | Réseau | (`pacadev-network`) | bridge | — | Interconnexion des services |
 | DNS wildcard | `pacadev_dns` | `strm/dnsmasq` | **53** (UDP/TCP) | Résout `*.pacadev.local` → IP serveur |
 | PostgreSQL | `pacadev_postgres_shared` | `postgres:14` | **5434** → 5432 | Base partagée multi-clients |
-| Traefik | `pacadev_traefik` | `traefik:v2.11` | **8090** (web), **8091** (dashboard) | Reverse proxy + routing par host |
+| Traefik | `pacadev_traefik` | `traefik:v2.11` | **80** (web), **8091** (dashboard) | Reverse proxy + routing par host |
 
-### Pourquoi ports 5434/8090/8091 ?
+### Ports
 
-Pour permettre la **coexistence avec OpenEnsdev** durant la migration :
-- `5432` : occupé localement (autre PG)
-- `5433` : occupé par `afrequip_postgres_1`
-- `80, 8080` : occupés par Traefik OpenEnsdev (`traefik`)
+| Port | Usage |
+|------|-------|
+| **80** | Traefik web — accès aux clients Odoo via `*.pacadev.local` |
+| **8091** | Traefik dashboard — `http://dashboard.pacadev.local:8091` |
+| **5434** | PostgreSQL partagé (hôte) → 5432 (conteneur) |
+| **53** | DNS wildcard dnsmasq — résout `*.pacadev.local` |
 
-À la décommission OpenEnsdev (Phase 8), tu pourras éventuellement basculer pacadev sur les ports standards :
-```bash
-PACADEV_PG_HOST_PORT=5432 PACADEV_TRAEFIK_WEB_PORT=80 PACADEV_TRAEFIK_DASHBOARD_PORT=8080 \
-  pacadev infra start
-```
+> PostgreSQL est sur le port `5434` au lieu de `5432` pour coexister avec OpenEnsdev durant la migration.
 
 ## Démarrage
 
@@ -142,7 +140,7 @@ Domains=~pacadev.local
 dig afrequip.pacadev.local @192.168.11.20 +short
 # → 192.168.11.20
 
-curl -s -o /dev/null -w "%{http_code}" http://afrequip.pacadev.local:8090/web/login
+curl -s -o /dev/null -w "%{http_code}" http://afrequip.pacadev.local/web/login
 # → 303 (OK)
 ```
 
