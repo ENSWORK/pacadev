@@ -1,0 +1,30 @@
+# PACADEV — DNS wildcard automatique
+#
+# Ce service dnsmasq résout *.pacadev.local → IP du serveur (192.168.11.20)
+# pour tous les clients du réseau local. Plus besoin d'éditer /etc/hosts
+# pour chaque nouveau client Odoo.
+#
+# Configuration requise sur les postes Windows :
+#   Serveur DNS : 192.168.11.20
+#   (Paramètres réseau → DNS manuel)
+#
+# Usage : docker compose -f core/infra/dns/docker-compose.yml up -d
+
+services:
+  dns:
+    image: strm/dnsmasq
+    container_name: pacadev_dns
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "192.168.11.20:53:53/udp"
+      - "192.168.11.20:53:53/tcp"
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf
+    restart: unless-stopped
+    networks:
+      - pacadev-network
+
+networks:
+  pacadev-network:
+    external: true

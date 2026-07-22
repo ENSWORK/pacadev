@@ -1,7 +1,7 @@
 # PACADEV — Orchestrateur Odoo Multi-Clients
 
-> Version : **1.1.0**  
-> Dernière mise à jour : 2026-05-15  
+> Version : **1.2.0**  
+> Dernière mise à jour : 2026-07-22  
 > Auteur : BAHOU / ENSWork
 
 ---
@@ -16,6 +16,7 @@ PACADEV est un orchestrateur de développement Odoo piloté par CLI. Il centrali
 
 | Version | Date       | Description                                      |
 |---------|------------|--------------------------------------------------|
+| 1.2.0   | 2026-07-22 | DNS wildcard automatique (dnsmasq) — plus besoin de `/etc/hosts` pour chaque client, routage Traefik intégré, migration vers serveur 192.168.11.20 |
 | 1.1.0   | 2026-05-15 | Pipeline CI GitHub Actions (4 checks), Dockerfile wkhtmltopdf patché, module `partner_statement_report` afrequip |
 | 1.0.0   | 2026-05-14 | Version initiale — infrastructure partagée, CLI Typer, FSM, RBAC, Mem0 |
 
@@ -27,7 +28,10 @@ PACADEV est un orchestrateur de développement Odoo piloté par CLI. Il centrali
 pacadev/
 ├── core/
 │   ├── cli/          ← CLI Typer (commande : pacadev)
-│   ├── infra/        ← PostgreSQL partagé + Traefik
+│   ├── infra/        ← PostgreSQL partagé + Traefik + DNS wildcard (dnsmasq)
+│   │   ├── postgres/ ← Base partagée multi-clients
+│   │   ├── traefik/  ← Reverse proxy (routage par hostname)
+│   │   └── dns/      ← DNS wildcard *.pacadev.local (dnsmasq)
 │   ├── workflow/     ← Machine à états FSM
 │   ├── security/     ← RBAC + ApprovalManager (tokens HMAC)
 │   ├── audit/        ← Logs immuables (hash chaîné)
@@ -50,22 +54,24 @@ pacadev/
 Un seul réseau Docker (`pacadev-network`) connecte tous les services :
 
 ```
-┌──────────────────────────────────────────────────┐
-│  pacadev_traefik          pacadev_postgres_shared │
-│  traefik:v2.11            postgres:14             │
-│  :8090 (web)              :5434 (host)            │
-│  :8091 (dashboard)                                │
-│        │                        │                 │
-│        └──────── pacadev-network ────────────────┘
-│                       │
-│        ┌──────────────┼──────────────┐
-│        ▼              ▼              ▼
-│   afrequip_odoo  mecafric_odoo   maxelec_odoo
-│   :8070           :8071           :8072
-└──────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────┐
+│  pacadev_dns             pacadev_traefik      pacadev_postgres    │
+│  dnsmasq                 traefik:v2.11        postgres:14         │
+│  :53 (UDP/TCP)           :8090 (web)          :5434 (host)        │
+│  *.pacadev.local          :8091 (dashboard)                       │
+│        │                        │                 │               │
+│        └─────────────────── pacadev-network ─────────────────────┘
+│                                       │
+│                        ┌──────────────┼──────────────┐
+│                        ▼              ▼              ▼
+│                   afrequip_odoo  mecafric_odoo   maxelec_odoo
+│                   :8070           :8092           :8082
+└───────────────────────────────────────────────────────────────────┘
 ```
 
 Chaque client Odoo accède au PostgreSQL partagé et est accessible via `<client>.pacadev.local` grâce aux labels Traefik.
+
+Le DNS wildcard (dnsmasq) résout automatiquement tout `*.pacadev.local` vers l'IP du serveur (`192.168.11.20`). Plus besoin d'éditer `/etc/hosts` pour chaque nouveau client.
 
 ---
 
@@ -135,12 +141,15 @@ DEV (prêt push)
 
 ## Clients configurés
 
-| Client          | Version Odoo | Port host | URL locale                    | Statut      |
+| Client          | Version Odoo | Port host | URL locale (via Traefik)      | Statut      |
 |-----------------|-------------|-----------|-------------------------------|-------------|
-| afrequip        | 17          | 8070      | afrequip.pacadev.local        | DEV         |
-| mecafric        | 17          | —         | mecafric.pacadev.local        | Initialisé  |
-| mecafric_water  | 17          | —         | mecafric_water.pacadev.local  | Initialisé  |
-| maxelec         | 17          | —         | maxelec.pacadev.local         | Initialisé  |
+| afrequip        | 17          | 8070      | afrequip.pacadev.local:8090   | DEV         |
+| mecafric        | 17          | 8092      | mecafric.pacadev.local:8090   | DEV         |
+| mecafric_water  | 17          | 8076      | mecafric_water.pacadev.local:8090 | DEV      |
+| maxelec         | 17          | 8082      | maxelec.pacadev.local:8090    | DEV         |
+
+Les URLs `*.pacadev.local:8090` sont routées automatiquement par Traefik.  
+La résolution DNS est automatique pour tout `*.pacadev.local` via le conteneur dnsmasq (`core/infra/dns/`).
 
 ---
 
@@ -217,19 +226,28 @@ report.url = http://127.0.0.1:8069
 # 1. Démarrer l'infra
 pacadev infra start
 
-# 2. Vérifier
+# 2. Démarrer le DNS wildcard (dnsmasq)
+docker compose -f core/infra/dns/docker-compose.yml up -d
+
+# 3. Vérifier
 pacadev infra status
 pacadev health --all
+dig afrequip.pacadev.local @192.168.11.20 +short  # → 192.168.11.20
 
-# 3. Accéder à un client
+# 4. Accéder à un client
 open http://afrequip.pacadev.local:8090  # via Traefik
 # ou directement
 open http://localhost:8070
 ```
 
-Ajouter à `/etc/hosts` si pas encore fait :
-```
-127.0.0.1  afrequip.pacadev.local mecafric.pacadev.local maxelec.pacadev.local dashboard.pacadev.local
+### Configuration DNS des postes Windows
+
+Configurer le serveur DNS sur `192.168.11.20` dans les paramètres réseau Windows.  
+Plus besoin d'éditer `/etc/hosts` — le wildcard DNS résout automatiquement tout `*.pacadev.local`.
+
+```cmd
+nslookup afrequip.pacadev.local
+→ Adresse : 192.168.11.20
 ```
 
 ---

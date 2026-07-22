@@ -77,8 +77,8 @@ def health(
     for c in targets:
         info = versions["clients"].get(c, {})
         odoo_ver = info.get("odoo_version", "17")
-        odoo_ok = container_running(f"{c}_odoo_prod")
-        db_ok = container_running(f"{c}_db_prod")
+        odoo_ok = container_running(f"{c}_odoo")
+        db_ok = container_running(f"pacadev_postgres_shared")
         o = "[green]✅[/green]" if odoo_ok else "[red]❌[/red]"
         d = "[green]✅[/green]" if db_ok else "[red]❌[/red]"
         console.print(f"[bold]{c}[/bold] (Odoo {odoo_ver})  Odoo:{o}  DB:{d}")

@@ -5,32 +5,33 @@ Reproduction adaptée de l'architecture infrastructure d'OpenEnsdev pour pacadev
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  Hôte                                                    │
-│                                                          │
-│  ┌─────────────────────┐    ┌─────────────────────────┐ │
-│  │ pacadev_traefik     │    │ pacadev_postgres_shared │ │
-│  │ traefik:v2.11       │    │ postgres:14              │ │
-│  │ :8090 (web)         │    │ :5434 (host)             │ │
-│  │ :8091 (dashboard)   │    │ → 5432 (container)       │ │
-│  └─────────────────────┘    └─────────────────────────┘ │
-│              │                          │                │
-│              └─────── pacadev-network ──┘                │
-│                              │                            │
-│              ┌───────────────┼──────────────┐            │
-│              ▼               ▼              ▼            │
-│         ┌────────┐      ┌────────┐    ┌────────┐        │
-│         │client A│      │client B│    │client N│        │
-│         │ Odoo   │      │ Odoo   │    │ Odoo   │        │
-│         └────────┘      └────────┘    └────────┘        │
-└──────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│  Hôte (192.168.11.20)                                            │
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌───────────────┐  │
+│  │ pacadev_dns      │  │ pacadev_traefik  │  │ pacadev_pg    │  │
+│  │ dnsmasq          │  │ traefik:v2.11    │  │ postgres:14   │  │
+│  │ :53 (UDP/TCP)    │  │ :8090 (web)      │  │ :5434 (host)  │  │
+│  │ *.pacadev.local  │  │ :8091 (dash.)    │  │ → 5432 (cont) │  │
+│  └────────┬─────────┘  └────────┬─────────┘  └──────┬────────┘  │
+│           │                     │                    │           │
+│           └─────────── pacadev-network ──────────────┘           │
+│                                   │                              │
+│                   ┌───────────────┼──────────────┐               │
+│                   ▼               ▼              ▼               │
+│              ┌────────┐      ┌────────┐    ┌────────┐           │
+│              │client A│      │client B│    │client N│           │
+│              │ Odoo   │      │ Odoo   │    │ Odoo   │           │
+│              └────────┘      └────────┘    └────────┘           │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ## Composants
 
 | Composant | Container | Image | Ports host | Rôle |
-|---|---|---|---|---|
+|---|---|---|---|---|---|
 | Réseau | (`pacadev-network`) | bridge | — | Interconnexion des services |
+| DNS wildcard | `pacadev_dns` | `strm/dnsmasq` | **53** (UDP/TCP) | Résout `*.pacadev.local` → IP serveur |
 | PostgreSQL | `pacadev_postgres_shared` | `postgres:14` | **5434** → 5432 | Base partagée multi-clients |
 | Traefik | `pacadev_traefik` | `traefik:v2.11` | **8090** (web), **8091** (dashboard) | Reverse proxy + routing par host |
 
@@ -53,8 +54,12 @@ PACADEV_PG_HOST_PORT=5432 PACADEV_TRAEFIK_WEB_PORT=80 PACADEV_TRAEFIK_DASHBOARD_
 # Démarrer infra partagée (1ʳᵉ fois ou redémarrage)
 pacadev infra start
 
+# Démarrer le DNS wildcard (dnsmasq)
+docker compose -f core/infra/dns/docker-compose.yml up -d
+
 # Vérifier
 pacadev infra status
+dig afrequip.pacadev.local @192.168.11.20 +short   # → 192.168.11.20
 
 # Diagnostic UFW si conteneurs ne se voient pas
 sudo pacadev infra verify   # ou : sudo bash core/infra/scripts/verify-ufw-docker.sh
@@ -64,6 +69,8 @@ sudo pacadev infra verify   # ou : sudo bash core/infra/scripts/verify-ufw-docke
 
 ```bash
 pacadev infra stop          # arrêt propre (données préservées)
+docker compose -f core/infra/dns/docker-compose.yml down  # arrêt DNS
+
 pacadev infra recreate      # full restart avec --force-recreate
 ```
 
@@ -90,6 +97,55 @@ eval $(sops -d core/secrets/pacadev_infra.enc.yaml | yq -r 'to_entries[] | "expo
 pacadev infra start
 ```
 
+## DNS automatique (dnsmasq)
+
+Le conteneur `pacadev_dns` (dnsmasq) résout **automatiquement** tout `*.pacadev.local` vers l'IP du serveur (`192.168.11.20`).
+
+**Plus besoin d'éditer `/etc/hosts` pour chaque nouveau client.** Dès qu'un client est créé avec `pacadev init <client>`, son hostname `<client>.pacadev.local` est immédiatement résolu.
+
+### Configuration des postes Windows
+
+Pour que les postes Windows du LAN accèdent aux clients Odoo via les noms :
+
+1. Ouvrir **Paramètres réseau → Centre réseau et partage → Modifier les paramètres de la carte**
+2. Clic droit sur votre carte réseau → **Propriétés**
+3. Sélectionner **Protocole Internet version 4 (TCP/IPv4)** → **Propriétés**
+4. Cochez **Utiliser l'adresse de serveur DNS suivante** :
+   - Serveur DNS préféré : `192.168.11.20`
+5. Valider par OK
+
+Tester depuis Windows :
+```cmd
+nslookup afrequip.pacadev.local
+→ Réponse : 192.168.11.20
+```
+
+### Configuration du serveur Linux (serveur lui-même)
+
+Sur le serveur, ajouter la résolution DNS locale via systemd-resolved :
+
+```bash
+sudo resolvectl dns ens18 192.168.11.20
+sudo resolvectl domain ens18 "~pacadev.local"
+```
+
+Pour rendre permanent (créer `/etc/systemd/resolved.conf.d/pacadev.conf`) :
+```ini
+[Resolve]
+DNS=192.168.11.20
+Domains=~pacadev.local
+```
+
+### Vérification
+
+```bash
+dig afrequip.pacadev.local @192.168.11.20 +short
+# → 192.168.11.20
+
+curl -s -o /dev/null -w "%{http_code}" http://afrequip.pacadev.local:8090/web/login
+# → 303 (OK)
+```
+
 ## Routing Traefik
 
 Les routes statiques sont dans `traefik/dynamic/pacadev.yml` (rechargées à chaud).
@@ -111,17 +167,14 @@ networks:
     external: true
 ```
 
-Et ajouter à `/etc/hosts` :
-```
-127.0.0.1   <client>.pacadev.local dashboard.pacadev.local grafana.pacadev.local
-```
-
 ## Scripts disponibles
 
 | Script | Rôle | Sudo |
-|---|---|---|
+|---|---|---|---|
 | `start-infra.sh` | Démarre network + postgres + traefik | non |
 | `stop-infra.sh` | Arrête postgres + traefik | non |
+| `start-dns.sh` | Démarre dnsmasq (DNS wildcard) | non |
+| `stop-dns.sh` | Arrête dnsmasq | non |
 | `start-all-clients.sh` | Démarre tous les clients v14/v17/v19 | non |
 | `recreate-containers.sh` | `--force-recreate` infra + clients | non |
 | `verify-ufw-docker.sh` | Diagnostic UFW/Docker | **oui** |
@@ -157,7 +210,7 @@ docker volume rm pacadev_postgres_data
 |---|---|
 | `pacadev infra start` échoue port déjà utilisé | Changer port via `PACADEV_PG_HOST_PORT` / `PACADEV_TRAEFIK_*_PORT` |
 | Conteneurs clients ne joignent pas la DB | Vérifier `docker network inspect pacadev-network` (containers listés ?) |
-| `<client>.pacadev.local` retourne 404 | Vérifier labels Traefik dans compose client + `/etc/hosts` |
+| `<client>.pacadev.local` retourne 404 | Vérifier labels Traefik dans compose client ; tester `dig <client>.pacadev.local @192.168.11.20 +short` |
 | Tableau de bord Streamlit pas accessible via Traefik | `host.docker.internal` requis dans la config Traefik (Linux : `--add-host=host.docker.internal:host-gateway` au container traefik si manquant) |
 | `verify-ufw-docker.sh` signale connectivité bloquée | `sudo bash core/infra/scripts/configure-ufw-docker.sh` |
 
