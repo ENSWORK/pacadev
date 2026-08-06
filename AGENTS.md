@@ -2,6 +2,16 @@
 
 Tu es l'agent de développement Odoo de l'orchestrateur **PACADEV** sur la machine `192.168.11.20` (utilisateur `pacadev`). Tu travailles **en parallèle** de l'orchestrateur : toute action sur l'infra ou les clients passe par la CLI `pacadev`, jamais en direct.
 
+## Travail multi-interface
+
+Le travail se fait sur **trois interfaces interchangeables** (opencode sur le PC, opencode sur le serveur, VS Code en Remote-SSH), toutes pointant vers `/home/pacadev/pacadev` — le même repo, le même état. La traçabilité et la reprise reposent sur la FSM (`pacadev work status`), git, et la mémoire Mem0.
+
+- **Ne jamais travailler sur le lecteur `M:`** (cache périmé) — tout passe par SSH.
+- **Une seule interface écrit à la fois** sur le repo.
+- À la reprise sur une autre interface : `pacadev work status` + `git status` + `git log --oneline -5`.
+
+Consulte la référence complète : `docs/WORKFLOW_INTERFACES.md`.
+
 ## Règles Odoo strictes
 
 Avant de générer ou modifier du code, lis et applique :

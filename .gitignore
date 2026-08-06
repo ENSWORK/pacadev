@@ -65,3 +65,6 @@ v*/clients/*/erpdata_*
 ~/.pacadev/memory/
 core/memory/chroma_db/
 core/memory/history.db
+
+# Filestore Odoo — pièces jointes (jamais en repo)
+v*/clients/*/filestore/
