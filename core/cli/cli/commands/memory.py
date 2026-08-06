@@ -1,4 +1,4 @@
-"""Commande `pacadev memory` — contexte IA via Mem0 + ChromaDB + Ollama."""
+"""Commande `pacadev memory` — contexte IA via Mem0 + ChromaDB + LiteLLM/OpenRouter."""
 from __future__ import annotations
 
 import sys
@@ -9,7 +9,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-app = typer.Typer(help="Contexte IA (Mem0 + ChromaDB + Ollama)")
+app = typer.Typer(help="Contexte IA (Mem0 + ChromaDB + LiteLLM/OpenRouter)")
 console = Console()
 
 _CORE_DIR = str(Path(__file__).resolve().parents[3])
@@ -17,6 +17,10 @@ if _CORE_DIR not in sys.path:
     sys.path.insert(0, _CORE_DIR)
 
 _SCRIPTS_DIR = Path(__file__).resolve().parents[3] / "memory"
+
+_RULE_USERS = ["odoo17_official", "odoo14_official", "odoo19_official",
+               "ens_best_practices", "ens_security"]
+_CLIENT_SLUGS = ["afrequip", "specta", "mecafric", "mecafric_water", "maxelec", "sofetelec"]
 
 
 def _get_memory():
@@ -45,24 +49,27 @@ def search(
     if client:
         user_ids += [client, f"history_{client}"]
     if rules:
-        user_ids += ["odoo17_official", "odoo14_official", "odoo19_official",
-                     "ens_best_practices", "ens_security"]
+        user_ids += _RULE_USERS
     if not user_ids:
-        user_ids = [None]  # type: ignore
+        user_ids = _CLIENT_SLUGS + [f"history_{c}" for c in _CLIENT_SLUGS] + _RULE_USERS
 
     console.print(f"[blue]🔍 Recherche : [bold]{query}[/bold][/blue]\n")
 
+    seen: set[str] = set()
     found = False
     for uid in user_ids:
         try:
-            results = m.search(query, user_id=uid, limit=limit) if uid else m.search(query, limit=limit)
+            results = m.search(query, filters={"user_id": uid}, limit=limit)
         except Exception as e:
             console.print(f"[yellow]⚠️  Erreur recherche (user_id={uid}): {e}[/yellow]")
             continue
         memories = results.get("results", results) if isinstance(results, dict) else results
         for r in (memories or []):
-            found = True
             mem_text = r.get("memory", str(r)) if isinstance(r, dict) else str(r)
+            if mem_text in seen:
+                continue
+            seen.add(mem_text)
+            found = True
             score = r.get("score", "") if isinstance(r, dict) else ""
             label = f"[dim](score={score:.3f})[/dim]" if score else ""
             console.print(f"[cyan]•[/cyan] {mem_text} {label}")
@@ -85,7 +92,7 @@ def load_rules():
 
 @app.command("load-clients")
 def load_clients():
-    """Charge les configurations des 4 clients pacadev dans Mem0."""
+    """Charge les configurations des clients pacadev dans Mem0."""
     script = _SCRIPTS_DIR / "load_clients.py"
     console.print("[blue]👥 Chargement des clients...[/blue]")
     r = subprocess.run([sys.executable, str(script)])

@@ -12,7 +12,7 @@ if m is None:
     print("ERROR: mem0 not available. pip install mem0ai chromadb", file=sys.stderr)
     sys.exit(1)
 
-# Only the 4 clients migrated to pacadev
+# Clients migrés vers pacadev (5 en v17 + specta en v14)
 CLIENTS = {
     "afrequip": {
         "version": "17.0",
@@ -37,6 +37,18 @@ CLIENTS = {
         "env": "local",
         "modules": ["ens_stock"],
         "notes": "Stock module with lot traceability for water. Shares OCA addons with mecafric.",
+    },
+    "maxelec": {
+        "version": "17.0",
+        "env": "local",
+        "modules": [],
+        "notes": "Initialisé. Aucun ticket en cours.",
+    },
+    "sofetelec": {
+        "version": "17.0",
+        "env": "local",
+        "modules": ["hr_payroll_community"],
+        "notes": "23 modules OCA importés de production (v17/clients/sofetelec/addons/oca/). Ticket #11 clôturé. Branche: dev/sofetelec/11-hr_payroll_community.",
     },
 }
 

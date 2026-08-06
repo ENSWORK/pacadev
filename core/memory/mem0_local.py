@@ -1,5 +1,5 @@
 """
-Mem0 local (offline) — Ollama LLM + ChromaDB vector store.
+Mem0 local — LiteLLM/OpenRouter LLM + ChromaDB vector store.
 
 Persistence: ~/.pacadev/memory/
 Collection: pacadev_memory
@@ -23,21 +23,17 @@ _memory_instance = None
 
 CONFIG = {
     "llm": {
-        "provider": "ollama",
+        "provider": "litellm",
         "config": {
-            "model": "llama3.1:8b-instruct-q6_K",
+            "model": os.getenv("LITELLM_MODEL", "openrouter/deepseek/deepseek-chat"),
             "temperature": 0.1,
-            "max_tokens": 500,
-            "top_p": 0.9,
-            "top_k": 40,
-            "ollama_base_url": "http://127.0.0.1:11434",
+            "max_tokens": 1000,
         },
     },
     "embedder": {
-        "provider": "ollama",
+        "provider": "fastembed",
         "config": {
-            "model": "nomic-embed-text",
-            "ollama_base_url": "http://127.0.0.1:11434",
+            "model": "BAAI/bge-small-en-v1.5",
         },
     },
     "vector_store": {
