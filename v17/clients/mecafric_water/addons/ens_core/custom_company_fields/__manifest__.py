@@ -2,7 +2,7 @@
 
 {
     'name': 'Custom Company Fields',
-    'version': '1.0',
+    'version': '17.0.1.0.0',
     'category': 'Tools',
     'summary': 'Ajoute des champs personnalisés aux informations de société',
     'author': 'Votre Nom',

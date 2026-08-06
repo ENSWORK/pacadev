@@ -104,6 +104,6 @@ class SaleOrderLine(models.Model):
         Ce champ est stocké en base pour améliorer les performances.
         """
         for order in self.mapped("order_id"):
-            lines = order.order_line.filtered(lambda l: not l.display_type)
+            lines = order.order_line.filtered(lambda line: not line.display_type)
             for i, line in enumerate(lines.sorted("sequence"), 1):
                 line.sl_no = i

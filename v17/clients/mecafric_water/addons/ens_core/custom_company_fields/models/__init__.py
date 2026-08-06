@@ -1,1 +1,1 @@
-from . import custom_company_fields
+from . import custom_company_fields  # noqa: F401

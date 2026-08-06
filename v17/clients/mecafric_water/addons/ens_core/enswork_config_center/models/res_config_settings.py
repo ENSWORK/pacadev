@@ -26,7 +26,6 @@ class ResConfigSettings(models.TransientModel):
     @api.model
     def get_values(self):
         res = super(ResConfigSettings, self).get_values()
-        params = self.env['ir.config_parameter'].sudo()
         IrModule = self.env['ir.module.module'].sudo()
 
         # Mapping entre les noms de champs et les noms techniques des modules
@@ -51,7 +50,6 @@ class ResConfigSettings(models.TransientModel):
 
     def set_values(self):
         super(ResConfigSettings, self).set_values()
-        params = self.env['ir.config_parameter'].sudo()
         IrModule = self.env['ir.module.module'].sudo()
 
         # Mapping entre les noms de champs et les noms techniques des modules
