@@ -23,7 +23,7 @@
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 
-from odoo import fields, models, _
+from odoo import fields, models
 
 
 class HrPayslipRun(models.Model):

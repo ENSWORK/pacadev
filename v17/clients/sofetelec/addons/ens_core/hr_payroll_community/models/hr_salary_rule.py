@@ -90,7 +90,7 @@ class HrSalaryRule(models.Model):
     # employee: hr.employee object
     # contract: hr.contract object
     # rules: object containing the rules code (previously computed)
-    # categories: object containing the computed salary rule categories 
+    # categories: object containing the computed salary rule categories
     # (sum of amount of all rules belonging to that category).
     # worked_days: object containing the computed worked days
     # inputs: object containing the computed inputs
@@ -128,7 +128,7 @@ class HrSalaryRule(models.Model):
             # employee: hr.employee object
             # contract: hr.contract object
             # rules: object containing the rules code (previously computed)
-            # categories: object containing the computed salary rule categories 
+            # categories: object containing the computed salary rule categories
             # (sum of amount of all rules belonging to that category).
             # worked_days: object containing the computed worked days.
             # inputs: object containing the computed inputs.
@@ -182,7 +182,7 @@ class HrSalaryRule(models.Model):
                 try:
                     return rec.amount_fix, float(
                         safe_eval(rec.quantity, localdict)), 100.0
-                except:
+                except Exception:
                     raise UserError(
                         _('Wrong quantity defined for salary rule %s (%s).') % (
                             rec.name, rec.code))
@@ -192,7 +192,7 @@ class HrSalaryRule(models.Model):
                         float(safe_eval(rec.amount_percentage_base, localdict)),
                         float(safe_eval(rec.quantity, localdict)),
                         rec.amount_percentage)
-                except:
+                except Exception:
                     raise UserError(
                         _('Wrong percentage base or quantity defined '
                           'for salary rule %s (%s).') % (
@@ -205,7 +205,7 @@ class HrSalaryRule(models.Model):
                             'result_qty' in localdict and
                             localdict['result_qty'] or 1.0, 'result_rate'
                             in localdict and localdict['result_rate'] or 100.0)
-                except:
+                except Exception:
                     raise UserError(
                         _('Wrong python code defined for salary '
                           'rule %s (%s).') % (
@@ -225,7 +225,7 @@ class HrSalaryRule(models.Model):
                 result = safe_eval(self.condition_range, localdict)
                 return (self.condition_range_min <= result and result <=
                         self.condition_range_max or False)
-            except:
+            except Exception:
                 raise UserError(
                     _('Wrong range condition defined for '
                       'salary rule %s (%s).') % (
@@ -235,7 +235,7 @@ class HrSalaryRule(models.Model):
                 safe_eval(self.condition_python, localdict, mode='exec',
                           nocopy=True)
                 return 'result' in localdict and localdict['result'] or False
-            except:
+            except Exception:
                 raise UserError(
                     _('Wrong python condition defined for '
                       'salary rule %s (%s).') % (
