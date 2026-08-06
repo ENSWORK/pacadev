@@ -110,21 +110,21 @@ Le déploiement (`pacadev deploy approve`) est **bloqué** en cas de divergence 
 | afrequip | 17.0.1.26 (oca) | 17.0.1.0.0 (oca) | 17.0.1.0.0 (oca) | 1.0 (oca) | shared |
 | mecafric | 17.0.1.33 (ens_core) | 17.0.1.0.0 (ens_core) | 17.0.1.0.0 (ens_core) | 1.0 (ens_core) | shared |
 | mecafric_water | 17.0.1.48.0 (ens_core) | 17.0.1.0.0 (ens_core) | 17.0.1.0.0 (ens_core) | 17.0.1.0.0 (ens_core) | shared |
-| maxelec | shared | shared | shared | shared | shared |
 | sofetelec | shared | shared | shared | shared | shared |
 
 Source : `(oca|ens_core)` = fork local qui masque le partagé → à arbitrer (cf. section Divergences).
 
 ## ⚠️ Dettes de sécurité connues (à traiter avec SOPS)
 
-- **`admin_passwd` en clair** dans `v17/clients/{mecafric,mecafric_water,maxelec}/config/odoo.conf`
+- **`admin_passwd` en clair** dans `v17/clients/{mecafric,mecafric_water}/config/odoo.conf`
   (trackés dans git). Tentative de passage en variable d'env le 2026-08-06 : **Odoo 17 ne supporte
   pas `%(env:VAR)s` dans `odoo.conf`** (vérifié dans `odoo/tools/config.py`, la chaîne reste
   littérale). Correctif futur : générer `odoo.conf` depuis un template au démarrage du conteneur
   (wrapper entrypoint + `envsubst`), ou basculer vers les secrets SOPS (`core/secrets/*.enc.yaml`).
-- **`v17/clients/maxelec/` n'est pas versionné dans git** (dossier entièrement untracked, contient
-  un fourre-tout `addons/oca/` avec un repo cloné). À versionner proprement en excluant les secrets,
-  ou à restructurer.
+- **Client `maxelec` supprimé le 2026-08-06** (décision utilisateur) : conteneur, dossier
+  `v17/clients/maxelec/` (fourre-tout `addons/oca/` avec un repo cloné, non versionné) et état CLI
+  retirés. Les références restantes dans les docs historiques (`migration/`, `FUSION_*`) sont
+  conservées telles quelles à titre d'archive.
 
 ## Détail par module
 

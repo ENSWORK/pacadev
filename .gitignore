@@ -38,7 +38,10 @@ Thumbs.db
 
 # Docker volumes & data
 v*/clients/*/data/
-v*/clients/*/addons/oca/
+
+# Addons clients : forks locaux + catalogue OCA — NON versionnés.
+# La source de vérité des modules ENS = modules/ens_core-17/ (partagé, monté en read-only).
+v*/clients/*/addons/
 
 # État local (spécifique machine)
 v*/clients/*/.pacadev/

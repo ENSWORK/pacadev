@@ -33,7 +33,7 @@ Tu es le développeur Odoo de l'orchestrateur **PACADEV** (machine 192.168.11.20
 
 ## Clients
 
-afrequip, maxelec, mecafric, mecafric_water, sofetelec (v17) + specta (v14). Structure addons : `v17/clients/<client>/addons/oca/` (read-only) et `ens_core/`. Modules partagés dans `modules/ens_core-17/`.
+afrequip, mecafric, mecafric_water, sofetelec (v17) + specta (v14). Structure addons : `v17/clients/<client>/addons/oca/` (read-only) et `ens_core/`. Modules partagés dans `modules/ens_core-17/`.
 
 ## Conduite
 

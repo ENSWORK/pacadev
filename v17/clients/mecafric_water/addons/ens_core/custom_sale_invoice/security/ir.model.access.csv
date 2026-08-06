@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_sale_order_invoice_creator,sale.order.invoice.creator,sale.model_sale_order,custom_sale_invoice.group_allow_invoice_creation,1,1,1,0
-access_sale_order_force_invoiced,sale.order.force.invoiced,sale.model_sale_order,custom_sale_invoice.group_allow_force_sale,1,1,1,0
-access_combined_sale_invoice,access.combined.sale.invoice,model_combined_sale_invoice,base.group_user,1,0,0,0

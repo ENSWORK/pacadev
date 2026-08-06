@@ -20,7 +20,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parents[3] / "memory"
 
 _RULE_USERS = ["odoo17_official", "odoo14_official", "odoo19_official",
                "ens_best_practices", "ens_security"]
-_CLIENT_SLUGS = ["afrequip", "specta", "mecafric", "mecafric_water", "maxelec", "sofetelec"]
+_CLIENT_SLUGS = ["afrequip", "specta", "mecafric", "mecafric_water", "sofetelec"]
 
 
 def _get_memory():

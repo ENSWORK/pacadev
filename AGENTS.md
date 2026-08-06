@@ -51,7 +51,6 @@ Après toute génération ou modification de code, exécute la machine à états
 | afrequip        | v17     | afrequip.pacadev.local       | partner_statement_report |
 | mecafric        | v17     | mecafric.pacadev.local       | — |
 | mecafric_water  | v17     | mecafric_water.pacadev.local | — |
-| maxelec         | v17     | maxelec.pacadev.local        | — |
 | sofetelec       | v17     | sofetelec.pacadev.local      | hr_payroll_community |
 | specta          | v14     | specta.pacadev.local         | — |
 
