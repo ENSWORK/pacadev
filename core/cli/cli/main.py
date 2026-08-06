@@ -11,7 +11,7 @@ if _ENV_FILE.exists():
     from dotenv import load_dotenv
     load_dotenv(_ENV_FILE)
 
-from cli.commands import work, deploy, backup, rollback, test, secrets, generate, monitor, runbook, issue, infra, memory, ai  # noqa: E402
+from cli.commands import work, deploy, backup, rollback, test, secrets, generate, monitor, runbook, issue, infra, memory, ai, modules  # noqa: E402
 from cli.utils.state import init_client, list_clients, load_versions  # noqa: E402
 
 app = typer.Typer(
@@ -34,6 +34,7 @@ app.add_typer(issue.app, name="issue")
 app.add_typer(infra.app, name="infra")
 app.add_typer(memory.app, name="memory")
 app.add_typer(ai.app, name="ai")
+app.add_typer(modules.app, name="modules")
 
 console = Console()
 

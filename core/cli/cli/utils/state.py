@@ -1,13 +1,14 @@
 import json
-import yaml
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import yaml
 
 STATE_DIR = Path.home() / ".pacadev" / "state"
 AUDIT_LOG = STATE_DIR / "audit-log.jsonl"
 VERSIONS_FILE = STATE_DIR / "versions.json"
 CONFIG_FILE = Path.home() / ".pacadev" / "config.yaml"
-PACADEV_ROOT = Path("/data/Pacadev")
+PACADEV_ROOT = Path("/home/pacadev/pacadev")
 
 
 def load_versions() -> dict:

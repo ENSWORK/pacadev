@@ -2,7 +2,7 @@ import subprocess
 import yaml
 from pathlib import Path
 
-SECRETS_DIR = Path("/data/Pacadev/core/secrets")
+SECRETS_DIR = Path("/home/pacadev/pacadev/core/secrets")
 SOPS_AGE_KEY = Path.home() / ".config" / "sops" / "age" / "keys.txt"
 
 

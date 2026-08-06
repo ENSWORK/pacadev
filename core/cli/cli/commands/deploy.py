@@ -158,23 +158,87 @@ def _backup_step(client: str, client_dir: Path, dry_run: bool) -> bool:
     return ok
 
 
+def _client_db(container: str, client: str) -> str:
+    """Nom de la base Odoo : DB_NAME du conteneur, sinon slug client."""
+    env = subprocess.run(["docker", "exec", container, "env"], capture_output=True, text=True)
+    for line in env.stdout.splitlines():
+        if line.startswith("DB_NAME="):
+            return line.split("=", 1)[1].strip()
+    return client
+
+
 def _deploy_step(client: str, client_dir: Path, module: str, odoo: str, dry_run: bool) -> bool:
-    console.print(f"   [dim]→ Module: {module or 'all'}[/dim]")
+    from cli.utils.modules import check_lock
+
+    # Garde-fou : le code monté doit correspondre au lock file du client
+    report = check_lock(PACADEV_ROOT, client, odoo)
+    divergences = {m: r for m, r in report.items() if not r["ok"]}
+    if divergences:
+        console.print(f"   [red]❌ {len(divergences)} divergence(s) lock ↔ code monté[/red]")
+        for m, r in divergences.items():
+            console.print(f"   [red]   • {m}: lock={r['locked']} actuel={r['actual']} ({r['source']})[/red]")
+        console.print("   [yellow]💡 'pacadev modules lock <client>' pour réépingler, "
+                      "ou arbitrer les forks (modules/README.md)[/yellow]")
+        return False
+
     if dry_run:
-        console.print("   [dim]→ Deploy skipped (dry-run)[/dim]")
+        console.print("   [dim]→ Lock OK — deploy skipped (dry-run)[/dim]")
         return True
-    console.print("   [green]✅ Code déployé[/green]")
-    return True
+
+    container = f"{client}_odoo"
+    if not container_running(container):
+        console.print(f"   [red]❌ Conteneur {container} non démarré — déploiement impossible[/red]")
+        return False
+
+    if module:
+        # Upgrade ciblé : stop → run -u → start (le start est garanti en finally)
+        db = _client_db(container, client)
+        console.print(f"   [blue]→ Upgrade module '{module}' sur DB '{db}' (stop/upgrade/start)[/blue]")
+        stopped = subprocess.run(
+            ["docker", "compose", "stop", "odoo"], cwd=client_dir, capture_output=True, text=True
+        )
+        if stopped.returncode != 0:
+            console.print("   [red]❌ Échec de l'arrêt du service odoo — déploiement annulé[/red]")
+            return False
+        ok = False
+        try:
+            up = subprocess.run(
+                ["docker", "compose", "run", "--rm", "--no-deps", "odoo",
+                 "-d", db, "-u", module, "--stop-after-init"],
+                cwd=client_dir, capture_output=True, text=True, timeout=1800,
+            )
+            ok = up.returncode == 0
+            if not ok:
+                console.print("   [red]❌ Upgrade échoué:[/red]")
+                console.print("   [red]" + (up.stderr or up.stdout)[-800:].strip() + "[/red]")
+        finally:
+            started = subprocess.run(
+                ["docker", "compose", "start", "odoo"], cwd=client_dir, capture_output=True, text=True
+            )
+            if started.returncode != 0:
+                console.print("   [red]❌ Redémarrage du service odoo ÉCHOUÉ — intervention manuelle requise![/red]")
+                return False
+        console.print(f"   {'[green]✅ Upgrade OK[/green]' if ok else '[red]❌ Upgrade KO (serveur redémarré)[/red]'}")
+        return ok
+
+    # Sans module : redémarrage pour recharger le code monté
+    r = subprocess.run(["docker", "restart", container], capture_output=True, text=True, timeout=120)
+    ok = r.returncode == 0
+    console.print(f"   {'[green]✅ Conteneur redémarré (code rechargé)[/green]' if ok else '[red]❌ Restart échoué[/red]'}")
+    return ok
 
 
 def _health_step(client: str, odoo: str, dry_run: bool) -> bool:
-    container = f"{client}_odoo_prod"
+    container = f"{client}_odoo"
     if dry_run:
         console.print("   [dim]→ Healthcheck skipped (dry-run)[/dim]")
         return True
     running = container_running(container)
-    console.print(f"   {'[green]✅[/green]' if running else '[yellow]⚠️ [/yellow]'} Container {container}: {'running' if running else 'not found'}")
-    return True
+    console.print(
+        f"   {'[green]✅[/green]' if running else '[red]❌[/red]'} Container {container}: "
+        f"{'running' if running else 'not found'}"
+    )
+    return running
 
 
 @app.command()

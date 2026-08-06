@@ -272,7 +272,7 @@ pacadev secrets show <client>
 ### Mettre à jour le CLI PACADEV
 
 ```bash
-cd /data/Pacadev/core/cli
+cd /home/pacadev/pacadev/core/cli
 git pull
 source ~/.pacadev-venv/bin/activate
 pip install -e . -q

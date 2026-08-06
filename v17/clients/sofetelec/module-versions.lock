@@ -1,0 +1,13 @@
+client: sofetelec
+odoo_version: '17'
+generated_at: '2026-08-06T22:51:43.422097'
+comment: Généré par PACADEV. Épingle les versions effectivement chargées.
+modules:
+  custom_reports: 17.0.1.44
+  custom_sale_invoice: 17.0.1.0.0
+  ens_crm_task: 17.0.1.1.0
+  ens_extra: 17.0.1.0.0
+  ens_reports_print: 17.0.1.0
+  enswork_config_center: '1.0'
+  hr_payroll_community: 17.0.1.1.0
+  partner_statement_report: 17.0.1.4.0

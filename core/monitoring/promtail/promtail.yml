@@ -14,7 +14,7 @@ scrape_configs:
       - targets: [localhost]
         labels:
           job: odoo
-          __path__: /data/Pacadev/v*/clients/*/logs/*.log
+          __path__: /home/pacadev/pacadev/v*/clients/*/logs/*.log
     pipeline_stages:
       - regex:
           expression: '^(?P<time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d+) (?P<pid>\d+) (?P<level>\w+) (?P<db>\S+) (?P<logger>\S+): (?P<message>.*)'

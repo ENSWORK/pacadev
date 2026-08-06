@@ -3,7 +3,7 @@
 ## Arborescence
 
 ```
-/data/Pacadev/
+/home/pacadev/pacadev/
 ├── core/
 │   ├── cli/                     # CLI Typer — pacadev
 │   │   └── cli/
@@ -103,7 +103,7 @@ Monitoring passif (Grafana + Loki)
 
 | Décision | Raison |
 |----------|--------|
-| Configs monitoring dans `~/.pacadev/` | `/data/Pacadev` sur FUSE (NTFS) — Docker ne peut pas bind-mount |
+| Configs monitoring dans `~/.pacadev/` | `/home/pacadev/pacadev` sur FS local — Docker bind-mount OK |
 | SOPS + age (pas GPG) | Plus simple, pas de serveur de clés, clés dans fichier local |
 | Claude Haiku pour risk score | Rapide et peu coûteux pour l'analyse de diff |
 | Typer pour le CLI | Auto-help, typage Python, completion shell |
