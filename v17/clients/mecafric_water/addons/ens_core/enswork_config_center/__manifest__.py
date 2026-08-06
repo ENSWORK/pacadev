@@ -1,6 +1,6 @@
 {
     'name': 'ENSWORK Configuration Center',
-    'version': '1.0',
+    'version': '17.0.1.0.0',
     'category': 'Administration',
     'summary': 'Centralisation des paramètres et configurations de système ENSWORK',
     'description': """Module centralisé pour la gestion des paramètres spécifiques à ENSWORK.

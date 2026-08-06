@@ -3,18 +3,18 @@
     'name': "Identifiants fiscaux maroc",
 
     'summary': """
-    
-        Ce module Odoo permet d'ajouter six nouveaux champs importants dans la fiche client : 
-        1. RC (Registre de Commerce) 
-        2. TP : Taxe profesionnelle 
-        3. IF (Identifiant Fiscale) 
+
+        Ce module Odoo permet d'ajouter six nouveaux champs importants dans la fiche client :
+        1. RC (Registre de Commerce)
+        2. TP : Taxe profesionnelle
+        3. IF (Identifiant Fiscale)
         4. CNSS : Numéro d'immaticulation CNSS
         5. ICE (Identifiant Commun de l'Entreprise)
         6. CAPITAL de la société
 
         Ces champs facilitent la gestion et le suivi des informations légales et fiscales des entreprises clientes dans le système Odoo. Ce module est essentiel pour les entreprises nécessitant un suivi précis de leurs clients dans le respect des obligations légales.
 
-    
+
     """,
 
     'description': """

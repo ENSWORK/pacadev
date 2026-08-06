@@ -1,5 +1,5 @@
 
-from odoo import models, fields, api
+from odoo import models, fields
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -11,9 +11,9 @@ class ResPartner(models.Model):
     ice = fields.Char(string='I.C.E.')
     capital = fields.Char(string='Capital')
     cin = fields.Char(string='CIN')
-    
-   
-        
+
+
+
 
 class ResCompany(models.Model):
     _inherit = 'res.company'

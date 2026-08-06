@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
+import os
+from pathlib import Path
+
 import typer
 from rich.console import Console
-from cli.commands import work, deploy, backup, rollback, test, secrets, generate, monitor, runbook, issue, infra, memory
-from cli.utils.state import init_client, list_clients, load_versions, PACADEV_ROOT
+
+from cli.utils.state import PACADEV_ROOT
+
+_ENV_FILE = Path(PACADEV_ROOT) / ".env"
+if _ENV_FILE.exists():
+    from dotenv import load_dotenv
+    load_dotenv(_ENV_FILE)
+
+from cli.commands import work, deploy, backup, rollback, test, secrets, generate, monitor, runbook, issue, infra, memory, ai  # noqa: E402
+from cli.utils.state import init_client, list_clients, load_versions  # noqa: E402
 
 app = typer.Typer(
     name="pacadev",
@@ -23,6 +34,7 @@ app.add_typer(runbook.app, name="runbook")
 app.add_typer(issue.app, name="issue")
 app.add_typer(infra.app, name="infra")
 app.add_typer(memory.app, name="memory")
+app.add_typer(ai.app, name="ai")
 
 console = Console()
 
