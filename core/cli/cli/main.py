@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 from pathlib import Path
 
 import typer
@@ -77,7 +76,7 @@ def health(
     client: str = typer.Option(None, "--client", "-c", help="Client spécifique"),
     all: bool = typer.Option(False, "--all", help="Vérifie tous les clients"),
 ):
-    """Vérifie la santé des services"""
+    """Vérifie la santé des services (conteneur {client}_odoo + Postgres partagé + HTTP)"""
     from cli.utils.docker import container_running
     targets = list_clients() if all else ([client] if client else [])
 
@@ -85,15 +84,17 @@ def health(
         console.print("[yellow]Spécifiez --client ou --all[/yellow]")
         return
 
+    # Postgres partagé (vérifié une seule fois)
+    pg_ok = container_running("pacadev_postgres_shared")
+    pg = "[green]✅[/green]" if pg_ok else "[red]❌[/red]"
+
     versions = load_versions()
     for c in targets:
         info = versions["clients"].get(c, {})
         odoo_ver = info.get("odoo_version", "17")
-        odoo_ok = container_running(f"{c}_odoo_prod")
-        db_ok = container_running(f"{c}_db_prod")
+        odoo_ok = container_running(f"{c}_odoo")
         o = "[green]✅[/green]" if odoo_ok else "[red]❌[/red]"
-        d = "[green]✅[/green]" if db_ok else "[red]❌[/red]"
-        console.print(f"[bold]{c}[/bold] (Odoo {odoo_ver})  Odoo:{o}  DB:{d}")
+        console.print(f"[bold]{c}[/bold] (Odoo {odoo_ver})  Odoo:{o}  Postgres partagé:{pg}")
 
 
 @app.callback()

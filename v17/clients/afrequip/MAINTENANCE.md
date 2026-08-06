@@ -1,8 +1,9 @@
 # Partner Statement Report — Maintenance & Upgrades
 
 **Module:** `partner_statement_report`  
-**Version actuelle:** 17.0.1.0.1  
+**Version actuelle:** 17.0.1.4.0  
 **Client:** Afrequip  
+**Emplacement:** `modules/ens_core-17/partner_statement_report/` (module partagé centralisé)  
 **Dernière modif:** 2026-05-14
 
 ---
@@ -13,7 +14,7 @@ Après toute modification du module (XML, Python, etc.), appliquer cette procéd
 
 ### **Étape 1 — Incrémenter la version**
 
-Éditer `/addons/oca/partner_statement_report/__manifest__.py` :
+Éditer `modules/ens_core-17/partner_statement_report/__manifest__.py` :
 ```python
 'version': '17.0.1.0.1',  # Patch : bugfix/amélioration mineure
 'version': '17.0.1.1.0',  # Minor : nouvelle feature
@@ -23,8 +24,8 @@ Après toute modification du module (XML, Python, etc.), appliquer cette procéd
 ### **Étape 2 — Upgrade module + Clear cache Odoo**
 
 ```bash
-cd /home/abdelali/pacadev/v17/clients/afrequip
-docker exec afrequip_odoo_1 odoo -c /odoo.conf -d afr -u partner_statement_report --stop-after-init
+cd /home/pacadev/pacadev/v17/clients/afrequip
+docker exec afrequip_odoo odoo -c /etc/odoo/odoo.conf -d afr -u partner_statement_report --stop-after-init
 ```
 
 **Vérifier :** Le module se charge sans erreur (`Module partner_statement_report loaded in X.XXs`)
@@ -33,11 +34,11 @@ docker exec afrequip_odoo_1 odoo -c /odoo.conf -d afr -u partner_statement_repor
 
 ```bash
 # Tue le processus Odoo et le relance
-docker exec afrequip_odoo_1 pkill -f odoo
+docker exec afrequip_odoo pkill -f odoo
 sleep 5
-docker-compose -f docker-compose.dev.yml start odoo
+docker compose -f docker-compose.dev.yml start odoo
 sleep 8
-docker logs afrequip_odoo_1 --tail 5
+docker logs afrequip_odoo --tail 5
 ```
 
 Vérifier : `HTTP service (werkzeug) running on...` ✅

@@ -12,7 +12,7 @@
 
 ```bash
 # 1. Aller dans le répertoire Afrequip
-cd /home/abdelali/pacadev/v17/clients/afrequip
+cd /home/pacadev/pacadev/v17/clients/afrequip
 
 # 2. Lancer les services
 docker-compose -f docker-compose.dev.yml up -d
@@ -144,7 +144,7 @@ docker exec afrequip_odoo odoo -c /odoo.conf -u partner_statement_report --stop-
 ### Module non trouvé
 ```bash
 # Vérifier que le module est dans le bon chemin
-docker exec afrequip_odoo ls -la /mnt/extra-addons/custom/partner_statement_report/
+docker exec afrequip_odoo ls -la /mnt/extra-addons/ens_core_shared/partner_statement_report/
 
 # Mettre à jour la liste des modules
 curl http://localhost:8070/web/environment/

@@ -18,8 +18,9 @@ services:
       DB_NAME: mecafric_prod
       ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?Set via sops -d core/secrets/mecafric.enc.yaml}
     volumes:
-      - /home/abdelali/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core:ro
       - ./addons/oca:/mnt/extra-addons/oca:ro
+      - ./addons/ens_core:/mnt/extra-addons/ens_core:ro
+      - /home/pacadev/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core_shared:ro
       - ./config:/etc/odoo
       - ./filestore:/var/lib/odoo/filestore
     ports:

@@ -12,7 +12,7 @@ services:
       - ./addons/ens_core:/mnt/extra-addons/ens_core:rw
       - ./addons/oca:/mnt/extra-addons/oca:ro
       - odoo-web-data:/var/lib/odoo
-      - /home/abdelali/.continue:/root/.continue:rw
+      - /home/pacadev/.continue:/root/.continue:rw
       - ./config/odoo.dev.conf:/etc/odoo/odoo.conf:ro
     command: --dev=all --workers=0 --db-filter=^mecafric_water_db$
     environment:

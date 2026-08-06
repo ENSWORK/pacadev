@@ -26,28 +26,31 @@ jobs:
       - name: Install tools
         run: pip install ruff
 
-      - name: Ruff — style Python (v17/ens_core uniquement)
+      - name: Ruff — style Python (v17/ens_core + modules partagés)
         run: |
           FILES=$(find v17/clients -path "*/addons/ens_core/*.py" -o \
                                    -path "*/addons/ens_core/**/*.py" 2>/dev/null \
-                  | grep -v __pycache__ | tr '\n' ' ')
+                  | grep -v __pycache__)
+          FILES="$FILES $(find modules/ens_core-17 -name '*.py' 2>/dev/null \
+                  | grep -v __pycache__ | tr '\n' ' ')"
           if [ -n "$FILES" ]; then
             ruff check $FILES --output-format=github --select=E,F,W --ignore=E501
           else
-            echo "Aucun fichier Python v17/ens_core à analyser"
+            echo "Aucun fichier Python à analyser"
           fi
 
-      - name: xmllint — validation XML (v17/ens_core uniquement)
+      - name: xmllint — validation XML (v17/ens_core + modules partagés)
         run: |
           sudo apt-get install -y libxml2-utils -qq
           FILES=$(find v17/clients -path "*/addons/ens_core/*.xml" -o \
                                    -path "*/addons/ens_core/**/*.xml" 2>/dev/null)
+          FILES="$FILES $(find modules/ens_core-17 -name '*.xml' 2>/dev/null)"
           if [ -n "$FILES" ]; then
             echo "$FILES" | while read f; do
               xmllint --noout "$f" && echo "OK: $f" || exit 1
             done
           else
-            echo "Aucun fichier XML v17/ens_core à analyser"
+            echo "Aucun fichier XML à analyser"
           fi
 
   # ─────────────────────────────────────────────────────────────
@@ -63,15 +66,17 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Syntax Python (py_compile — v17/ens_core)
+      - name: Syntax Python (py_compile — v17/ens_core + modules partagés)
         run: |
           FILES=$(find v17/clients -path "*/addons/ens_core/*.py" -o \
                                    -path "*/addons/ens_core/**/*.py" 2>/dev/null \
                   | grep -v __pycache__)
+          FILES="$FILES $(find modules/ens_core-17 -name '*.py' 2>/dev/null \
+                  | grep -v __pycache__)"
           if [ -n "$FILES" ]; then
             echo "$FILES" | xargs -I{} python -m py_compile {} && echo "Syntaxe Python OK"
           else
-            echo "Aucun fichier Python v17/ens_core"
+            echo "Aucun fichier Python à analyser"
           fi
 
       - name: Vérification manifests (v17/ens_core)
@@ -141,15 +146,17 @@ jobs:
       - name: Install bandit
         run: pip install bandit
 
-      - name: Bandit — analyse sécurité Python (v17/ens_core)
+      - name: Bandit — analyse sécurité Python (v17/ens_core + modules partagés)
         run: |
           FILES=$(find v17/clients -path "*/addons/ens_core/*.py" -o \
                                    -path "*/addons/ens_core/**/*.py" 2>/dev/null \
                   | grep -v __pycache__)
+          FILES="$FILES $(find modules/ens_core-17 -name '*.py' 2>/dev/null \
+                  | grep -v __pycache__)"
           if [ -n "$FILES" ]; then
             echo "$FILES" | xargs bandit -ll -q --exit-zero
           else
-            echo "Aucun fichier Python v17/ens_core à analyser"
+            echo "Aucun fichier Python à analyser"
           fi
 
       - name: Gitleaks — détection secrets

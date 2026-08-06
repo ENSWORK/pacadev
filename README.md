@@ -158,7 +158,12 @@ Modules ENS partagés entre clients : `modules/ens_core-17/`
 
 | Client    | Module                      | Version    | Description                                           |
 |-----------|-----------------------------|------------|-------------------------------------------------------|
-| afrequip  | `partner_statement_report`  | 17.0.1.4.0 | Relevé de compte partenaire (impayés, activité, détaillé) — PDF + Excel + email |
+| partagé   | `partner_statement_report`  | 17.0.1.4.0 | Relevé de compte partenaire (impayés, activité, détaillé) — PDF + Excel + email (centralisé dans `modules/ens_core-17/`) |
+| partagé   | `hr_payroll_community`      | 17.0.1.1.0 | Paie Odoo 17 Community (payslips, contrats, congés) — centralisé dans `modules/ens_core-17/` |
+
+> Les modules partagés vivent dans `modules/ens_core-17/` et sont bind-montés en lecture seule
+> chez tous les clients (`/mnt/extra-addons/ens_core_shared`). Voir `modules/README.md` pour
+> l'inventaire complet et les divergences à réarbitrer.
 
 ---
 

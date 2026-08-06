@@ -1,8 +1,13 @@
 # Modules ENS — Centralisés dans pacadev
 
 **Date d'import :** 2026-05-14
-**Source :** `/home/abdelali/OpenEnsdev/main-dev-repo/ens_core-17/`
+**Dernière MAJ :** 2026-08-06
+**Source :** `/home/pacadev/pacadev/modules/ens_core-17/` (machine PACADEV 192.168.11.20)
 **Méthode :** copie monorepo (rsync sans `__pycache__`, `*.pyc`)
+
+> ⚠️ L'ancien chemin `/home/abdelali/pacadev/modules/ens_core-17` (copie obsolète) a été **supprimé**.
+> Un symlink `/home/abdelali/pacadev → /home/pacadev/pacadev` sert de compatibilité temporaire.
+> Tous les `docker-compose.yml` des clients pointent désormais sur `/home/pacadev/pacadev/modules/ens_core-17`.
 
 ## Vue d'ensemble
 
@@ -14,9 +19,13 @@
 | `ens_extra` | 17.0.1.0.0 | ENS/extra | LGPL-3 | 3 |
 | `ens_reports_print` | 17.0.1.0 | Custom | ? | 2 |
 | `enswork_config_center` | 1.0 | Administration | LGPL-3 | 6 |
+| `hr_payroll_community` | 17.0.1.1.0 | Human Resources | LGPL-3 | 2 (hr_contract, hr_holidays) |
+| `partner_statement_report` | 17.0.1.4.0 | Accounting | LGPL-3 | 4 (contacts, account, mail, identifiants_fiscaux_maroc) |
 
+**Total :** 8 modules ENS Odoo 17.
 
-**Total :** 6 modules ENS Odoo 17.
+> `hr_payroll_community` (ex-sofetelec) et `partner_statement_report` (ex-afrequip) ont été
+> **centralisés le 2026-08-06** dans le dossier partagé, conformément à la stratégie PACADEV.
 
 ## Utilisation par un client
 
@@ -27,14 +36,45 @@ Les clients bind-montent ce dossier en lecture seule :
 services:
   odoo:
     volumes:
-      - /home/abdelali/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core:ro
+      - /home/pacadev/pacadev/modules/ens_core-17:/mnt/extra-addons/ens_core_shared:ro
+      - ./addons/oca:/mnt/extra-addons/oca:ro          # modules OCA / tiers
+      - ./addons/ens_core:/mnt/extra-addons/ens_core:ro # modules spécifiques client
 ```
 
 Et la config Odoo :
 ```ini
 # v17/clients/<client>/config/odoo.conf
-addons_path = /mnt/extra-addons/ens_core,/mnt/extra-addons/oca
+addons_path = /mnt/extra-addons/oca,/mnt/extra-addons/ens_core,/mnt/extra-addons/ens_core_shared,/usr/lib/python3/dist-packages/odoo/addons
 ```
+
+> **Règle Odoo :** un module est chargé depuis le **premier** répertoire de `addons_path`
+> qui le contient. L'ordre ci-dessus fait primer les modules locaux du client (`oca`, `ens_core`)
+> sur le partagé (`ens_core_shared`) — c'est ce qui permet à un client de garder sa propre version
+> d'un module partagé (fork volontaire).
+
+## ⚠️ Divergences constatées entre le partagé et les copies clients (à réarbitrer)
+
+Lors de l'audit du 2026-08-06, des copies locales des modules partagés existent encore chez les
+clients avec des versions divergentes. **Elles n'ont PAS été supprimées** (risque de perte de code).
+Elles doivent être arbitrées : soit fusionner les évolutions dans le partagé, soit déclarer une
+fork officielle par client.
+
+| Module | Partagé | afrequip/oca | mecafric/ens_core | mecafric_water/ens_core |
+|---|---|---|---|---|
+| `custom_reports` | 17.0.1.44 | **17.0.1.26** (43 fichiers diff) | **17.0.1.33** (23 diff) | **17.0.1.48.0** (37 diff) |
+| `custom_sale_invoice` | 17.0.1.0.0 | 17.0.1.0.0 | 17.0.1.0.0 | 17.0.1.0.0 (4 diff) |
+| `ens_extra` | 17.0.1.0.0 | 17.0.1.0.0 (4 diff) | 17.0.1.0.0 (4 diff) | 17.0.1.0.0 (7 diff + reports/) |
+| `enswork_config_center` | **1.0** | 1.0 (7 diff) | 1.0 (7 diff) | **17.0.1.0.0** (12 diff) |
+
+Modules spécifiques qui restent **uniquement** chez certains clients (hors partagé) :
+`custom_company_fields`, `identifiants_fiscaux_maroc`, `delivery_from_sale`
+(présents chez afrequip/mecafric/mecafric_water — à centraliser ou documenter comme forks).
+
+**Actions recommandées lors de la revérification :**
+1. Arbitrer `custom_reports` : choisir la version de référence (17.0.1.44 du partagé ?) et fusionner les évolutions métier par client.
+2. Harmoniser `enswork_config_center` : le partagé (1.0) devrait être aligné sur la version 17.0.1.0.0 de mecafric_water.
+3. Harmoniser les versions non standard : `ens_reports_print` (17.0.1.0) et `enswork_config_center` (1.0) → `17.0.x.y.z`.
+4. Centraliser ou documenter `custom_company_fields`, `identifiants_fiscaux_maroc`, `delivery_from_sale`.
 
 ## Versionnage
 
@@ -160,7 +200,9 @@ Tag Git de déploiement : `<client>/v17/<YYYY.MM.DD>-<build>`
 
 - **`ens_core-14/`** (source) : ne contient que `oca_custom/ourcustom_impression/` (pas un module ENS core). Ignoré.
 - **`ens_core-19/`** (source) : vide (uniquement `.gitkeep`). Ignoré.
-- **`partner_statement_report/`** (dans `ens_core-17/`) : dossier coquille vide (seulement `__pycache__/`). Le module canonique vit dans `v17/clients/afrequip/addons/oca/partner_statement_report/` (branche dev en cours). Non réimporté ici.
+- **`partner_statement_report/`** : était un dossier coquille vide (seulement `__pycache__/`).
+  Le module canonique **a été centralisé le 2026-08-06** depuis `v17/clients/afrequip/addons/ens_core/`
+  vers `modules/ens_core-17/partner_statement_report/` (version 17.0.1.4.0).
 
 ### Tests Odoo
 
@@ -168,17 +210,17 @@ Aucun module ne contient de dossier `tests/`. À créer lors de prochaines évol
 
 ### Stratégie de bind-mount
 
-Les clients doivent bind-monter ce dossier **en lecture seule** (`:ro`). Le `docker-compose.yml` de chaque client doit pointer vers `/home/abdelali/pacadev/modules/ens_core-17`.
+Les clients doivent bind-monter ce dossier **en lecture seule** (`:ro`). Le `docker-compose.yml` de chaque client doit pointer vers `/home/pacadev/pacadev/modules/ens_core-17` (voir section « Utilisation par un client »).
 
 ### Workflow modification
 
 1. `pacadev work start --client <C> --issue <N>` → crée branche `dev/<C>/<N>-<action>`
 2. Modifier le module sous `modules/ens_core-17/<module>/`
 3. Bumper la version dans `__manifest__.py` (`17.0.X.Y.Z+1`)
-4. Redémarrer Odoo avec `-u <module>` : `docker exec <C>_odoo_1 odoo -c /etc/odoo/odoo.conf -d <db> -u <module> --stop-after-init`
+4. Redémarrer Odoo avec `-u <module>` : `docker exec <C>_odoo odoo -c /etc/odoo/odoo.conf -d <db> -u <module> --stop-after-init`
 5. Tester localement
-6. `pacadev work commit -m "<msg>" --module <module> --type feat|fix`
-7. Push → CI → IA risk → merge
+6. `pacadev work commit --module <module> --type feat|fix`
+7. Push → CI (lint + test + security couvrent désormais `modules/ens_core-17/`) → merge
 
 ## Origine et traçabilité
 
