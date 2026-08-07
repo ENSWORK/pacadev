@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import {
@@ -64,6 +64,8 @@ import { mockPipelines, mockClients, mockAIConfig } from '@/lib/mock-data'
 import type { Pipeline } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useAsyncAction } from '@/hooks/use-async-action'
+import { useWebSocket } from '@/hooks/use-websocket'
+import { loadPipelines } from '@/lib/pipeline-loader'
 import { pipelineApi, deployApi, aiApi, secretsApi } from '@/lib/api'
 import { useAppStore, type RealPipeline } from '@/lib/store'
 
@@ -93,16 +95,26 @@ interface ApprovalEntry {
   used_by: string | null
 }
 
-// ============ Mock log output for running pipeline ============
-const mockLiveLogs = [
-  { time: '16:05:12', level: 'INFO', msg: '[lint] Démarrage analyse lint sur acmecorp_custom...' },
-  { time: '16:05:14', level: 'INFO', msg: '[lint] 12 fichiers analysés, 0 erreurs critiques' },
-  { time: '16:05:15', level: 'SUCCESS', msg: '[lint] Étape lint terminée avec succès ✓' },
-  { time: '16:05:16', level: 'INFO', msg: '[tests] Exécution des tests unitaires...' },
-  { time: '16:05:20', level: 'INFO', msg: '[tests] 45 tests passés, 2 en cours...' },
-  { time: '16:05:22', level: 'WARNING', msg: '[tests] Test test_report_pdf lent (3.2s)' },
-  { time: '16:05:23', level: 'INFO', msg: '[tests] Exécution test_sale_order_create...' },
-]
+// ============ Flux de logs pipeline réel (WebSocket port 3003) ============
+interface LiveLogLine {
+  time: string
+  level: string
+  msg: string
+}
+
+interface LiveStream {
+  runId: string
+  lines: LiveLogLine[]
+  status: string
+  conclusion: string | null
+}
+
+function getClientSlugOf(pipeline: AnyPipeline): string {
+  if ('clientSlug' in pipeline && pipeline.clientSlug) return pipeline.clientSlug
+  const { realClients } = useAppStore.getState()
+  const all = realClients.length > 0 ? realClients : mockClients
+  return all.find((c) => c.id === pipeline.clientId)?.slug ?? 'acmecorp'
+}
 
 // ============ Helper ============
 function getClientName(clientId: string): string {
@@ -129,10 +141,58 @@ const levelColors: Record<string, string> = {
 
 // ============ Pipeline En Cours Section ============
 function PipelineEnCours() {
-  const { realPipelines } = useAppStore()
+  const { realPipelines, setRealPipelines, realClients } = useAppStore()
   const effectivePipelines: AnyPipeline[] = realPipelines.length > 0 ? realPipelines : mockPipelines
   const [logsExpanded, setLogsExpanded] = useState(true)
+  const { connected: wsConnected, subscribe } = useWebSocket()
+  const [liveStreams, setLiveStreams] = useState<Record<string, LiveStream>>({})
+  const refreshingRef = useRef(false)
   const runningPipelines = effectivePipelines.filter((p) => p.status === 'running' || p.status === 'in_progress')
+
+  const refreshPipelines = useCallback(async () => {
+    if (refreshingRef.current || realClients.length === 0) return
+    refreshingRef.current = true
+    try {
+      const refreshed = await loadPipelines(realClients)
+      if (refreshed.length > 0) setRealPipelines(refreshed)
+    } catch { /* garder l'état courant */ } finally {
+      refreshingRef.current = false
+    }
+  }, [realClients, setRealPipelines])
+
+  useEffect(() => {
+    const offLogs = subscribe('pipeline:logs', (data) => {
+      const d = data as { client?: string; runId?: number; lines?: LiveLogLine[] }
+      if (!d?.client || !Array.isArray(d.lines) || d.lines.length === 0) return
+      setLiveStreams((prev) => {
+        const current = prev[d.client!]
+        if (current && current.runId !== String(d.runId)) {
+          // Nouveau run : remplacer le tampon de logs du client
+          return { ...prev, [d.client!]: { runId: String(d.runId), lines: d.lines!.slice(-400), status: current.status, conclusion: current.conclusion } }
+        }
+        const lines = [...(current?.lines ?? []), ...d.lines!].slice(-400)
+        return { ...prev, [d.client!]: { runId: String(d.runId), lines, status: current?.status ?? 'in_progress', conclusion: current?.conclusion ?? null } }
+      })
+    })
+
+    const offStatus = subscribe('pipeline:status', (data) => {
+      const d = data as { client?: string; runId?: number; status?: string; conclusion?: string | null }
+      if (!d?.client) return
+      setLiveStreams((prev) => {
+        const current = prev[d.client!]
+        if (current && current.runId === String(d.runId)) {
+          return { ...prev, [d.client!]: { ...current, status: d.status ?? current.status, conclusion: d.conclusion ?? current.conclusion } }
+        }
+        return { ...prev, [d.client!]: { runId: String(d.runId), lines: [], status: d.status ?? 'in_progress', conclusion: d.conclusion ?? null } }
+      })
+      if (d.status === 'completed' || d.status === 'in_progress' || d.status === 'queued') refreshPipelines()
+    })
+
+    return () => {
+      offLogs()
+      offStatus()
+    }
+  }, [subscribe, refreshPipelines])
 
   if (runningPipelines.length === 0) {
     return (
@@ -155,14 +215,19 @@ function PipelineEnCours() {
 
   return (
     <div className="space-y-4">
-      {runningPipelines.map((pipeline) => (
-        <PipelineCard
-          key={pipeline.id}
-          pipeline={pipeline}
-          logsExpanded={logsExpanded}
-          onToggleLogs={() => setLogsExpanded(!logsExpanded)}
-        />
-      ))}
+      {runningPipelines.map((pipeline) => {
+        const clientSlug = getClientSlugOf(pipeline)
+        return (
+          <PipelineCard
+            key={pipeline.id}
+            pipeline={pipeline}
+            logsExpanded={logsExpanded}
+            onToggleLogs={() => setLogsExpanded(!logsExpanded)}
+            liveStream={liveStreams[clientSlug]}
+            wsConnected={wsConnected}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -171,10 +236,14 @@ function PipelineCard({
   pipeline,
   logsExpanded,
   onToggleLogs,
+  liveStream,
+  wsConnected,
 }: {
   pipeline: AnyPipeline
   logsExpanded: boolean
   onToggleLogs: () => void
+  liveStream?: LiveStream
+  wsConnected: boolean
 }) {
   const { loading: stepLoading, execute: executeStepRetrigger } = useAsyncAction()
   const [restarting, setRestarting] = useState<string | null>(null)
@@ -187,11 +256,15 @@ function PipelineCard({
     { name: 'Deploy', status: pipeline.deployStatus },
   ]
 
-  const { realClients } = useAppStore()
-  const allClients = realClients.length > 0 ? realClients : mockClients
-  const clientSlug = ('clientSlug' in pipeline && pipeline.clientSlug)
-    ? pipeline.clientSlug
-    : allClients.find((c) => c.id === pipeline.clientId)?.slug ?? 'acmecorp'
+  const clientSlug = getClientSlugOf(pipeline)
+  const liveLogs = liveStream?.lines ?? []
+  const logsAutoScrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (logsExpanded && logsAutoScrollRef.current) {
+      logsAutoScrollRef.current.scrollTop = logsAutoScrollRef.current.scrollHeight
+    }
+  }, [logsExpanded, liveLogs.length])
 
   const handleRestart = (stepName: string) => {
     setRestarting(stepName)
@@ -262,7 +335,7 @@ function PipelineCard({
             ))}
         </div>
 
-        {/* Logs en direct */}
+        {/* Logs en direct (flux réel GitHub Actions via WebSocket) */}
         <div className="rounded-lg border bg-muted/30">
           <button
             type="button"
@@ -272,6 +345,9 @@ function PipelineCard({
             <span className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
               Logs en direct
+              {wsConnected && liveLogs.length > 0 && (
+                <span className="text-[10px] font-normal text-muted-foreground">flux réel</span>
+              )}
             </span>
             {logsExpanded ? (
               <ChevronUp className="size-4 text-muted-foreground" />
@@ -281,20 +357,33 @@ function PipelineCard({
           </button>
           {logsExpanded && (
             <div className="border-t px-4 py-3">
-              <div className="max-h-48 overflow-y-auto font-mono text-xs space-y-1 custom-scrollbar">
-                {mockLiveLogs.map((log, i) => (
-                  <div key={i} className="flex gap-3">
-                    <span className="text-muted-foreground shrink-0">{log.time}</span>
-                    <span className={cn('shrink-0 w-16', levelColors[log.level] ?? 'text-foreground')}>
-                      [{log.level}]
-                    </span>
-                    <span className="text-foreground/80">{log.msg}</span>
+              <div ref={logsAutoScrollRef} className="max-h-48 overflow-y-auto font-mono text-xs space-y-1 custom-scrollbar">
+                {liveLogs.length > 0 ? (
+                  <>
+                    {liveLogs.map((log, i) => (
+                      <div key={i} className="flex gap-3">
+                        <span className="text-muted-foreground shrink-0">{log.time}</span>
+                        <span className={cn('shrink-0 w-16', levelColors[log.level] ?? 'text-foreground')}>
+                          [{log.level}]
+                        </span>
+                        <span className="text-foreground/80 break-all">{log.msg}</span>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-2 text-muted-foreground animate-pulse">
+                      <span className="text-emerald-500">▌</span>
+                      <span>En attente de nouveaux logs...</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <span className={cn('text-emerald-500', wsConnected && 'animate-pulse')}>▌</span>
+                    {wsConnected ? (
+                      <span>En attente du flux de logs réel du pipeline...</span>
+                    ) : (
+                      <span>Flux WebSocket indisponible (connexion au service WS en cours...)</span>
+                    )}
                   </div>
-                ))}
-                <div className="flex items-center gap-2 text-muted-foreground animate-pulse">
-                  <span className="text-emerald-500">▌</span>
-                  <span>En attente de nouveaux logs...</span>
-                </div>
+                )}
               </div>
             </div>
           )}

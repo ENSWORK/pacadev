@@ -1,10 +1,11 @@
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import fs from 'fs'
-import { exec } from 'child_process'
+import { exec, execFile } from 'child_process'
 import { promisify } from 'util'
 
 const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 const PACADEV_HOME = process.env.PACADEV_HOME || '/home/pacadev/.pacadev'
 const DOCKER_BIN = process.env.DOCKER_BIN || '/usr/bin/docker'
 
@@ -80,6 +81,17 @@ io.on('connection', (socket) => {
   const recentAudit = tailAuditLog(10)
   socket.emit('audit:snapshot', { logs: recentAudit, timestamp: new Date().toISOString() })
 
+  // Send current pipeline status snapshot on connect
+  for (const [slug, cached] of Object.entries(pipelineCache)) {
+    socket.emit('pipeline:status', {
+      client: slug,
+      runId: cached.runId,
+      status: cached.status,
+      conclusion: cached.conclusion,
+      timestamp: new Date().toISOString(),
+    })
+  }
+
   socket.on('error', (error) => {
     console.error(`[WS] Socket error (${socket.id}):`, error)
   })
@@ -152,25 +164,115 @@ setInterval(async () => {
   }
 }, 30_000)
 
-// Every 45s: GitHub Actions pipeline status check (lightweight)
-setInterval(() => {
-  const clients = loadRealClients()
-  const slug = clients[Math.floor(Math.random() * clients.length)]
-  if (!slug) return
+// --- Real GitHub Actions pipeline stream (status + logs) ---
 
-  const event = {
-    event: 'pipeline:ping',
-    data: { client: slug, timestamp: new Date().toISOString(), message: 'Pipeline status check' },
+function getClientRepoBranch(slug: string): { repo: string; branch: string | null } {
+  try {
+    const data = JSON.parse(fs.readFileSync(`${PACADEV_HOME}/state/versions.json`, 'utf-8'))
+    const client = data.clients?.[slug] || {}
+    return { repo: client.current_repo || 'ENSWORK/pacadev', branch: client.current_branch || null }
+  } catch {
+    return { repo: 'ENSWORK/pacadev', branch: null }
   }
-  io.to(`pipeline:${slug}`).emit('pipeline:ping', event.data)
-}, 45_000)
+}
+
+function parseLogLines(raw: string): Array<{ time: string; level: string; msg: string }> {
+  return raw
+    .split('\n')
+    .filter(Boolean)
+    .slice(-1500)
+    .map((line) => {
+      const m =
+        line.match(/^([^\t]+)\t([^\t]+)\t(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\s+(.*)$/) ||
+        line.match(/^(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\s+(.*)$/)
+      if (!m) return { time: '', level: 'INFO', msg: line.slice(0, 300) }
+      const time = m[3].replace('T', ' ').replace('Z', '')
+      const content = m[4]
+      const prefix = m[1] && m[2] ? `${m[1]} › ${m[2]}` : ''
+      let level = 'INFO'
+      if (/error|fail|exception|traceback|exit code 1/i.test(content)) level = 'ERROR'
+      else if (/warn/i.test(content)) level = 'WARNING'
+      else if (/success|passed|✓|complete|terminé/i.test(content)) level = 'SUCCESS'
+      return { time, level, msg: prefix ? `${prefix} — ${content}` : content.slice(0, 300) }
+    })
+}
+
+interface PipelineStreamCache { runId: string; status: string; conclusion: string | null; emittedLines: number }
+const pipelineCache: Record<string, PipelineStreamCache> = {}
+
+async function streamPipeline(slug: string): Promise<void> {
+  const { repo, branch } = getClientRepoBranch(slug)
+  const listArgs = ['run', 'list', '--repo', repo, '--limit', '3', '--json', 'databaseId,status,conclusion,headBranch,displayTitle,url,createdAt']
+  if (branch) listArgs.push('--branch', branch)
+  try {
+    const { stdout } = await execFileAsync('gh', listArgs, { encoding: 'utf-8', timeout: 15000 })
+    const runs: Array<{ databaseId: number; status: string; conclusion: string | null; headBranch: string; displayTitle: string; url: string; createdAt: string }> = JSON.parse(stdout || '[]')
+    if (!runs.length) return
+    console.log(`[EVENT] pipeline cycle → ${slug}: ${runs.length} runs (dernier: #${runs[0].databaseId} ${runs[0].status})`)
+
+    const active = runs.find((r) => r.status === 'in_progress' || r.status === 'queued')
+    const run = active || runs[0]
+    const runId = String(run.databaseId)
+    const prev = pipelineCache[slug]
+    const firstSeen = !prev || prev.runId !== runId
+    const statusChanged = !prev || prev.status !== run.status || prev.conclusion !== run.conclusion
+
+    if (firstSeen || statusChanged) {
+      pipelineCache[slug] = { runId, status: run.status, conclusion: run.conclusion, emittedLines: 0 }
+      io.emit('pipeline:status', {
+        client: slug,
+        runId,
+        status: run.status,
+        conclusion: run.conclusion,
+        branch: run.headBranch,
+        title: run.displayTitle,
+        url: run.url,
+        createdAt: run.createdAt,
+        timestamp: new Date().toISOString(),
+      })
+      console.log(`[EVENT] pipeline:status → client=${slug}, run=${runId}, status=${run.status}, conclusion=${run.conclusion}`)
+    }
+
+    if (run.status === 'in_progress') {
+      const cur = pipelineCache[slug]!
+      const { stdout: raw } = await execFileAsync(
+        'gh', ['run', 'view', runId, '--repo', repo, '--log'],
+        { encoding: 'utf-8', timeout: 30000, maxBuffer: 64 * 1024 * 1024 },
+      )
+      const lines = parseLogLines(raw)
+      if (lines.length > cur.emittedLines) {
+        const fresh = lines.slice(cur.emittedLines)
+        cur.emittedLines = lines.length
+        io.emit('pipeline:logs', { client: slug, runId, lines: fresh, timestamp: new Date().toISOString() })
+      }
+    }
+  } catch (err) {
+    const e = err as { message?: string; stderr?: string }
+    console.log(`[EVENT] pipeline cycle → ${slug}: erreur (${(e.stderr || e.message || String(err)).slice(0, 400)})`)
+  }
+}
+
+// Every 12s: stream real pipeline logs/status for each client (async, non bloquant)
+let pipelineCycleRunning = false
+setInterval(async () => {
+  if (pipelineCycleRunning) return
+  pipelineCycleRunning = true
+  try {
+    const clients = loadRealClients()
+    for (const slug of clients) {
+      await streamPipeline(slug)
+    }
+  } catch { /* ignore */ } finally {
+    pipelineCycleRunning = false
+  }
+}, 12_000)
 
 // --- Start server ---
 const PORT = 3003
 httpServer.listen(PORT, () => {
   console.log(`[PACADEV WS] Socket.io running on port ${PORT}`)
   console.log(`[PACADEV WS] Real clients: ${loadRealClients().join(', ')}`)
-  console.log(`[PACADEV WS] Events: metrics(10s), audit(20s), health(30s), pipeline(45s)`)
+  console.log(`[PACADEV WS] Events: metrics(10s), audit(20s), health(30s), pipeline(12s)`)
 })
 
 const shutdown = () => {
