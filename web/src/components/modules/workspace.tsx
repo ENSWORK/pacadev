@@ -354,7 +354,7 @@ function TicketCreatorTab() {
               </SelectTrigger>
               <SelectContent>
                 {availableModules.map((mod) => (
-                  <SelectItem key={mod.id ?? mod.name} value={mod.name}>
+                  <SelectItem key={mod.technicalName ?? mod.id ?? mod.name} value={mod.technicalName ?? mod.name}>
                     <span className="flex items-center gap-2">
                       {mod.name}
                       <Badge variant="outline" className="text-[10px] h-4 ml-1">

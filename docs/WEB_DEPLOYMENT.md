@@ -113,6 +113,10 @@ curl -s "http://localhost:3003/?EIO=4&transport=polling"   # → "0{...}"
   mecafric_water, sofetelec — maxelec retiré volontairement). Il est déjà à jour.
 - `web/.env` et `web/db/custom.db` sont **hors git** (ignorés) : à restaurer
   manuellement après un clone/checkout frais.
+- **WebSocket navigateur** : le dashboard se connecte à `http://<hôte>:3003`
+  (même hôte que la page, port 3003 exposé côté hôte, sans firewall). Ne PAS
+  utiliser `localhost` quand le dashboard est ouvert depuis une autre machine
+  (`localhost` est résolu côté navigateur → « websocket error »).
 
 ## 8. Améliorations possibles (non faites)
 
