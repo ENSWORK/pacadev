@@ -1,2 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_res_config_settings_enswork_manager,res.config.settings.enswork.manager,base.model_res_config_settings,group_enswork_manager,1,1,1,1

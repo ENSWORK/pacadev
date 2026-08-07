@@ -38,12 +38,6 @@ CLIENTS = {
         "modules": ["ens_stock"],
         "notes": "Stock module with lot traceability for water. Shares OCA addons with mecafric.",
     },
-    "maxelec": {
-        "version": "17.0",
-        "env": "local",
-        "modules": [],
-        "notes": "Initialisé. Aucun ticket en cours.",
-    },
     "sofetelec": {
         "version": "17.0",
         "env": "local",

@@ -5,6 +5,7 @@ import { spawnSync } from 'child_process';
 import type {
   ClientData,
   AuditLog,
+  AIConfig,
   UserRole,
   DashboardStats,
   Pipeline,
@@ -131,7 +132,7 @@ export function readAuditLog(): AuditLog[] {
     const data = fs.readFileSync(file, 'utf-8');
     const lines = data.trim().split('\n');
     return lines
-      .map((line) => {
+      .map((line): AuditLog | null => {
         try {
           const parsed = JSON.parse(line);
           return {
@@ -139,7 +140,7 @@ export function readAuditLog(): AuditLog[] {
             user: parsed.user || 'system',
             action: parsed.action || 'unknown',
             client: parsed.client && parsed.client !== '_global' ? parsed.client : null,
-            details: parsed.action === 'work_start' ? `Branch: ${parsed.branch}` : JSON.stringify(parsed),
+            details: parsed.action === 'work_start' ? `Branch: ${parsed.branch}` : (JSON.stringify(parsed) ?? null),
             reason: parsed.phase || parsed.summary?.reason || null,
             createdAt: parsed.timestamp || new Date().toISOString(),
           };
@@ -153,6 +154,34 @@ export function readAuditLog(): AuditLog[] {
     console.error(`Failed to read audit-log.jsonl: ${err}`);
     return [];
   }
+}
+
+// ============ AI CONFIG (persisté sur disque) ============
+const DEFAULT_AI_CONFIG: AIConfig = {
+  id: 'cfg_001',
+  model: 'claude-3.5-sonnet',
+  maxTokens: 4000,
+  fallbackModel: 'gpt-4o',
+  costThreshold: 50.0,
+  autoMerge: false,
+  autoDeploy: false,
+  autoRollback: false,
+};
+
+export function readAIConfig(): AIConfig {
+  const file = path.join(PACADEV_HOME, 'state', 'ai-config.json');
+  try {
+    return { ...DEFAULT_AI_CONFIG, ...JSON.parse(fs.readFileSync(file, 'utf-8')) };
+  } catch {
+    return { ...DEFAULT_AI_CONFIG };
+  }
+}
+
+export function writeAIConfig(patch: Record<string, unknown>): AIConfig {
+  const current = readAIConfig();
+  const next = { ...current, ...patch };
+  fs.writeFileSync(path.join(PACADEV_HOME, 'state', 'ai-config.json'), JSON.stringify(next, null, 2));
+  return next;
 }
 
 // ============ CLIENT MAPPING ============
@@ -436,7 +465,6 @@ export function getClientBranches(slug: string): BranchInfo[] {
   const repoPath = client?.target_path || client?.path || `/home/pacadev/pacadev`;
 
   try {
-    const { execSync } = require('child_process') as typeof import('child_process');
     const raw = execSync(
       `git -C "${repoPath}" branch -a --format="%(refname:short)|%(objectname:short)|%(authordate:iso)|%(authorname)|%(upstream:short)"`,
       { encoding: 'utf-8', timeout: 5000 }
@@ -586,6 +614,24 @@ function githubAPI(endpoint: string, timeoutMs = 15000): { success: boolean; dat
   const result = spawnSync('curl', ['-sf', '-H', `Authorization: token ${token}`, '-H', 'Accept: application/vnd.github.v3+json', url], {
     encoding: 'utf-8',
     timeout: timeoutMs,
+  });
+
+  if (result.status !== 0 || !result.stdout) return { success: false, data: null };
+  try {
+    return { success: true, data: JSON.parse(result.stdout) };
+  } catch {
+    return { success: false, data: null };
+  }
+}
+
+function githubAPIMutate(endpoint: string, method: 'POST' | 'PATCH', data: Record<string, unknown>): { success: boolean; data: unknown } {
+  const token = readGitHubToken();
+  if (!token) return { success: false, data: null };
+
+  const url = endpoint.startsWith('http') ? endpoint : `https://api.github.com/${endpoint}`;
+  const result = spawnSync('curl', ['-sf', '-X', method, '-H', `Authorization: token ${token}`, '-H', 'Accept: application/vnd.github.v3+json', '-H', 'Content-Type: application/json', '-d', JSON.stringify(data), url], {
+    encoding: 'utf-8',
+    timeout: 15000,
   });
 
   if (result.status !== 0 || !result.stdout) return { success: false, data: null };
@@ -991,6 +1037,31 @@ export function getClientIssues(slug: string, state = 'all', limit = 20): GitHub
   const repo = client?.current_repo || 'ENSWORK/pacadev';
   const issues = getGitHubIssues(repo, state, limit);
   return issues.filter(i => i.client === slug || i.labels.some(l => l.includes(slug)));
+}
+
+export function updateClientIssue(
+  slug: string,
+  issueNumber: number,
+  updates: { comment?: string; close?: boolean; label?: string }
+): { success: boolean; message: string } {
+  const versions = readVersionsJSON();
+  const client = versions.clients[slug];
+  const repo = client?.current_repo || 'ENSWORK/pacadev';
+
+  if (updates.comment) {
+    const resp = githubAPIMutate(`repos/${repo}/issues/${issueNumber}/comments`, 'POST', { body: updates.comment });
+    if (!resp.success) return { success: false, message: `Échec ajout commentaire sur ${repo}#${issueNumber}` };
+  }
+
+  if (updates.label || updates.close) {
+    const patch: Record<string, unknown> = {};
+    if (updates.label) patch.labels = [updates.label];
+    if (updates.close) patch.state = 'closed';
+    const resp = githubAPIMutate(`repos/${repo}/issues/${issueNumber}`, 'PATCH', patch);
+    if (!resp.success) return { success: false, message: `Échec mise à jour de ${repo}#${issueNumber}` };
+  }
+
+  return { success: true, message: `${repo}#${issueNumber} mis à jour` };
 }
 
 // ============ PHASE 4: AI RISK FROM PIPELINE ============

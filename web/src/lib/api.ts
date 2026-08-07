@@ -162,22 +162,11 @@ export const issueApi = {
       body: JSON.stringify({ module, title, milestone }),
     }),
 
-  /** CLI: pacadev issue view <N> --repo <R> */
-  view: (clientSlug: string, issueNumber: number) =>
-    apiFetch<unknown>(`/api/clients/${clientSlug}/issues/${issueNumber}`),
-
   /** CLI: pacadev issue update <N> --comment <C> / --close / --label <L> */
   update: (clientSlug: string, issueNumber: number, updates: { comment?: string; close?: boolean; label?: string }) =>
     apiFetch<unknown>(`/api/clients/${clientSlug}/issues/${issueNumber}`, {
       method: 'PATCH',
       body: JSON.stringify(updates),
-    }),
-
-  /** CLI: pacadev issue close_deploy <N> --client <slug> --env <env> */
-  closeDeploy: (clientSlug: string, issueNumber: number, env: string) =>
-    apiFetch<unknown>(`/api/clients/${clientSlug}/issues/${issueNumber}/close-deploy`, {
-      method: 'POST',
-      body: JSON.stringify({ env }),
     }),
 }
 
@@ -250,12 +239,6 @@ export const aiApi = {
   getSuggestions: (clientSlug: string) =>
     apiFetch<unknown[]>(`/api/clients/${clientSlug}/ai/suggestions`),
 
-  /** Apply an AI suggestion (creates PR) */
-  applySuggestion: (clientSlug: string, suggestionId: string) =>
-    apiFetch<unknown>(`/api/clients/${clientSlug}/ai/suggestions/${suggestionId}/apply`, {
-      method: 'POST',
-    }),
-
   /** Get AI config */
   getConfig: () => apiFetch<unknown>('/api/ai/config'),
 
@@ -265,9 +248,6 @@ export const aiApi = {
       method: 'PUT',
       body: JSON.stringify(config),
     }),
-
-  /** Get AI usage stats */
-  getUsage: () => apiFetch<unknown>('/api/ai/usage'),
 }
 
 // ─── Audit ─────────────────────────────────────────────────────────────────

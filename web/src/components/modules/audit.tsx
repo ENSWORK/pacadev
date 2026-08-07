@@ -39,6 +39,7 @@ import { AuditTable } from '@/components/shared/audit-table'
 import { useAppStore } from '@/lib/store'
 import { auditApi } from '@/lib/api'
 import { useAsyncAction } from '@/hooks/use-async-action'
+import { useWebSocket } from '@/hooks/use-websocket'
 import { cn } from '@/lib/utils'
 import type { AuditLog } from '@/lib/types'
 
@@ -109,6 +110,43 @@ function toStreamEntry(log: AuditLog): LiveStreamEntry {
     user: log.user,
     action: mapAction(log.action),
     message: `${log.user} ${verb}${clientPart}${detailsPart}`,
+  }
+}
+
+// ─── Raw audit entries (WebSocket audit:snapshot / audit:new) ───────────────
+interface WsAuditEntry {
+  id?: string
+  ts?: string
+  timestamp?: string
+  action?: string
+  client?: string
+  issue?: number
+  branch?: string
+  module?: string | null
+  user?: string
+  details?: string
+}
+
+function toWsStreamEntry(entry: WsAuditEntry): LiveStreamEntry {
+  const raw = entry.ts ?? entry.timestamp ?? new Date().toISOString()
+  const d = new Date(raw)
+  const time = Number.isNaN(d.getTime())
+    ? new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  const verb = ACTION_VERB[entry.action ?? ''] ?? (entry.action ?? 'action')
+  const clientPart = entry.client ? ` ${entry.client}` : ''
+  let detailsPart = ''
+  if (entry.details) detailsPart = ` — ${entry.details}`
+  else if (entry.branch) detailsPart = ` — Branch: ${entry.branch}`
+  else if (entry.module) detailsPart = ` — Module: ${entry.module}`
+  else if (entry.issue) detailsPart = ` — Issue #${entry.issue}`
+  const user = entry.user ?? 'system'
+  return {
+    id: entry.id ?? `${raw}_${Math.random().toString(36).substring(2, 7)}`,
+    time,
+    user,
+    action: mapAction(entry.action ?? 'create'),
+    message: `${user} ${verb}${clientPart}${detailsPart}`,
   }
 }
 
@@ -196,6 +234,42 @@ export function AuditModule() {
     () => auditLogs.slice(-50).map(toStreamEntry),
     [auditLogs],
   )
+
+  // ── Live WebSocket audit stream (port 3003) ──
+  const [wsLiveEntries, setWsLiveEntries] = useState<LiveStreamEntry[]>([])
+  const { connected: wsConnected, subscribe } = useWebSocket()
+
+  useEffect(() => {
+    if (!liveEnabled) return
+    const offSnapshot = subscribe('audit:snapshot', (data) => {
+      const d = data as { logs?: WsAuditEntry[] }
+      if (!Array.isArray(d?.logs)) return
+      const entries = d.logs.map(toWsStreamEntry).reverse()
+      setWsLiveEntries((prev) => {
+        const ids = new Set(entries.map((e) => e.id))
+        return [...entries, ...prev.filter((e) => !ids.has(e.id))].slice(0, 50)
+      })
+    })
+    const offNew = subscribe('audit:new', (data) => {
+      const d = data as WsAuditEntry
+      if (!d || !d.action) return
+      const entry = toWsStreamEntry(d)
+      setWsLiveEntries((prev) => {
+        const ids = new Set(prev.map((e) => e.id))
+        if (ids.has(entry.id)) return prev
+        return [entry, ...prev].slice(0, 50)
+      })
+    })
+    return () => {
+      offSnapshot()
+      offNew()
+    }
+  }, [subscribe, liveEnabled])
+
+  const displayStream = useMemo(() => {
+    if (liveEnabled && wsConnected && wsLiveEntries.length > 0) return wsLiveEntries
+    return [...streamEntries].reverse()
+  }, [liveEnabled, wsConnected, wsLiveEntries, streamEntries])
 
   // ── Table filter state ──
   const [filterUser, setFilterUser] = useState<string>('all')
@@ -377,12 +451,12 @@ export function AuditModule() {
         <CardContent>
           <ScrollArea className="h-72 rounded-md border">
             <div className="divide-y divide-border">
-              {streamEntries.length === 0 && (
+              {displayStream.length === 0 && (
                 <div className="flex items-center justify-center h-20 text-xs text-muted-foreground">
                   Aucun événement dans le journal d&apos;audit
                 </div>
               )}
-              {[...streamEntries].reverse().map((entry) => (
+              {displayStream.map((entry) => (
                 <div
                   key={entry.id}
                   className={cn(
@@ -415,10 +489,18 @@ export function AuditModule() {
             </div>
           </ScrollArea>
           <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
-            <span>{streamEntries.length} événements</span>
-            {!liveEnabled && (
-              <span className="text-amber-600 dark:text-amber-400 font-medium">Flux en pause</span>
-            )}
+            <span>{displayStream.length} événements</span>
+            <span className="flex items-center gap-2">
+              {wsConnected && liveEnabled && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  WebSocket temps réel
+                </span>
+              )}
+              {!liveEnabled && (
+                <span className="text-amber-600 dark:text-amber-400 font-medium">Flux en pause</span>
+              )}
+            </span>
           </div>
         </CardContent>
       </Card>

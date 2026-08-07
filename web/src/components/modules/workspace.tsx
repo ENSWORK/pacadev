@@ -213,7 +213,7 @@ function TicketCreatorTab() {
   // Available modules fetched from API
   const [availableModules, setAvailableModules] = useState<{ id?: string; name: string; technicalName?: string; source?: string; status?: string }[]>([])
   useEffect(() => {
-    if (!clientSlug) { setAvailableModules([]); return }
+    if (!clientSlug) { queueMicrotask(() => setAvailableModules([])); return }
     fetch(`/api/clients/${clientSlug}/modules`)
       .then(r => r.json())
       .then(d => { if (d.success) setAvailableModules(d.data) })

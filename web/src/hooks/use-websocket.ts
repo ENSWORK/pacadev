@@ -1,59 +1,75 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { useAppStore } from '@/lib/store'
 
-export function useWebSocket() {
-  const [connected, setConnected] = useState(false)
-  const socketRef = useRef<Socket | null>(null)
-  const setWsConnected = useAppStore((s) => s.setWsConnected)
+// Socket partagé (singleton module) : tous les appels à useWebSocket()
+// réutilisent la même connexion vers le service WS (port 3003).
+let sharedSocket: Socket | null = null
+let connectedFlag = false
 
-  useEffect(() => {
-    // Detect local/dev environment: localhost, 192.168.x.x, or *.pacadev.local
+function getSocket(): Socket {
+  if (!sharedSocket) {
     // URL du WebSocket : toujours le même hôte que la page, port 3003.
     // - Navigateur sur le serveur (localhost) → localhost:3003 (direct)
     // - Accès réseau (pacadev.local, IP, …)  → <hôte>:3003 (port WS exposé côté hôte)
     // NB : "http://localhost:3003" en dur cassait l'accès distant (résolu côté navigateur).
     const WS_URL = `${window.location.protocol}//${window.location.hostname}:3003`
-    const socket = io(WS_URL, {
+    sharedSocket = io(WS_URL, {
       path: '/',
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 3000,
     })
+  }
+  return sharedSocket
+}
 
-    socket.on('connect', () => {
-      console.log('[WS] Connected to WebSocket service')
+export function useWebSocket() {
+  const [connected, setConnected] = useState(connectedFlag)
+  const setWsConnected = useAppStore((s) => s.setWsConnected)
+
+  useEffect(() => {
+    const socket = getSocket()
+
+    const handleConnect = () => {
+      connectedFlag = true
       setConnected(true)
       setWsConnected(true)
-    })
-
-    socket.on('disconnect', (reason) => {
-      console.log(`[WS] Disconnected: ${reason}`)
+    }
+    const handleDisconnect = (reason: string) => {
+      connectedFlag = false
       setConnected(false)
       setWsConnected(false)
-    })
-
-    socket.on('connect_error', (error) => {
-      console.error('[WS] Connection error:', error.message)
+      void reason
+    }
+    const handleError = () => {
+      connectedFlag = false
       setConnected(false)
       setWsConnected(false)
-    })
+    }
 
-    socketRef.current = socket
+    // Si déjà connectée, resynchroniser l'état local immédiatement
+    if (socket.connected && !connectedFlag) handleConnect()
+
+    socket.on('connect', handleConnect)
+    socket.on('disconnect', handleDisconnect)
+    socket.on('connect_error', handleError)
 
     return () => {
-      socket.disconnect()
+      socket.off('connect', handleConnect)
+      socket.off('disconnect', handleDisconnect)
+      socket.off('connect_error', handleError)
     }
   }, [setWsConnected])
 
   const subscribe = useCallback(
     (event: string, callback: (data: unknown) => void) => {
-      socketRef.current?.on(event, callback)
+      getSocket().on(event, callback)
       return () => {
-        socketRef.current?.off(event, callback)
+        getSocket().off(event, callback)
       }
     },
     []
@@ -61,21 +77,21 @@ export function useWebSocket() {
 
   const unsubscribe = useCallback(
     (event: string, callback: (data: unknown) => void) => {
-      socketRef.current?.off(event, callback)
+      getSocket().off(event, callback)
     },
     []
   )
 
   const joinRoom = useCallback((room: string) => {
-    socketRef.current?.emit('join', room)
+    getSocket().emit('join', room)
   }, [])
 
   const leaveRoom = useCallback((room: string) => {
-    socketRef.current?.emit('leave', room)
+    getSocket().emit('leave', room)
   }, [])
 
   const ping = useCallback(() => {
-    socketRef.current?.emit('ping')
+    getSocket().emit('ping')
   }, [])
 
   return {

@@ -62,7 +62,7 @@ PYEOF
 echo ""
 echo "🔒 Protection branches..."
 # Pousser d'abord main et staging depuis le template
-CLIENT_DIR="/data/Pacadev/v${ODOO}/clients/${CLIENT}"
+CLIENT_DIR="/home/pacadev/pacadev/v${ODOO}/clients/${CLIENT}"
 if [ -d "$CLIENT_DIR" ] && [ -d "$CLIENT_DIR/.git" ]; then
   cd "$CLIENT_DIR"
   git remote add origin "https://$(gh auth token)@github.com/${REPO}.git" 2>/dev/null || true

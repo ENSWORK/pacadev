@@ -58,11 +58,11 @@ Un seul réseau Docker (`pacadev-network`) connecte tous les services :
 │        │                        │                 │
 │        └──────── pacadev-network ────────────────┘
 │                       │
-│        ┌──────────────┼──────────────┐
-│        ▼              ▼              ▼
-│   afrequip_odoo  mecafric_odoo   maxelec_odoo
-│   :8070           :8071           :8072
-└──────────────────────────────────────────────────┘
+│        ┌──────────────┐
+│        ▼              ▼
+│   afrequip_odoo  mecafric_odoo
+│   :8070           :8071
+└──────────────────────────────────────────┘
 ```
 
 Chaque client Odoo accède au PostgreSQL partagé et est accessible via `<client>.pacadev.local` grâce aux labels Traefik.
@@ -140,7 +140,6 @@ DEV (prêt push)
 | afrequip        | 17          | 8070      | afrequip.pacadev.local        | DEV         |
 | mecafric        | 17          | —         | mecafric.pacadev.local        | Initialisé  |
 | mecafric_water  | 17          | —         | mecafric_water.pacadev.local  | Initialisé  |
-| maxelec         | 17          | —         | maxelec.pacadev.local         | Initialisé  |
 
 ---
 
@@ -234,7 +233,7 @@ open http://localhost:8070
 
 Ajouter à `/etc/hosts` si pas encore fait :
 ```
-127.0.0.1  afrequip.pacadev.local mecafric.pacadev.local maxelec.pacadev.local dashboard.pacadev.local
+127.0.0.1  afrequip.pacadev.local mecafric.pacadev.local mecafric_water.pacadev.local sofetelec.pacadev.local dashboard.pacadev.local
 ```
 
 ---
