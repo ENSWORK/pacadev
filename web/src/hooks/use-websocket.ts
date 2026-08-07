@@ -11,15 +11,11 @@ export function useWebSocket() {
 
   useEffect(() => {
     // Detect local/dev environment: localhost, 192.168.x.x, or *.pacadev.local
-    const isLocal = typeof window !== 'undefined' && (
-      window.location.hostname === 'localhost' ||
-      window.location.hostname.startsWith('192.168.') ||
-      window.location.hostname.endsWith('.pacadev.local') ||
-      window.location.hostname === 'pacadev.local'
-    )
-    const WS_URL = isLocal
-      ? 'http://localhost:3003'   // direct (dev / Traefik local)
-      : '/?XTransformPort=3003'   // Caddy gateway (production)
+    // URL du WebSocket : toujours le même hôte que la page, port 3003.
+    // - Navigateur sur le serveur (localhost) → localhost:3003 (direct)
+    // - Accès réseau (pacadev.local, IP, …)  → <hôte>:3003 (port WS exposé côté hôte)
+    // NB : "http://localhost:3003" en dur cassait l'accès distant (résolu côté navigateur).
+    const WS_URL = `${window.location.protocol}//${window.location.hostname}:3003`
     const socket = io(WS_URL, {
       path: '/',
       transports: ['websocket', 'polling'],
