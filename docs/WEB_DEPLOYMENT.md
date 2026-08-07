@@ -95,11 +95,13 @@ curl -s "http://localhost:3003/?EIO=4&transport=polling"   # → "0{...}"
 
 ## 7. Points de vigilance (IMPORTANT)
 
-- **⚠ Gitlink sur `dev/cli/gestion-modules`** : sur cette branche, `web/` est un
-  **gitlink** (une seule entrée suivie) alors que `main` suit le **code réel**
-  (182 fichiers). Un checkout sur le gitlink **supprime les fichiers web/ du
-  disque** (fichiers suivis retirés). Ça s'est produit une fois : restauration
-  immédiate sans toucher au checkout utilisateur :
+- **Conflit gitlink `web/` — RÉSOLU** : la branche parallèle
+  `dev/cli/gestion-modules` portait `web/` comme **gitlink** (une seule entrée)
+  alors que `main` suit le code réel (181 fichiers). Un checkout dessus
+  **supprimait les fichiers web/ du disque**. Le 2026-08-07, `origin/main` a été
+  **mergé dans `dev/cli/gestion-modules`** (merge `9f8908a`) avec `web/` résolu
+  vers le code réel → plus aucun risque de suppression au checkout. Procédure de
+  restauration conservée au cas où le cas se reproduirait :
   ```bash
   git archive dev/web/restore-dashboard web | tar -x -C ~/pacadev
   # puis ré-écrire web/.env + web/db/custom.db (hors git)
@@ -109,8 +111,8 @@ curl -s "http://localhost:3003/?EIO=4&transport=polling"   # → "0{...}"
   jusqu'au restart, qui échouerait ensuite.
 - **`versions.json`** est la source des clients affichés (afrequip, mecafric,
   mecafric_water, sofetelec — maxelec retiré volontairement). Il est déjà à jour.
-- La **branche du checkout utilisateur** (`dev/cli/gestion-modules`) est en retard
-  sur `main` : pour retrouver le dashboard versionné dessus, merger `main`.
+- `web/.env` et `web/db/custom.db` sont **hors git** (ignorés) : à restaurer
+  manuellement après un clone/checkout frais.
 
 ## 8. Améliorations possibles (non faites)
 
