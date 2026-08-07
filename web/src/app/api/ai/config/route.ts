@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
-import { mockAIConfig } from '@/lib/mock-data';
+import { readAIConfig, writeAIConfig } from '@/lib/pacadev-service';
 import type { APIResponse, AIConfig } from '@/lib/types';
 
 export async function GET() {
+  const data = readAIConfig();
+
   const response: APIResponse<AIConfig> = {
     success: true,
-    data: mockAIConfig,
+    data,
     meta: {
       timestamp: new Date().toISOString(),
       user: 'admin@enswork.com',
@@ -19,11 +21,8 @@ export async function GET() {
 export async function PUT(request: Request) {
   const body = await request.json().catch(() => ({}));
 
-  // Merge the body with the mock config (simulating an update)
-  const updatedConfig: AIConfig = {
-    ...mockAIConfig,
-    ...(body as Partial<AIConfig>),
-  };
+  // Merge the body with the persisted config (real, fichier état)
+  const updatedConfig = writeAIConfig(body);
 
   const response: APIResponse<AIConfig> = {
     success: true,

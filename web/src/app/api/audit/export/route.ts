@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { mockAuditLogs } from '@/lib/mock-data';
+import { readAuditLog } from '@/lib/pacadev-service';
 import type { APIResponse } from '@/lib/types';
 
 export async function GET(request: Request) {
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const from = searchParams.get('from');
   const to = searchParams.get('to');
 
-  let logs = [...mockAuditLogs];
+  let logs = readAuditLog();
 
   if (user) {
     logs = logs.filter((l) => l.user === user);
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
     const headers = 'id,user,action,client,details,reason,createdAt';
     const rows = logs.map(
       (l) =>
-        `${l.id},"${l.user}","${l.action}","${l.client ?? ''}","${l.details ?? ''}","${l.reason ?? ''}","${l.createdAt}"`
+        `${l.id},"${l.user}","${l.action}","${l.client ?? ''}","${(l.details ?? '').replace(/"/g, '""')}","${(l.reason ?? '').replace(/"/g, '""')}","${l.createdAt}"`
     );
     const csv = [headers, ...rows].join('\n');
 

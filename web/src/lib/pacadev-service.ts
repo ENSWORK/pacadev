@@ -5,6 +5,7 @@ import { spawnSync } from 'child_process';
 import type {
   ClientData,
   AuditLog,
+  AIConfig,
   UserRole,
   DashboardStats,
   Pipeline,
@@ -153,6 +154,34 @@ export function readAuditLog(): AuditLog[] {
     console.error(`Failed to read audit-log.jsonl: ${err}`);
     return [];
   }
+}
+
+// ============ AI CONFIG (persisté sur disque) ============
+const DEFAULT_AI_CONFIG: AIConfig = {
+  id: 'cfg_001',
+  model: 'claude-3.5-sonnet',
+  maxTokens: 4000,
+  fallbackModel: 'gpt-4o',
+  costThreshold: 50.0,
+  autoMerge: false,
+  autoDeploy: false,
+  autoRollback: false,
+};
+
+export function readAIConfig(): AIConfig {
+  const file = path.join(PACADEV_HOME, 'state', 'ai-config.json');
+  try {
+    return { ...DEFAULT_AI_CONFIG, ...JSON.parse(fs.readFileSync(file, 'utf-8')) };
+  } catch {
+    return { ...DEFAULT_AI_CONFIG };
+  }
+}
+
+export function writeAIConfig(patch: Record<string, unknown>): AIConfig {
+  const current = readAIConfig();
+  const next = { ...current, ...patch };
+  fs.writeFileSync(path.join(PACADEV_HOME, 'state', 'ai-config.json'), JSON.stringify(next, null, 2));
+  return next;
 }
 
 // ============ CLIENT MAPPING ============

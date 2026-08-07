@@ -28,6 +28,7 @@ import {
   Lock,
   Key,
   FileText,
+  MessageSquare,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -278,7 +279,7 @@ function SuggestionsIA() {
   const [applyWarningOpen, setApplyWarningOpen] = useState(false)
   const [sensitivePromptOpen, setSensitivePromptOpen] = useState(false)
   const [selectedSuggestionId, setSelectedSuggestionId] = useState<string | null>(null)
-  const { loading: applyLoading, execute: executeApply } = useAsyncAction()
+  const { loading: applyLoading } = useAsyncAction()
   const { loading: ignoreLoading, execute: executeIgnore } = useAsyncAction()
   const { toast } = useToast()
 
@@ -296,11 +297,6 @@ function SuggestionsIA() {
 
   const handleConfirmApply = () => {
     if (!selectedSuggestionId) return
-    const slug = 'acmecorp'
-    executeApply(
-      () => aiApi.applySuggestion(slug, selectedSuggestionId),
-      { successMessage: 'Suggestion appliquée — PR créée' }
-    )
     setApplyWarningOpen(false)
     setSelectedSuggestionId(null)
   }
@@ -604,14 +600,12 @@ function ContexteIA() {
   const [scopeEditOpen, setScopeEditOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const { loading: scopeLoading, execute: executeScopeUpdate } = useAsyncAction()
-  const { loading: historyLoading, execute: executeHistoryFetch } = useAsyncAction()
 
   const handleEditScope = () => {
     setScopeEditOpen(true)
   }
 
   const handleViewHistory = () => {
-    executeHistoryFetch(() => aiApi.getUsage(), { successMessage: 'Historique chargé' })
     setHistoryOpen(true)
   }
 
@@ -692,7 +686,6 @@ function ContexteIA() {
             variant="outline"
             size="sm"
             className="h-8 text-xs gap-1.5"
-            disabled={historyLoading}
             onClick={handleViewHistory}
           >
             <History className="size-3.5" />
@@ -751,22 +744,12 @@ function ContexteIA() {
             </DialogHeader>
             <ScrollArea className="h-[300px]">
               <div className="space-y-3">
-                {[
-                  { time: '13/05/2026 14:30', prompt: 'Analyse du risque pour acmecorp commit abc123', tokens: 2450 },
-                  { time: '13/05/2026 12:15', prompt: 'Suggestions d\'amélioration pour acmecorp_custom', tokens: 3200 },
-                  { time: '12/05/2026 18:45', prompt: 'Vérification sécurité module reports', tokens: 1800 },
-                  { time: '12/05/2026 10:00', prompt: 'Review des changements schema pour globex', tokens: 4100 },
-                ].map((entry, i) => (
-                  <div key={i} className="rounded-md border p-2.5 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-muted-foreground">{entry.time}</span>
-                      <Badge variant="outline" className="text-[10px] h-4">
-                        {entry.tokens} tokens
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-foreground/80">{entry.prompt}</p>
-                  </div>
-                ))}
+                <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+                  <MessageSquare className="size-6 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">
+                    Aucun historique disponible — les prompts envoyés seront listés ici.
+                  </p>
+                </div>
               </div>
             </ScrollArea>
             <DialogFooter>
