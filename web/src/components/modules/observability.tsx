@@ -59,6 +59,7 @@ import { useAppStore } from '@/lib/store'
 import type { ServiceHealth } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useAsyncAction } from '@/hooks/use-async-action'
+import { useWebSocket } from '@/hooks/use-websocket'
 import { monitorApi, testApi } from '@/lib/api'
 
 // Level badge color mapping
@@ -122,6 +123,13 @@ const serviceTypePort: Record<string, string> = {
   traefik: '8080',
   db: '5432',
   tailscale: '41641',
+}
+
+interface ContainerMetric {
+  cpu: number
+  memPercent: number
+  running: boolean
+  timestamp: string
 }
 
 export function ObservabilityModule() {
@@ -223,6 +231,27 @@ export function ObservabilityModule() {
   useEffect(() => {
     fetch('/api/services').then(r => r.json()).then(d => { if (d.success) setRealServices(d.data) }).catch(() => {})
   }, [])
+
+  // Métriques conteneurs Docker (temps réel via WebSocket port 3003)
+  const [containerMetrics, setContainerMetrics] = useState<Record<string, ContainerMetric>>({})
+  const { connected: wsConnected, subscribe } = useWebSocket()
+
+  useEffect(() => {
+    const offMetrics = subscribe('metrics:update', (data) => {
+      const d = data as { client?: string; cpu?: number; memPercent?: number; containerRunning?: boolean; timestamp?: string }
+      if (!d?.client) return
+      setContainerMetrics((prev) => ({
+        ...prev,
+        [d.client!]: {
+          cpu: d.cpu ?? 0,
+          memPercent: d.memPercent ?? 0,
+          running: !!d.containerRunning,
+          timestamp: d.timestamp ?? '',
+        },
+      }))
+    })
+    return offMetrics
+  }, [subscribe])
 
   // Smoke tests state (no automation yet)
   const smokeTests: { id: string; name: string; status: string; duration: number; lastRun: string }[] = []
@@ -335,6 +364,74 @@ export function ObservabilityModule() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Section 1b: Métriques conteneurs (temps réel Docker) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Container className="size-5" />
+            Métriques conteneurs (Docker temps réel)
+          </h3>
+          {wsConnected ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              LIVE
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
+              WS hors ligne
+            </span>
+          )}
+        </div>
+        {Object.keys(containerMetrics).length === 0 ? (
+          <div className="rounded-lg border bg-muted/30 py-8 text-center text-sm text-muted-foreground">
+            {wsConnected
+              ? 'En attente des métriques Docker (cycle 10s)...'
+              : 'Connexion au service WebSocket (port 3003) en cours...'}
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Object.entries(containerMetrics).map(([slug, m]) => (
+              <Card key={slug}>
+                <CardContent className="pt-6 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <Container className={cn('size-4', m.running ? 'text-emerald-600' : 'text-red-500')} />
+                      {slug}
+                    </div>
+                    <Badge variant="outline" className={cn('text-[10px]', m.running ? 'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300' : 'border-red-300 text-red-600 dark:border-red-700 dark:text-red-400')}>
+                      {m.running ? 'actif' : 'arrêté'}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Cpu className="size-3" />
+                        CPU
+                      </div>
+                      <span className="text-xl font-bold">{m.cpu.toFixed(1)}%</span>
+                      <Progress value={Math.min(m.cpu, 100)} className="mt-1 h-1.5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MemoryStick className="size-3" />
+                        Mémoire
+                      </div>
+                      <span className="text-xl font-bold">{m.memPercent.toFixed(1)}%</span>
+                      <Progress value={Math.min(m.memPercent, 100)} className="mt-1 h-1.5" />
+                    </div>
+                  </div>
+                  {m.timestamp && (
+                    <div className="text-[10px] text-muted-foreground">
+                      Dernière mesure : {format(new Date(m.timestamp), 'HH:mm:ss')}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Section 2: Recherche logs */}
