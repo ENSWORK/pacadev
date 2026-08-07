@@ -155,12 +155,16 @@ export function ObservabilityModule() {
   // SSE stream for live logs when a specific client is selected
   useEffect(() => {
     if (logClient === 'all') {
-      setLiveLogEntries([])
-      setLiveStreaming(false)
+      queueMicrotask(() => {
+        setLiveLogEntries([])
+        setLiveStreaming(false)
+      })
       return
     }
-    setLiveLogEntries([])
-    setLiveStreaming(true)
+    queueMicrotask(() => {
+      setLiveLogEntries([])
+      setLiveStreaming(true)
+    })
     const es = new EventSource(`/api/clients/${logClient}/logs/stream?lines=50`)
     es.onmessage = (e) => {
       try {

@@ -161,6 +161,13 @@ export const issueApi = {
       method: 'POST',
       body: JSON.stringify({ module, title, milestone }),
     }),
+
+  /** CLI: pacadev issue update <N> --comment <C> / --close / --label <L> */
+  update: (clientSlug: string, issueNumber: number, updates: { comment?: string; close?: boolean; label?: string }) =>
+    apiFetch<unknown>(`/api/clients/${clientSlug}/issues/${issueNumber}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    }),
 }
 
 // ─── Secrets ───────────────────────────────────────────────────────────────

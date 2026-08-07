@@ -252,7 +252,7 @@ function ModulesTab({ clientSlug }: { clientSlug: string }) {
   const { loading: upgradeLoading, execute: executeUpgrade } = useAsyncAction()
 
   useEffect(() => {
-    setModulesLoading(true)
+    queueMicrotask(() => setModulesLoading(true))
     fetch(`/api/clients/${clientSlug}/modules`)
       .then((r) => r.json())
       .then((d) => { if (d.success && d.data.length > 0) setModules(d.data) })
@@ -373,7 +373,7 @@ function BranchesTab({ clientSlug, clientName }: { clientSlug: string; clientNam
   const [gateOpen, setGateOpen] = useState(false)
 
   useEffect(() => {
-    setBranchesLoading(true)
+    queueMicrotask(() => setBranchesLoading(true))
     fetch(`/api/clients/${clientSlug}/branches`)
       .then((r) => r.json())
       .then((d) => {
@@ -662,7 +662,7 @@ function VersionsTab({ client, clientName }: { client: ClientData; clientName: s
   const { loading: rollbackLoading, execute: executeRollback } = useAsyncAction()
 
   useEffect(() => {
-    setVersionsLoading(true)
+    queueMicrotask(() => setVersionsLoading(true))
     fetch(`/api/clients/${client.slug}/versions`)
       .then((r) => r.json())
       .then((d) => { if (d.success) setVersionData(d.data) })

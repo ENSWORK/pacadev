@@ -147,7 +147,7 @@ function ScoreRisqueTempsReel() {
   const [riskLoading, setRiskLoading] = useState(false)
 
   useEffect(() => {
-    setRiskLoading(true)
+    queueMicrotask(() => setRiskLoading(true))
     fetch(`/api/clients/${selectedClient}/ai/risk`)
       .then((r) => r.json())
       .then((d) => { if (d.success && d.data) setRealRisk(d.data) })

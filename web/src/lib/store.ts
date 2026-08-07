@@ -63,6 +63,8 @@ interface AppState {
   setSidebarOpen: (open: boolean) => void;
   commandPaletteOpen: boolean;
   setCommandPaletteOpen: (open: boolean) => void;
+  helpDialogOpen: boolean;
+  setHelpDialogOpen: (open: boolean) => void;
   ticketCreatorOpen: boolean;
   setTicketCreatorOpen: (open: boolean) => void;
 
@@ -106,6 +108,8 @@ export const useAppStore = create<AppState>((set) => ({
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   commandPaletteOpen: false,
   setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
+  helpDialogOpen: false,
+  setHelpDialogOpen: (open) => set({ helpDialogOpen: open }),
   ticketCreatorOpen: false,
   setTicketCreatorOpen: (open) => set({ ticketCreatorOpen: open }),
   

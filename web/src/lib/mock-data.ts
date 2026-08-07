@@ -339,7 +339,7 @@ export const mockLogEntries: LogEntry[] = [
 ];
 
 // ============ SESSION INFO ============
-import type { UserSession, BackupSecurityInfo, SecurityScanResult } from './types';
+import type { BackupSecurityInfo, SecurityScanResult } from './types';
 
 export const mockSessionInfo: UserSession & { expiresAt: string; startedAt: string; ip: string; mfaEnabled: boolean } = {
   email: 'admin@enswork.com',

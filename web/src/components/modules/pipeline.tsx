@@ -458,7 +458,7 @@ function SecuritePipeline({ clientSlug, refreshKey }: { clientSlug: string; refr
 
   useEffect(() => {
     if (!clientSlug) return
-    setLoading(true)
+    queueMicrotask(() => setLoading(true))
     fetch(`/api/security/scan?client=${clientSlug}`)
       .then((r) => r.json())
       .then((d) => { if (d.success && d.data) setScan(d.data) })
@@ -815,7 +815,7 @@ function GateValidation({ clientSlug, refreshKey }: { clientSlug: string; refres
 
   useEffect(() => {
     if (!clientSlug) return
-    setLoadingApprovals(true)
+    queueMicrotask(() => setLoadingApprovals(true))
     fetch(`/api/clients/${clientSlug}/deploy/approval`)
       .then((r) => r.json())
       .then((d) => {
@@ -1165,7 +1165,7 @@ export function PipelineModule() {
 
   useEffect(() => {
     if (clients.length > 0 && !selectedSlug) {
-      setSelectedSlug(clients[0].slug)
+      queueMicrotask(() => setSelectedSlug(clients[0].slug))
     }
   }, [clients, selectedSlug])
 
