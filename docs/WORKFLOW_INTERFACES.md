@@ -15,6 +15,9 @@ possible.
 La vue `M:` est un cache périmé (fichiers fantômes observés). Tout passe par le
 serveur, via SSH.
 
+Le dashboard web PACADEV suit la même règle : le code vit dans `web/` sur `main`.
+Voir `docs/WEB_DEPLOYMENT.md` pour son déploiement et sa maintenance.
+
 ## 2. Les 3 interfaces d'accès au serveur
 
 | Interface | Connexion | Usage recommandé |
@@ -88,3 +91,17 @@ Puis poursuivre le travail au même endroit (branche = point de reprise).
 - **CI Lint** ne scanne que `v17/clients/*/addons/ens_core/**` (ruff `--select
   E,F,W` + xmllint) : tout module nouveau dans `ens_core` doit passer `ruff check`
   et avoir un manifest `17.0.x.x.x` valide avant push.
+- **⚠ Gitlink `web/` sur `dev/cli/gestion-modules`** : sur cette branche `web/`
+  est un gitlink (une entrée) alors que `main` suit le code réel. Un checkout sur
+  le gitlink **efface les fichiers web/ du disque** — restaurer via
+  `git archive dev/web/restore-dashboard web | tar -x -C ~/pacadev` (+ `web/.env`
+  et `web/db/custom.db`) et ne pas redémarrer `next` avant la restauration.
+
+## 8. Web PACADEV (dashboard)
+
+Déployé sur le serveur (Next.js :3000 + WebSocket :3003, derrière Traefik).
+Documentation complète : **`docs/WEB_DEPLOYMENT.md`** (architecture, prérequis
+serveur, units systemd, santé, points de vigilance).
+
+État au 2026-08-07 : restauré sur `main` (PR #14), pipeline vert (PR #15),
+ws-service avec collecte Docker **asynchrone** (event loop non bloquée).
