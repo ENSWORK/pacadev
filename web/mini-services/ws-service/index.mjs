@@ -3,7 +3,7 @@ import { Server } from 'socket.io'
 import fs from 'fs'
 import { execSync } from 'child_process'
 
-const PACADEV_HOME = process.env.PACADEV_HOME || '/home/abdelali/.pacadev'
+const PACADEV_HOME = process.env.PACADEV_HOME || '/home/pacadev/.pacadev'
 const DOCKER_BIN = process.env.DOCKER_BIN || '/usr/bin/docker'
 
 const httpServer = createServer()

@@ -9,3 +9,4 @@ db/*.db
 *.tsbuildinfo
 *.log
 server.log
+package-lock.json
