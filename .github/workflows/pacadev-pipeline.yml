@@ -46,7 +46,7 @@ jobs:
                                    -path "*/addons/ens_core/**/*.xml" 2>/dev/null)
           FILES="$FILES $(find modules/ens_core-17 -name '*.xml' 2>/dev/null)"
           if [ -n "$FILES" ]; then
-            echo "$FILES" | while read f; do
+            for f in $FILES; do
               xmllint --noout "$f" && echo "OK: $f" || exit 1
             done
           else
@@ -74,7 +74,7 @@ jobs:
           FILES="$FILES $(find modules/ens_core-17 -name '*.py' 2>/dev/null \
                   | grep -v __pycache__)"
           if [ -n "$FILES" ]; then
-            echo "$FILES" | xargs -I{} python -m py_compile {} && echo "Syntaxe Python OK"
+            for f in $FILES; do python -m py_compile "$f" || exit 1; done && echo "Syntaxe Python OK"
           else
             echo "Aucun fichier Python à analyser"
           fi
@@ -154,7 +154,7 @@ jobs:
           FILES="$FILES $(find modules/ens_core-17 -name '*.py' 2>/dev/null \
                   | grep -v __pycache__)"
           if [ -n "$FILES" ]; then
-            echo "$FILES" | xargs bandit -ll -q --exit-zero
+            for f in $FILES; do bandit -ll -q --exit-zero "$f"; done
           else
             echo "Aucun fichier Python à analyser"
           fi
