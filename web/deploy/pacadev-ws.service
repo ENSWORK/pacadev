@@ -1,0 +1,22 @@
+[Unit]
+Description=PACADEV WebSocket Service (Socket.io port 3003)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pacadev/pacadev/web/mini-services/ws-service
+
+Environment=HOME=/home/pacadev
+Environment=PACADEV_HOME=/home/pacadev/.pacadev
+Environment=PACADEV_WORKSPACE=/home/pacadev/pacadev
+Environment=DOCKER_BIN=/usr/bin/docker
+Environment=PATH=/home/pacadev/.nvm/versions/node/v20.19.6/bin:/usr/bin:/usr/local/bin:/bin
+
+ExecStart=/home/pacadev/.nvm/versions/node/v20.19.6/bin/node index.mjs
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Install]
+WantedBy=default.target
