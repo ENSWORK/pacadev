@@ -1,7 +1,12 @@
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import fs from 'fs'
-import { execSync } from 'child_process'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+
+const execAsync = promisify(exec)
+const PACADEV_HOME = process.env.PACADEV_HOME || '/home/pacadev/.pacadev'
+const DOCKER_BIN = process.env.DOCKER_BIN || '/usr/bin/docker'
 
 const httpServer = createServer()
 const io = new Server(httpServer, {
@@ -14,16 +19,22 @@ const io = new Server(httpServer, {
 // --- Load real PACADEV clients ---
 function loadRealClients(): string[] {
   try {
-    const data = JSON.parse(fs.readFileSync('/home/pacadev/.pacadev/state/versions.json', 'utf-8'))
+    const data = JSON.parse(fs.readFileSync(`${PACADEV_HOME}/state/versions.json`, 'utf-8'))
     return Object.keys(data.clients || {})
   } catch {
     return ['afrequip', 'mecafric', 'specta']
   }
 }
 
-function getDockerStats(slug: string): { cpu: number; memPercent: number; running: boolean } {
+interface DockerStats { cpu: number; memPercent: number; running: boolean }
+
+async function getDockerStats(slug: string): Promise<DockerStats> {
   try {
-    const out = execSync(`docker stats --no-stream --format "{{.CPUPerc}}\t{{.MemPerc}}" ${slug}_odoo`, { encoding: 'utf-8', timeout: 5000 }).trim()
+    const { stdout } = await execAsync(
+      `${DOCKER_BIN} stats --no-stream --format "{{.CPUPerc}}\t{{.MemPerc}}" ${slug}_odoo`,
+      { encoding: 'utf-8', timeout: 5000 },
+    )
+    const out = stdout.trim()
     if (!out) return { cpu: 0, memPercent: 0, running: false }
     const [cpuStr, memStr] = out.split('\t')
     return { cpu: parseFloat(cpuStr) || 0, memPercent: parseFloat(memStr) || 0, running: true }
@@ -32,10 +43,14 @@ function getDockerStats(slug: string): { cpu: number; memPercent: number; runnin
   }
 }
 
+async function getAllDockerStats(clients: string[]): Promise<{ slug: string; stats: DockerStats }[]> {
+  return Promise.all(clients.map(async (slug) => ({ slug, stats: await getDockerStats(slug) })))
+}
+
 function tailAuditLog(lines = 5): object[] {
   try {
-    const data = fs.readFileSync('/home/pacadev/.pacadev/state/audit-log.jsonl', 'utf-8')
-    return data.trim().split('\n').filter(Boolean).slice(-lines).map(l => JSON.parse(l))
+    const data = fs.readFileSync(`${PACADEV_HOME}/state/audit-log.jsonl`, 'utf-8')
+    return data.trim().split('\n').filter(Boolean).slice(-lines).map((l) => JSON.parse(l))
   } catch {
     return []
   }
@@ -72,20 +87,26 @@ io.on('connection', (socket) => {
 
 // --- Real periodic events ---
 
-// Every 10s: Docker metrics for running clients
-setInterval(() => {
-  const clients = loadRealClients()
-  for (const slug of clients) {
-    const stats = getDockerStats(slug)
-    const event = {
-      client: slug,
-      cpu: stats.cpu,
-      memPercent: stats.memPercent,
-      containerRunning: stats.running,
-      timestamp: new Date().toISOString(),
+// Every 10s: Docker metrics (async, non bloquant pour l'event loop)
+let metricsCycleRunning = false
+setInterval(async () => {
+  if (metricsCycleRunning) return
+  metricsCycleRunning = true
+  try {
+    const results = await getAllDockerStats(loadRealClients())
+    for (const { slug, stats } of results) {
+      const event = {
+        client: slug,
+        cpu: stats.cpu,
+        memPercent: stats.memPercent,
+        containerRunning: stats.running,
+        timestamp: new Date().toISOString(),
+      }
+      io.to(`metrics:${slug}`).emit('metrics:update', event)
+      io.emit('metrics:update', event)
     }
-    io.to(`metrics:${slug}`).emit('metrics:update', event)
-    io.emit('metrics:update', event)
+  } catch { /* ignore */ } finally {
+    metricsCycleRunning = false
   }
 }, 10_000)
 
@@ -104,24 +125,30 @@ setInterval(() => {
   } catch { /* ignore */ }
 }, 20_000)
 
-// Every 30s: Docker container health check
-setInterval(() => {
-  const clients = loadRealClients()
-  for (const slug of clients) {
-    const stats = getDockerStats(slug)
-    if (!stats.running) {
-      const alert = {
-        id: `alert-${generateId()}`,
-        clientId: slug,
-        level: 'critical',
-        message: `Container ${slug}_odoo non actif`,
-        source: 'Docker',
-        timestamp: new Date().toISOString(),
+// Every 30s: Docker container health check (async)
+let alertsCycleRunning = false
+setInterval(async () => {
+  if (alertsCycleRunning) return
+  alertsCycleRunning = true
+  try {
+    const results = await getAllDockerStats(loadRealClients())
+    for (const { slug, stats } of results) {
+      if (!stats.running) {
+        const alert = {
+          id: `alert-${generateId()}`,
+          clientId: slug,
+          level: 'critical',
+          message: `Container ${slug}_odoo non actif`,
+          source: 'Docker',
+          timestamp: new Date().toISOString(),
+        }
+        io.to(`alerts:${slug}`).emit('alert:new', alert)
+        io.emit('alert:new', alert)
+        console.log(`[EVENT] alert:new → level=critical, client=${slug}, container down`)
       }
-      io.to(`alerts:${slug}`).emit('alert:new', alert)
-      io.emit('alert:new', alert)
-      console.log(`[EVENT] alert:new → level=critical, client=${slug}, container down`)
     }
+  } catch { /* ignore */ } finally {
+    alertsCycleRunning = false
   }
 }, 30_000)
 

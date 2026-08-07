@@ -1,8 +1,10 @@
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import fs from 'fs'
-import { execSync } from 'child_process'
+import { exec } from 'child_process'
+import { promisify } from 'util'
 
+const execAsync = promisify(exec)
 const PACADEV_HOME = process.env.PACADEV_HOME || '/home/pacadev/.pacadev'
 const DOCKER_BIN = process.env.DOCKER_BIN || '/usr/bin/docker'
 
@@ -23,11 +25,13 @@ function loadRealClients() {
   }
 }
 
-function getDockerStats(slug) {
+async function getDockerStats(slug) {
   try {
-    const out = execSync(`${DOCKER_BIN} stats --no-stream --format "{{.CPUPerc}}\t{{.MemPerc}}" ${slug}_odoo`, {
-      encoding: 'utf-8', timeout: 5000,
-    }).trim()
+    const { stdout } = await execAsync(
+      `${DOCKER_BIN} stats --no-stream --format "{{.CPUPerc}}\t{{.MemPerc}}" ${slug}_odoo`,
+      { encoding: 'utf-8', timeout: 5000 },
+    )
+    const out = stdout.trim()
     if (!out) return { cpu: 0, memPercent: 0, running: false }
     const [cpuStr, memStr] = out.split('\t')
     return { cpu: parseFloat(cpuStr) || 0, memPercent: parseFloat(memStr) || 0, running: true }
@@ -36,10 +40,14 @@ function getDockerStats(slug) {
   }
 }
 
+async function getAllDockerStats(clients) {
+  return Promise.all(clients.map(async (slug) => ({ slug, stats: await getDockerStats(slug) })))
+}
+
 function tailAuditLog(lines = 5) {
   try {
     const data = fs.readFileSync(`${PACADEV_HOME}/state/audit-log.jsonl`, 'utf-8')
-    return data.trim().split('\n').filter(Boolean).slice(-lines).map(l => JSON.parse(l))
+    return data.trim().split('\n').filter(Boolean).slice(-lines).map((l) => JSON.parse(l))
   } catch {
     return []
   }
@@ -72,20 +80,26 @@ io.on('connection', (socket) => {
   })
 })
 
-// Every 10s: Docker metrics
-setInterval(() => {
-  const clients = loadRealClients()
-  for (const slug of clients) {
-    const stats = getDockerStats(slug)
-    const event = {
-      client: slug,
-      cpu: stats.cpu,
-      memPercent: stats.memPercent,
-      containerRunning: stats.running,
-      timestamp: new Date().toISOString(),
+// Every 10s: Docker metrics (async, non bloquant pour l'event loop)
+let metricsCycleRunning = false
+setInterval(async () => {
+  if (metricsCycleRunning) return
+  metricsCycleRunning = true
+  try {
+    const results = await getAllDockerStats(loadRealClients())
+    for (const { slug, stats } of results) {
+      const event = {
+        client: slug,
+        cpu: stats.cpu,
+        memPercent: stats.memPercent,
+        containerRunning: stats.running,
+        timestamp: new Date().toISOString(),
+      }
+      io.to(`metrics:${slug}`).emit('metrics:update', event)
+      io.emit('metrics:update', event)
     }
-    io.to(`metrics:${slug}`).emit('metrics:update', event)
-    io.emit('metrics:update', event)
+  } catch { /* ignore */ } finally {
+    metricsCycleRunning = false
   }
 }, 10_000)
 
@@ -104,23 +118,29 @@ setInterval(() => {
   } catch { /* ignore */ }
 }, 20_000)
 
-// Every 30s: Container health alerts
-setInterval(() => {
-  const clients = loadRealClients()
-  for (const slug of clients) {
-    const stats = getDockerStats(slug)
-    if (!stats.running) {
-      const alert = {
-        id: `alert-${generateId()}`,
-        clientId: slug,
-        level: 'critical',
-        message: `Container ${slug}_odoo non actif`,
-        source: 'Docker',
-        timestamp: new Date().toISOString(),
+// Every 30s: Container health alerts (async)
+let alertsCycleRunning = false
+setInterval(async () => {
+  if (alertsCycleRunning) return
+  alertsCycleRunning = true
+  try {
+    const results = await getAllDockerStats(loadRealClients())
+    for (const { slug, stats } of results) {
+      if (!stats.running) {
+        const alert = {
+          id: `alert-${generateId()}`,
+          clientId: slug,
+          level: 'critical',
+          message: `Container ${slug}_odoo non actif`,
+          source: 'Docker',
+          timestamp: new Date().toISOString(),
+        }
+        io.to(`alerts:${slug}`).emit('alert:new', alert)
+        io.emit('alert:new', alert)
       }
-      io.to(`alerts:${slug}`).emit('alert:new', alert)
-      io.emit('alert:new', alert)
     }
+  } catch { /* ignore */ } finally {
+    alertsCycleRunning = false
   }
 }, 30_000)
 
