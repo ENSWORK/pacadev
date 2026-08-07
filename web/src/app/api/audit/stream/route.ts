@@ -13,7 +13,7 @@ export async function GET() {
     connectionInfo: {
       type: 'polling',
       interval: '5s',
-      wsEndpoint: '/?XTransformPort=3003',
+      wsEndpoint: 'ws://ws.pacadev.local',
     },
   };
 
