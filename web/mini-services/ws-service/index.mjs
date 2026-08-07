@@ -19690,6 +19690,16 @@ io2.on("connection", (socket) => {
       timestamp: new Date().toISOString()
     });
   }
+  for (const [cachedSlug, cached] of Object.entries(pipelineCache)) {
+    if (cached.recentLines.length > 0) {
+      socket.emit("pipeline:logs", {
+        client: cachedSlug,
+        runId: cached.runId,
+        lines: cached.recentLines,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
   socket.on("error", (error) => {
     console.error(`[WS] Socket error (${socket.id}):`, error);
   });
@@ -19802,7 +19812,7 @@ async function streamPipeline(slug) {
     const firstSeen = !prev || prev.runId !== runId;
     const statusChanged = !prev || prev.status !== run.status || prev.conclusion !== run.conclusion;
     if (firstSeen || statusChanged) {
-      pipelineCache[slug] = { runId, status: run.status, conclusion: run.conclusion, emittedLines: 0 };
+      pipelineCache[slug] = { runId, status: run.status, conclusion: run.conclusion, emittedLines: 0, recentLines: [] };
       io2.emit("pipeline:status", {
         client: slug,
         runId,
@@ -19816,13 +19826,14 @@ async function streamPipeline(slug) {
       });
       console.log(`[EVENT] pipeline:status → client=${slug}, run=${runId}, status=${run.status}, conclusion=${run.conclusion}`);
     }
-    if (run.status === "in_progress") {
+    if (run.status === "completed") {
       const cur = pipelineCache[slug];
       const { stdout: raw } = await execFileAsync("gh", ["run", "view", runId, "--repo", repo, "--log"], { encoding: "utf-8", timeout: 30000, maxBuffer: 64 * 1024 * 1024 });
       const lines = parseLogLines(raw);
       if (lines.length > cur.emittedLines) {
         const fresh = lines.slice(cur.emittedLines);
         cur.emittedLines = lines.length;
+        cur.recentLines = [...cur.recentLines, ...fresh].slice(-150);
         io2.emit("pipeline:logs", { client: slug, runId, lines: fresh, timestamp: new Date().toISOString() });
       }
     }

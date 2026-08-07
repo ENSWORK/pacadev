@@ -92,6 +92,18 @@ io.on('connection', (socket) => {
     })
   }
 
+  // Replay cached pipeline logs (tail) on connect
+  for (const [cachedSlug, cached] of Object.entries(pipelineCache)) {
+    if (cached.recentLines.length > 0) {
+      socket.emit('pipeline:logs', {
+        client: cachedSlug,
+        runId: cached.runId,
+        lines: cached.recentLines,
+        timestamp: new Date().toISOString(),
+      })
+    }
+  }
+
   socket.on('error', (error) => {
     console.error(`[WS] Socket error (${socket.id}):`, error)
   })
@@ -197,7 +209,7 @@ function parseLogLines(raw: string): Array<{ time: string; level: string; msg: s
     })
 }
 
-interface PipelineStreamCache { runId: string; status: string; conclusion: string | null; emittedLines: number }
+interface PipelineStreamCache { runId: string; status: string; conclusion: string | null; emittedLines: number; recentLines: Array<{ time: string; level: string; msg: string }> }
 const pipelineCache: Record<string, PipelineStreamCache> = {}
 
 async function streamPipeline(slug: string): Promise<void> {
@@ -218,7 +230,7 @@ async function streamPipeline(slug: string): Promise<void> {
     const statusChanged = !prev || prev.status !== run.status || prev.conclusion !== run.conclusion
 
     if (firstSeen || statusChanged) {
-      pipelineCache[slug] = { runId, status: run.status, conclusion: run.conclusion, emittedLines: 0 }
+      pipelineCache[slug] = { runId, status: run.status, conclusion: run.conclusion, emittedLines: 0, recentLines: [] }
       io.emit('pipeline:status', {
         client: slug,
         runId,
@@ -233,7 +245,7 @@ async function streamPipeline(slug: string): Promise<void> {
       console.log(`[EVENT] pipeline:status → client=${slug}, run=${runId}, status=${run.status}, conclusion=${run.conclusion}`)
     }
 
-    if (run.status === 'in_progress') {
+    if (run.status === 'completed') {
       const cur = pipelineCache[slug]!
       const { stdout: raw } = await execFileAsync(
         'gh', ['run', 'view', runId, '--repo', repo, '--log'],
@@ -243,6 +255,7 @@ async function streamPipeline(slug: string): Promise<void> {
       if (lines.length > cur.emittedLines) {
         const fresh = lines.slice(cur.emittedLines)
         cur.emittedLines = lines.length
+        cur.recentLines = [...cur.recentLines, ...fresh].slice(-150)
         io.emit('pipeline:logs', { client: slug, runId, lines: fresh, timestamp: new Date().toISOString() })
       }
     }
