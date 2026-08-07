@@ -30,7 +30,7 @@ jobs:
         run: |
           FILES=$(find v17/clients -path "*/addons/ens_core/*.py" -o \
                                    -path "*/addons/ens_core/**/*.py" 2>/dev/null \
-                  | grep -v __pycache__)
+                  | grep -v __pycache__ || true)
           FILES="$FILES $(find modules/ens_core-17 -name '*.py' 2>/dev/null \
                   | grep -v __pycache__ | tr '\n' ' ')"
           if [ -n "$FILES" ]; then
@@ -43,8 +43,8 @@ jobs:
         run: |
           sudo apt-get install -y libxml2-utils -qq
           FILES=$(find v17/clients -path "*/addons/ens_core/*.xml" -o \
-                                   -path "*/addons/ens_core/**/*.xml" 2>/dev/null)
-          FILES="$FILES $(find modules/ens_core-17 -name '*.xml' 2>/dev/null)"
+                                   -path "*/addons/ens_core/**/*.xml" 2>/dev/null || true)
+          FILES="$FILES $(find modules/ens_core-17 -name '*.xml' 2>/dev/null || true)"
           if [ -n "$FILES" ]; then
             for f in $FILES; do
               xmllint --noout "$f" && echo "OK: $f" || exit 1
@@ -70,9 +70,9 @@ jobs:
         run: |
           FILES=$(find v17/clients -path "*/addons/ens_core/*.py" -o \
                                    -path "*/addons/ens_core/**/*.py" 2>/dev/null \
-                  | grep -v __pycache__)
+                  | grep -v __pycache__ || true)
           FILES="$FILES $(find modules/ens_core-17 -name '*.py' 2>/dev/null \
-                  | grep -v __pycache__)"
+                  | grep -v __pycache__ || true)"
           if [ -n "$FILES" ]; then
             for f in $FILES; do python -m py_compile "$f" || exit 1; done && echo "Syntaxe Python OK"
           else
@@ -150,9 +150,9 @@ jobs:
         run: |
           FILES=$(find v17/clients -path "*/addons/ens_core/*.py" -o \
                                    -path "*/addons/ens_core/**/*.py" 2>/dev/null \
-                  | grep -v __pycache__)
+                  | grep -v __pycache__ || true)
           FILES="$FILES $(find modules/ens_core-17 -name '*.py' 2>/dev/null \
-                  | grep -v __pycache__)"
+                  | grep -v __pycache__ || true)"
           if [ -n "$FILES" ]; then
             for f in $FILES; do bandit -ll -q --exit-zero "$f"; done
           else
