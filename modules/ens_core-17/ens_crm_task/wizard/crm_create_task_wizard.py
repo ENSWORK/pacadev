@@ -21,9 +21,9 @@ class CrmCreateTaskWizard(models.TransientModel):
     )
 
     # Source opportunity
-        opportunity_id = fields.Many2one(
-            "crm.lead", string="Opportunity", required=True, ondelete="cascade"
-        )
+    opportunity_id = fields.Many2one(
+        "crm.lead", string="Opportunity", required=True, ondelete="cascade"
+    )
 
     # Fields for creating new task
     name = fields.Char(string="Task Name", required=True)
@@ -35,9 +35,9 @@ class CrmCreateTaskWizard(models.TransientModel):
     date_assign = fields.Datetime(string="Assigning Date")
     company_id = fields.Many2one("res.company", string="Company")
     description = fields.Html(string="Description")
-        stage_id = fields.Many2one(
-            "project.task.type", string="Stage", domain="[('project_ids', '=', project_id)]"
-        )
+    stage_id = fields.Many2one(
+        "project.task.type", string="Stage", domain="[('project_ids', '=', project_id)]"
+    )
 
     # Field for linking to existing task
     existing_task_id = fields.Many2one(
