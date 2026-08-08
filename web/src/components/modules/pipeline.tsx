@@ -114,7 +114,7 @@ function getClientSlugOf(pipeline: AnyPipeline): string {
   if ('clientSlug' in pipeline && pipeline.clientSlug) return pipeline.clientSlug
   const { realClients } = useAppStore.getState()
   const all = realClients.length > 0 ? realClients : mockClients
-  return all.find((c) => c.id === pipeline.clientId)?.slug ?? 'acmecorp'
+  return all.find((c) => c.id === pipeline.clientId)?.slug ?? all[0]?.slug ?? ''
 }
 
 // ============ Helper ============
@@ -580,7 +580,7 @@ function HistoriquePipelines({ selectedSlug }: { selectedSlug: string }) {
   const allClients = realClients.length > 0 ? realClients : mockClients
 
   const getSlug = (p: AnyPipeline) =>
-    ('clientSlug' in p && p.clientSlug) ? p.clientSlug : allClients.find((c) => c.id === p.clientId)?.slug ?? 'acmecorp'
+    ('clientSlug' in p && p.clientSlug) ? p.clientSlug : allClients.find((c) => c.id === p.clientId)?.slug ?? allClients[0]?.slug ?? ''
 
   const effectivePipelines = selectedSlug
     ? allPipelines.filter((p) => getSlug(p) === selectedSlug)
@@ -1007,18 +1007,25 @@ function GateValidation({ clientSlug, refreshKey }: { clientSlug: string; refres
 
 // ============ Lien validation client Section ============
 function LienValidationClient() {
+  const { selectedClientSlug, realClients } = useAppStore()
+  const clientSlug = selectedClientSlug && realClients.some((c) => c.slug === selectedClientSlug)
+    ? selectedClientSlug
+    : realClients[0]?.slug ?? ''
   const [linkGenerated, setLinkGenerated] = useState(true)
   const [linkRevoked, setLinkRevoked] = useState(false)
   const [showStatus, setShowStatus] = useState(false)
   const { loading: generateLoading, execute: executeGenerate } = useAsyncAction()
   const { loading: revokeLoading, execute: executeRevoke } = useAsyncAction()
 
-  const mockUrl = 'https://validate.enswork.local/acmecorp/staging/v17.2026.05.13-1?token=a8f3k2m9x1'
+  const mockUrl = clientSlug
+    ? `https://validate.enswork.local/${clientSlug}/staging/v17.2026.05.13-1?token=a8f3k2m9x1`
+    : ''
   const mockExpiry = '2026-05-14T14:30:00Z'
 
   const handleGenerate = () => {
+    if (!clientSlug) return
     executeGenerate(
-      () => deployApi.generateApproval('acmecorp', 'validate', 'Génération lien validation'),
+      () => deployApi.generateApproval(clientSlug, 'validate', 'Génération lien validation'),
       { successMessage: 'Lien de validation généré' }
     ).then(() => {
       setLinkGenerated(true)
@@ -1027,8 +1034,9 @@ function LienValidationClient() {
   }
 
   const handleRevoke = () => {
+    if (!clientSlug) return
     executeRevoke(
-      () => deployApi.approve('acmecorp', 'staging', 'Lien révoqué'),
+      () => deployApi.generateApproval(clientSlug, 'revoke', 'Lien de validation révoqué'),
       { successMessage: 'Lien révoqué' }
     ).then(() => {
       setLinkRevoked(true)

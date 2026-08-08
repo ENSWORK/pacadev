@@ -474,13 +474,13 @@ export function DashboardGlobal() {
                             <span className="hidden xl:inline">Détail</span>
                           </Button>
                           {d.status === 'failed' && (
-                            <Button variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" disabled={retriggerLoading} onClick={() => executeRetrigger(() => pipelineApi.retrigger(clientSlugMap[d.clientId] ?? 'acmecorp', d.id), { successMessage: 'Pipeline relancé' })}>
+                            <Button variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" disabled={retriggerLoading || !clientSlugMap[d.clientId]} onClick={() => { const slug = clientSlugMap[d.clientId]; if (slug) executeRetrigger(() => pipelineApi.retrigger(slug, d.id), { successMessage: 'Pipeline relancé' }) }}>
                               {retriggerLoading ? <Loader2 className="size-3 animate-spin" /> : <RotateCcw className="size-3" />}
                               <span className="hidden xl:inline">Relancer</span>
                             </Button>
                           )}
                           {d.rollbackAvailable && d.status !== 'running' && (
-                            <Button variant="outline" size="sm" className="h-7 px-2 text-xs gap-1 text-orange-600 hover:text-orange-700" disabled={rollbackLoading} onClick={() => executeRollback(() => rollbackApi.execute(clientSlugMap[d.clientId] ?? 'acmecorp', d.id), { successMessage: 'Rollback lancé' })}>
+                            <Button variant="outline" size="sm" className="h-7 px-2 text-xs gap-1 text-orange-600 hover:text-orange-700" disabled={rollbackLoading || !clientSlugMap[d.clientId]} onClick={() => { const slug = clientSlugMap[d.clientId]; if (slug) executeRollback(() => rollbackApi.execute(slug, d.id), { successMessage: 'Rollback lancé' }) }}>
                               {rollbackLoading ? <Loader2 className="size-3 animate-spin" /> : <RotateCcw className="size-3" />}
                               <span className="hidden xl:inline">Rollback</span>
                             </Button>
@@ -545,7 +545,7 @@ export function DashboardGlobal() {
                       </div>
                     </div>
                     <div className="flex shrink-0 gap-1">
-                      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={ackLoading} onClick={() => executeAck(() => fetch(`/api/clients/${alert.clientId ?? 'acmecorp'}/alerts/${alert.id}/ack`, { method: 'PUT' }).then(r => r.json()), { successMessage: 'Alerte acquittée' })}>
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={ackLoading} onClick={() => { const slug = clientSlugMap[alert.clientId ?? '']; if (slug) executeAck(() => fetch(`/api/clients/${slug}/alerts/${alert.id}/ack`, { method: 'PUT' }).then(r => r.json()), { successMessage: 'Alerte acquittée' }) }}>
                         {ackLoading ? <Loader2 className="size-3 animate-spin" /> : null}
                         Acquitter
                       </Button>

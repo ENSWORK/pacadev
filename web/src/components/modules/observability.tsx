@@ -290,6 +290,10 @@ export function ObservabilityModule() {
   const passedTests = 0
   const totalTests = 0
 
+  // Client cible pour les smoke tests (défaut : premier client réel)
+  const [testClient, setTestClient] = useState('')
+  const effectiveTestClient = testClient || realClients[0]?.slug || ''
+
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
@@ -623,16 +627,28 @@ export function ObservabilityModule() {
                   Résultats des tests de validation automatique
                 </CardDescription>
               </div>
-              <Badge
-                className={cn(
-                  'text-xs',
-                  passedTests === totalTests
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-                )}
-              >
-                {passedTests}/{totalTests} passés
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Select value={effectiveTestClient} onValueChange={setTestClient}>
+                  <SelectTrigger className="w-[180px] h-8 text-xs">
+                    <SelectValue placeholder="Client" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {realClients.map((c) => (
+                      <SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Badge
+                  className={cn(
+                    'text-xs',
+                    passedTests === totalTests
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                      : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+                  )}
+                >
+                  {passedTests}/{totalTests} passés
+                </Badge>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -664,7 +680,7 @@ export function ObservabilityModule() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="sm" className="size-7 p-0" title="Relancer" disabled={singleTestLoading} onClick={() => executeSingleTest(() => testApi.run('acmecorp', test.name), { successMessage: `Test ${test.name} lancé` })}>
+                        <Button variant="ghost" size="sm" className="size-7 p-0" title="Relancer" disabled={singleTestLoading || !effectiveTestClient} onClick={() => executeSingleTest(() => testApi.run(effectiveTestClient, test.name), { successMessage: `Test ${test.name} lancé` })}>
                           <RefreshCw className="size-3.5" />
                         </Button>
                         {test.status === 'failed' && (
@@ -678,7 +694,7 @@ export function ObservabilityModule() {
                 ))}
               </TableBody>
             </Table>
-            <Button variant="outline" size="sm" className="w-full" disabled={testRunLoading} onClick={() => executeTestRun(() => testApi.run('acmecorp', 'all'), { successMessage: 'Tous les tests lancés' })}>
+            <Button variant="outline" size="sm" className="w-full" disabled={testRunLoading || !effectiveTestClient} onClick={() => executeTestRun(() => testApi.run(effectiveTestClient, 'all'), { successMessage: 'Tous les tests lancés' })}>
               {testRunLoading ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <Play className="size-3.5 mr-1.5" />}
               Lancer tous les tests
             </Button>
@@ -794,7 +810,7 @@ export function ObservabilityModule() {
                 </div>
 
                 <div className="flex gap-2 pt-1">
-                  <Button variant="outline" size="sm" className="flex-1 h-7 text-xs" disabled={restartLoading} onClick={() => executeRestart(() => monitorApi.restartService('acmecorp', service.name), { successMessage: `${service.name} redémarré` })}>
+                      <Button variant="outline" size="sm" className="flex-1 h-7 text-xs" disabled={restartLoading || !effectiveTestClient} onClick={() => { if (effectiveTestClient) executeRestart(() => monitorApi.restartService(effectiveTestClient, service.name), { successMessage: `${service.name} redémarré` }) }}>
                     <RefreshCw className="size-3 mr-1" />
                     Redémarrer
                   </Button>

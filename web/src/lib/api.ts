@@ -36,15 +36,6 @@ async function apiFetch<T>(
 }
 
 // ─── Dashboard ─────────────────────────────────────────────────────────────
-export const dashboardApi = {
-  /** CLI: pacadev health --all */
-  getStats: () => apiFetch<unknown>('/api/dashboard'),
-
-  /** CLI: pacadev health --client <slug> */
-  refreshHealth: (clientSlug: string) =>
-    apiFetch<unknown>(`/api/clients/${clientSlug}/validate`),
-}
-
 // ─── Clients ───────────────────────────────────────────────────────────────
 export const clientsApi = {
   /** CLI: pacadev list */
@@ -76,8 +67,6 @@ export const workApi = {
       method: 'POST',
     }),
 
-  /** CLI: pacadev work status */
-  status: () => apiFetch<unknown>('/api/clients/work/status'),
 }
 
 // ─── Deploy ────────────────────────────────────────────────────────────────
@@ -280,70 +269,3 @@ export const auditApi = {
   },
 }
 
-// ─── Tickets (Workspace) ───────────────────────────────────────────────────
-export const ticketApi = {
-  /** CLI: pacadev issue create --client <slug> --module <M> --title <T> --body <B> */
-  create: (data: {
-    client: string
-    type: string
-    module: string
-    title: string
-    description: string
-    acceptanceCriteria?: string[]
-    impactFlags?: { db: boolean; xml: boolean; security: boolean; performance: boolean }
-  }) =>
-    apiFetch<unknown>(`/api/clients/${data.client}/issues`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  /** CLI: pacadev issue list --client <slug> */
-  list: (clientSlug: string) =>
-    apiFetch<unknown[]>(`/api/clients/${clientSlug}/issues`),
-}
-
-// ─── Workflow ──────────────────────────────────────────────────────────────
-export const workflowApi = {
-  /** Get workflow state for a ticket */
-  getState: (clientSlug: string, ticketId: number) =>
-    apiFetch<unknown>(`/api/clients/${clientSlug}/workflow/${ticketId}/state`),
-
-  /** Update workflow step */
-  updateStep: (clientSlug: string, ticketId: number, step: string, action: string) =>
-    apiFetch<unknown>(`/api/clients/${clientSlug}/workflow/${ticketId}/step`, {
-      method: 'POST',
-      body: JSON.stringify({ step, action }),
-    }),
-}
-
-// ─── Security ──────────────────────────────────────────────────────────────
-export const securityApi = {
-  /** Run security scan on pipeline */
-  scanPipeline: (clientSlug: string) =>
-    apiFetch<unknown>(`/api/clients/${clientSlug}/secrets`, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'scan' }),
-    }),
-
-  /** Test secret filtering */
-  testFilter: () =>
-    apiFetch<unknown>('/api/ai/config', {
-      method: 'PUT',
-      body: JSON.stringify({ testFilter: true }),
-    }),
-
-  /** Get security scan result */
-  getScanResult: (clientSlug: string) =>
-    apiFetch<unknown>(`/api/clients/${clientSlug}/secrets`),
-}
-
-// ─── Runbook ───────────────────────────────────────────────────────────────
-export const runbookApi = {
-  /** CLI: pacadev runbook show <section> */
-  show: (section?: string) =>
-    apiFetch<unknown>(`/api/runbook${section ? `?section=${section}` : ''}`),
-
-  /** CLI: pacadev runbook emergency <client> */
-  emergency: (clientSlug: string) =>
-    apiFetch<unknown>(`/api/runbook/emergency?client=${clientSlug}`),
-}
