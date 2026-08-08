@@ -60,6 +60,22 @@ download-*/
 v*/clients/*/download-*/
 erpdata_*.zip
 v*/clients/*/erpdata_*
+v*/clients/*/*.zip
+v*/clients/*/*.pdf
+
+# Documents & artefats locaux non versionnés
+PACADEV_Specifications_Techniques.docx
+v*/clients/*/odoo.conf.preflight_backup
+/v17/requirements.txt
+
+# Nouveaux clients : config locale non versionnée (hors convention)
+v14/clients/africapool/
+v14/clients/biomatec/
+v14/clients/innovation_electrique/
+v14/clients/scandi/
+v14/clients/sidtec/
+v14/clients/sofilair/
+v19/clients/pacadai/
 
 # Caches Python compilés
 **/__pycache__/
