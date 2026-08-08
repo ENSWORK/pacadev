@@ -20,8 +20,11 @@ function getSocket(): Socket {
       path: '/',
       transports: ['websocket', 'polling'],
       reconnection: true,
-      reconnectionAttempts: 10,
+      // Reconnexion illimitée : auto-guérison après redémarrage du poste /
+      // coupure réseau sans recharger la page.
+      reconnectionAttempts: Infinity,
       reconnectionDelay: 3000,
+      reconnectionDelayMax: 15000,
     })
   }
   return sharedSocket
