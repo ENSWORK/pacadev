@@ -24,6 +24,8 @@ import {
   Clock,
   ChevronDown,
   Loader2,
+  X,
+  Terminal,
 } from 'lucide-react'
 import {
   Card,
@@ -53,6 +55,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { useAppStore } from '@/lib/store'
@@ -186,6 +195,25 @@ export function ObservabilityModule() {
 
   // Alert rules
   const [alertRules, setAlertRules] = useState(mockAlertRules)
+
+  // Service logs dialog state
+  const [logsService, setLogsService] = useState<string | null>(null)
+  const [serviceLogs, setServiceLogs] = useState<{ timestamp: string; message: string }[]>([])
+  const [serviceLogsLoading, setServiceLogsLoading] = useState(false)
+
+  const loadServiceLogs = (service: string) => {
+    setLogsService(service)
+    setServiceLogs([])
+    setServiceLogsLoading(true)
+    fetch(`/api/services/logs?service=${encodeURIComponent(service)}&limit=150`)
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setServiceLogs(d.data.logs ?? []) })
+      .catch(() => setServiceLogs([]))
+      .finally(() => setServiceLogsLoading(false))
+  }
+
+  // Test capture dialog state
+  const [captureTest, setCaptureTest] = useState<string | null>(null)
 
   // Scroll ref
   const logEndRef = useRef<HTMLDivElement>(null)
@@ -521,7 +549,7 @@ export function ObservabilityModule() {
                 <Search className="size-3.5 mr-1.5" />
                 Rechercher
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => { const json = JSON.stringify(filteredLogs, null, 2); const blob = new Blob([json], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'logs-recherche.json'; a.click(); URL.revokeObjectURL(url) }}>
                 <Bookmark className="size-3.5 mr-1.5" />
                 Sauvegarder
               </Button>
@@ -640,7 +668,7 @@ export function ObservabilityModule() {
                           <RefreshCw className="size-3.5" />
                         </Button>
                         {test.status === 'failed' && (
-                          <Button variant="ghost" size="sm" className="size-7 p-0" title="Voir capture">
+                          <Button variant="ghost" size="sm" className="size-7 p-0" title="Voir capture" onClick={() => setCaptureTest(test.name)}>
                             <Camera className="size-3.5" />
                           </Button>
                         )}
@@ -770,7 +798,7 @@ export function ObservabilityModule() {
                     <RefreshCw className="size-3 mr-1" />
                     Redémarrer
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1 h-7 text-xs" onClick={() => executeSingleTest(() => monitorApi.logs(service.name), { successMessage: `Logs de ${service.name} chargés` })}>
+                  <Button variant="outline" size="sm" className="flex-1 h-7 text-xs" onClick={() => loadServiceLogs(service.name)}>
                     <FileText className="size-3 mr-1" />
                     Voir logs
                   </Button>
@@ -780,6 +808,70 @@ export function ObservabilityModule() {
           ))}
         </div>
       </div>
+
+      {/* Service logs dialog */}
+      <Dialog open={logsService !== null} onOpenChange={(open) => { if (!open) setLogsService(null) }}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Terminal className="size-4 text-muted-foreground" />
+              Logs — {logsService}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] rounded-md border bg-slate-950 p-3">
+            {serviceLogsLoading ? (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="size-3.5 animate-spin" />
+                Chargement des logs…
+              </div>
+            ) : serviceLogs.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Aucun log disponible</p>
+            ) : (
+              <div className="space-y-1 font-mono text-xs text-slate-100">
+                {serviceLogs.map((l, i) => (
+                  <pre key={i} className="whitespace-pre-wrap break-all">
+                    <span className="text-slate-400">{l.timestamp}</span>  {l.message}
+                  </pre>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+          <div className="flex justify-end">
+            <DialogClose asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <X className="size-3.5" />
+                Fermer
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Test capture dialog */}
+      <Dialog open={captureTest !== null} onOpenChange={(open) => { if (!open) setCaptureTest(null) }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Camera className="size-4 text-muted-foreground" />
+              Capture — {captureTest}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="rounded-md border bg-muted/30 p-6 text-center">
+            <Camera className="size-8 mx-auto text-muted-foreground" />
+            <p className="text-sm text-muted-foreground mt-2">
+              Aucune capture disponible pour ce test. Relancez le test pour générer une nouvelle capture d'écran.
+            </p>
+          </div>
+          <div className="flex justify-end">
+            <DialogClose asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <X className="size-3.5" />
+                Fermer
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

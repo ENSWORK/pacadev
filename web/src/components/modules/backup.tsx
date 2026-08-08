@@ -22,6 +22,7 @@ import {
   Key,
   RefreshCw,
   ShieldAlert,
+  X,
 } from 'lucide-react'
 import {
   Card,
@@ -51,6 +52,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { SecureConfirmModal } from '@/components/shared/secure-confirm-modal'
@@ -157,6 +165,26 @@ export function BackupModule() {
   const [manualVerify, setManualVerify] = useState(true)
   const [showProgress, setShowProgress] = useState(false)
 
+  // Backup logs dialog state
+  const [backupLogsOpen, setBackupLogsOpen] = useState(false)
+  const [backupLogs, setBackupLogs] = useState<{ level?: string; service?: string; message: string }[]>([])
+  const [backupLogsLoading, setBackupLogsLoading] = useState(false)
+
+  // Key rotation state
+  const [lastKeyRotation, setLastKeyRotation] = useState('01/05/2026')
+
+  const loadBackupLogs = () => {
+    if (!manualClient) return
+    setBackupLogsOpen(true)
+    setBackupLogs([])
+    setBackupLogsLoading(true)
+    fetch(`/api/clients/${manualClient}/logs?limit=120`)
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setBackupLogs(d.data ?? []) })
+      .catch(() => setBackupLogs([]))
+      .finally(() => setBackupLogsLoading(false))
+  }
+
   // Dry-run state
   const [dryRunClient, setDryRunClient] = useState('')
   const [dryRunBackupId, setDryRunBackupId] = useState('')
@@ -193,9 +221,17 @@ export function BackupModule() {
 
   // Filtered backups — use real data when available
   const allBackups = Object.values(realBackups).flat().sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+  // The server scans /tmp globally: the same backup file is returned for every
+  // client, so dedupe by id to avoid duplicate rows / non-unique React keys.
+  const seenBackupIds = new Set<string>()
+  const uniqueBackups = allBackups.filter((b) => {
+    if (seenBackupIds.has(b.id)) return false
+    seenBackupIds.add(b.id)
+    return true
+  })
   const filteredBackups = selectedClientFilter === 'all'
-    ? allBackups
-    : allBackups.filter((b) => b.clientSlug === selectedClientFilter)
+    ? uniqueBackups
+    : uniqueBackups.filter((b) => b.clientSlug === selectedClientFilter)
 
   // Get backups for selected client (for rollback/dry-run selectors)
   const getClientBackups = useCallback((clientSlug: string) => {
@@ -469,7 +505,7 @@ export function BackupModule() {
                   <Loader2 className="size-3.5 animate-spin text-amber-600" />
                   <span>Dumping database...</span>
                 </div>
-                <Button variant="outline" size="sm" className="w-full">
+                <Button variant="outline" size="sm" className="w-full" onClick={loadBackupLogs}>
                   <FileText className="size-3.5 mr-1.5" />
                   Voir logs
                 </Button>
@@ -640,13 +676,13 @@ export function BackupModule() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Dernière rotation:</span>
-                  <span className="font-medium">01/05/2026</span>
+                  <span className="font-medium">{lastKeyRotation}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Prochaine rotation:</span>
                   <span className="font-medium">01/08/2026</span>
                 </div>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={() => { setLastKeyRotation(format(new Date(), 'dd/MM/yyyy')); toast({ title: 'Rotation des clés', description: 'Rotation déclenchée — la clé de chiffrement va être régénérée.' }) }}>
                   <RefreshCw className="size-4 mr-2" />
                   Rotater maintenant
                 </Button>
@@ -919,10 +955,48 @@ export function BackupModule() {
         open={emergencyBackupOpen}
         onOpenChange={setEmergencyBackupOpen}
         title="Backup d'urgence"
-        message="Lancement d'un backup complet même si le système est dégradé"
+        message="Lancement d'un backup complet mǦme si le syst��me est dǸgradǸ"
         variant="warning"
         onConfirm={handleEmergencyBackupConfirm}
       />
+
+      {/* Logs dialog */}
+      <Dialog open={backupLogsOpen} onOpenChange={setBackupLogsOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="size-4 text-muted-foreground" />
+              Logs — {manualClient}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] rounded-md border bg-slate-950 p-3">
+            {backupLogsLoading ? (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="size-3.5 animate-spin" />
+                Chargement des logs…
+              </div>
+            ) : backupLogs.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Aucun log disponible</p>
+            ) : (
+              <div className="space-y-1 font-mono text-xs text-slate-100">
+                {backupLogs.map((l, i) => (
+                  <pre key={i} className="whitespace-pre-wrap break-all">
+                    {l.message}
+                  </pre>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+          <div className="flex justify-end">
+            <DialogClose asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <X className="size-3.5" />
+                Fermer
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -29,6 +29,7 @@ import {
   Key,
   FileText,
   MessageSquare,
+  Plus,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -599,6 +600,8 @@ function SuggestionsIA() {
 function ContexteIA() {
   const [scopeEditOpen, setScopeEditOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [filesInScope, setFilesInScope] = useState<string[]>(mockFilesInScope)
+  const [newScopeFile, setNewScopeFile] = useState('')
   const { loading: scopeLoading, execute: executeScopeUpdate } = useAsyncAction()
 
   const handleEditScope = () => {
@@ -626,10 +629,10 @@ function ContexteIA() {
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
               <FolderOpen className="size-3" />
-              Fichiers en scope ({mockFilesInScope.length})
+              Fichiers en scope ({filesInScope.length})
             </div>
             <div className="rounded-md border bg-muted/20 p-2 space-y-1 max-h-40 overflow-y-auto custom-scrollbar">
-              {mockFilesInScope.map((file) => (
+              {filesInScope.map((file) => (
                 <div key={file} className="flex items-center gap-1.5 text-xs font-mono text-foreground/80 py-0.5">
                   <FileCode2 className="size-3 text-muted-foreground shrink-0" />
                   <span className="truncate">{file}</span>
@@ -706,11 +709,11 @@ function ContexteIA() {
               <div className="space-y-2">
                 <Label>Fichiers en scope</Label>
                 <div className="rounded-md border bg-muted/20 p-2 space-y-1 max-h-40 overflow-y-auto">
-                  {mockFilesInScope.map((file) => (
+                  {filesInScope.map((file) => (
                     <div key={file} className="flex items-center gap-2 text-xs font-mono py-0.5">
                       <FileCode2 className="size-3 text-muted-foreground shrink-0" />
                       <span className="flex-1 truncate">{file}</span>
-                      <Button variant="ghost" size="sm" className="size-5 h-auto p-0 text-red-500">
+                      <Button variant="ghost" size="sm" className="size-5 h-auto p-0 text-red-500" onClick={() => setFilesInScope(filesInScope.filter((f) => f !== file))}>
                         <XCircle className="size-3" />
                       </Button>
                     </div>
@@ -719,14 +722,41 @@ function ContexteIA() {
               </div>
               <div className="space-y-2">
                 <Label>Ajouter un fichier</Label>
-                <Input placeholder="chemin/vers/le/fichier.py" className="h-8 text-xs" />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="chemin/vers/le/fichier.py"
+                    className="h-8 text-xs"
+                    value={newScopeFile}
+                    onChange={(e) => setNewScopeFile(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newScopeFile.trim()) {
+                        setFilesInScope([...filesInScope, newScopeFile.trim()])
+                        setNewScopeFile('')
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 shrink-0 gap-1"
+                    onClick={() => {
+                      if (newScopeFile.trim()) {
+                        setFilesInScope([...filesInScope, newScopeFile.trim()])
+                        setNewScopeFile('')
+                      }
+                    }}
+                  >
+                    <Plus className="size-3.5" />
+                    Ajouter
+                  </Button>
+                </div>
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setScopeEditOpen(false)}>
                 Annuler
               </Button>
-              <Button onClick={() => { executeScopeUpdate(() => aiApi.updateConfig({ scope: mockFilesInScope }), { successMessage: 'Scope sauvegardé' }); setScopeEditOpen(false) }}>
+              <Button onClick={() => { executeScopeUpdate(() => aiApi.updateConfig({ scope: filesInScope }), { successMessage: 'Scope sauvegardé' }); setScopeEditOpen(false) }}>
                 Sauvegarder
               </Button>
             </DialogFooter>

@@ -22,8 +22,18 @@ import {
   Ticket,
   MessageSquare,
   Laptop,
+  Terminal,
+  X,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -44,7 +54,7 @@ import type { DashboardStats, Deployment, Alert, ServiceHealth } from '@/lib/typ
 import { useAppStore } from '@/lib/store'
 import type { ServiceType } from '@/lib/types'
 import { useAsyncAction } from '@/hooks/use-async-action'
-import { dashboardApi, pipelineApi, rollbackApi, monitorApi, workApi, issueApi } from '@/lib/api'
+import { pipelineApi, rollbackApi } from '@/lib/api'
 
 // ── Service type icon map ─────────────────────────────────────────────────
 const serviceIcons: Record<ServiceType, React.ElementType> = {
@@ -86,6 +96,20 @@ export function DashboardGlobal() {
 
   const [dashData, setDashData] = useState<DashData | null>(null)
   const [realServices, setRealServices] = useState<ServiceHealth[]>([])
+  const [logsService, setLogsService] = useState<string | null>(null)
+  const [serviceLogs, setServiceLogs] = useState<{ timestamp: string; message: string }[]>([])
+  const [logsLoading, setLogsLoading] = useState(false)
+
+  const loadServiceLogs = (service: string) => {
+    setLogsService(service)
+    setServiceLogs([])
+    setLogsLoading(true)
+    fetch(`/api/services/logs?service=${encodeURIComponent(service)}&limit=150`)
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setServiceLogs(d.data.logs ?? []) })
+      .catch(() => setServiceLogs([]))
+      .finally(() => setLogsLoading(false))
+  }
 
   useEffect(() => {
     fetch('/api/dashboard')
@@ -316,7 +340,7 @@ export function DashboardGlobal() {
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1">
+                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => { setSelectedClientSlug(slug); setCurrentView('workspace') }}>
                               <MessageSquare className="size-3" />
                             </Button>
                           </TooltipTrigger>
@@ -341,7 +365,7 @@ export function DashboardGlobal() {
               Santé Infrastructure
             </CardTitle>
             <CardAction>
-              <Button variant="outline" size="sm" className="gap-1.5" disabled={refreshLoading} onClick={() => executeRefresh(() => dashboardApi.refreshHealth('all'), { successMessage: 'Données rafraîchies' })}>
+              <Button variant="outline" size="sm" className="gap-1.5" disabled={refreshLoading} onClick={() => executeRefresh(() => fetch('/api/services').then((r) => r.json()).then((d) => { if (d.success) setRealServices(d.data); return d }), { successMessage: 'Santé rafraîchie' })}>
                 {refreshLoading ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}
                 Rafraîchir
               </Button>
@@ -374,7 +398,7 @@ export function DashboardGlobal() {
                         {serviceTypeLabels[svc.type]}{safeFormatDate(svc.lastCheck) ? ` · Vérifié ${formatDistanceToNow(safeFormatDate(svc.lastCheck)!, { addSuffix: true, locale: fr })}` : ''}
                       </p>
                     </div>
-                    <Button variant="ghost" size="sm" className="shrink-0 h-7 px-2 text-xs" onClick={() => executeRefresh(() => monitorApi.logs(svc.name), { successMessage: `Logs de ${svc.name} chargés` })}>
+                    <Button variant="ghost" size="sm" className="shrink-0 h-7 px-2 text-xs" onClick={() => loadServiceLogs(svc.name)}>
                       Voir logs
                     </Button>
                   </div>
@@ -445,7 +469,7 @@ export function DashboardGlobal() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1">
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => { const slug = clientSlugMap[d.clientId]; if (slug) { setSelectedClientSlug(slug); setCurrentView('pipeline') } }}>
                             <Eye className="size-3" />
                             <span className="hidden xl:inline">Détail</span>
                           </Button>
@@ -589,6 +613,44 @@ export function DashboardGlobal() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Dialog: Logs service ─────────────────────────────────────── */}
+      <Dialog open={logsService !== null} onOpenChange={(open) => { if (!open) setLogsService(null) }}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Terminal className="size-4 text-muted-foreground" />
+              Logs — {logsService}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] rounded-md border bg-slate-950 p-3">
+            {logsLoading ? (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="size-3.5 animate-spin" />
+                Chargement des logs…
+              </div>
+            ) : serviceLogs.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Aucun log disponible</p>
+            ) : (
+              <div className="space-y-1 font-mono text-xs text-slate-100">
+                {serviceLogs.map((l, i) => (
+                  <pre key={i} className="whitespace-pre-wrap break-all">
+                    <span className="text-slate-400">{l.timestamp}</span>  {l.message}
+                  </pre>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+          <div className="flex justify-end">
+            <DialogClose asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <X className="size-3.5" />
+                Fermer
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

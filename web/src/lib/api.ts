@@ -22,7 +22,13 @@ async function apiFetch<T>(
     headers: { 'Content-Type': 'application/json', ...options.headers as Record<string, string> },
     ...options,
   })
-  const json = await res.json()
+  const text = await res.text()
+  let json: APIResponse<T>
+  try {
+    json = JSON.parse(text) as APIResponse<T>
+  } catch {
+    throw new Error(`Réponse invalide (HTTP ${res.status}) pour ${path}`)
+  }
   if (!res.ok) {
     throw new Error(json.errors?.join(', ') ?? `API Error ${res.status}`)
   }

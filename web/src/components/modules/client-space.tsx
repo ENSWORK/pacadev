@@ -29,8 +29,16 @@ import {
   Copy,
   ChevronRight,
   Loader2,
+  X,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -97,6 +105,8 @@ function ClientSelectionGrid() {
 
 // ── Tab 1: Fiche Client ───────────────────────────────────────────────────
 function FicheClient({ client, userRole }: { client: ClientData; userRole: UserRole }) {
+  const { setSelectedClientSlug, setCurrentView } = useAppStore()
+  const [accessOpen, setAccessOpen] = useState(false)
   const contacts = useMemo(() => {
     try {
       return client.contacts ? JSON.parse(client.contacts) : { dev: [], client: [], ops: [] }
@@ -224,21 +234,65 @@ function FicheClient({ client, userRole }: { client: ClientData; userRole: UserR
 
       {/* Action buttons */}
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" className="gap-1.5" disabled={userRole === 'client'}>
+        <Button variant="outline" size="sm" className="gap-1.5" disabled={userRole === 'client'} onClick={() => { setSelectedClientSlug(client.slug); setCurrentView('workspace') }}>
           <Pencil className="size-3.5" />
           Éditer config
         </Button>
-        <Button variant="outline" size="sm" className="gap-1.5">
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { setSelectedClientSlug(client.slug); setCurrentView('observability') }}>
           <Network className="size-3.5" />
           Voir réseau
         </Button>
         {userRole === 'admin' && (
-          <Button variant="outline" size="sm" className="gap-1.5">
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setAccessOpen(true)}>
             <ShieldCheck className="size-3.5" />
             Gérer accès
           </Button>
         )}
       </div>
+
+      {/* Gérer accès dialog */}
+      <Dialog open={accessOpen} onOpenChange={setAccessOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="size-4 text-muted-foreground" />
+              Accès — {client.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Groupe ACL</p>
+              <p className="font-mono">{client.aclGroup ?? '—'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Équipe Dev</p>
+              <div className="space-y-1">
+                {contacts.dev.map((email: string) => (
+                  <p key={email} className="font-mono">{email}</p>
+                ))}
+                {contacts.dev.length === 0 && <p className="text-muted-foreground">—</p>}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Équipe Ops</p>
+              <div className="space-y-1">
+                {contacts.ops.map((email: string) => (
+                  <p key={email} className="font-mono">{email}</p>
+                ))}
+                {contacts.ops.length === 0 && <p className="text-muted-foreground">—</p>}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <DialogClose asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <X className="size-3.5" />
+                Fermer
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
