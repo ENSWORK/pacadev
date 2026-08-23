@@ -1,0 +1,5 @@
+client: pacadai
+odoo_version: '19'
+generated_at: '2026-08-23T16:00:00'
+comment: Généré par PACADEV. Épingle les versions effectivement chargées.
+modules: {}

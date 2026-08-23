@@ -52,6 +52,7 @@ Après toute génération ou modification de code, exécute la machine à états
 | mecafric        | v17     | mecafric.pacadev.local       | — |
 | mecafric_water  | v17     | mecafric_water.pacadev.local | — |
 | sofetelec       | v17     | sofetelec.pacadev.local      | hr_payroll_community |
+| pacadai         | v19     | pacadai.pacadev.local        | ens_core (produit) |
 | specta          | v14     | specta.pacadev.local         | — |
 
 ## Infrastructure

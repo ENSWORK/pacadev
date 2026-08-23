@@ -1,0 +1,14 @@
+# PACADEV — Infra DNS local (dnsmasq)
+# Résout *.pacadev.local vers le serveur pour toutes les machines du LAN.
+services:
+  pacadev_dns:
+    image: strm/dnsmasq
+    container_name: pacadev_dns
+    ports:
+      - "192.168.11.20:53:53/tcp"
+      - "192.168.11.20:53:53/udp"
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
