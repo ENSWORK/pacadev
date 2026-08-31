@@ -61,7 +61,7 @@ import { PipelineTimeline } from '@/components/shared/pipeline-timeline'
 import { GateModal } from '@/components/shared/gate-modal'
 import { SecureConfirmModal } from '@/components/shared/secure-confirm-modal'
 import { StatusBadge } from '@/components/shared/status-badge'
-import { mockPipelines, mockClients, mockAIConfig } from '@/lib/mock-data'
+import { mockPipelines, mockClients } from '@/lib/mock-data'
 import type { Pipeline } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useAsyncAction } from '@/hooks/use-async-action'
@@ -712,10 +712,25 @@ function HistoriquePipelines({ selectedSlug }: { selectedSlug: string }) {
 
 // ============ Boutons d'automatisation Section ============
 function BoutonsAutomatisation() {
-  const [autoMerge, setAutoMerge] = useState(mockAIConfig.autoMerge)
-  const [autoDeploy, setAutoDeploy] = useState(mockAIConfig.autoDeploy)
-  const [autoRollback, setAutoRollback] = useState(mockAIConfig.autoRollback)
+  const [autoMerge, setAutoMerge] = useState(false)
+  const [autoDeploy, setAutoDeploy] = useState(false)
+  const [autoRollback, setAutoRollback] = useState(false)
   const { loading: configLoading, execute: executeConfigUpdate } = useAsyncAction()
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/ai/config')
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled || !d.success || !d.data) return
+        const cfg = d.data as { autoMerge?: boolean; autoDeploy?: boolean; autoRollback?: boolean }
+        if (typeof cfg.autoMerge === 'boolean') setAutoMerge(cfg.autoMerge)
+        if (typeof cfg.autoDeploy === 'boolean') setAutoDeploy(cfg.autoDeploy)
+        if (typeof cfg.autoRollback === 'boolean') setAutoRollback(cfg.autoRollback)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
 
   const updateConfig = (key: string, value: boolean) => {
     const config: Record<string, unknown> = { autoMerge, autoDeploy, autoRollback, [key]: value }

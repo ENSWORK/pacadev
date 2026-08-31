@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getClientFromPACAPDEV, workStop } from '@/lib/pacadev-service';
+import { guardAction, auditAction } from '@/lib/action-guard';
 import type { APIResponse } from '@/lib/types';
 
 export async function POST(
@@ -17,6 +18,18 @@ export async function POST(
       meta: { timestamp: new Date().toISOString(), user: 'admin@enswork.com', cli_equivalent: `pacadev work stop --client ${slug}` },
     };
     return NextResponse.json(response, { status: 404 });
+  }
+
+  const guard = guardAction('work_start', slug);
+  auditAction(guard);
+  if (!guard.allowed) {
+    const response: APIResponse<null> = {
+      success: false,
+      data: null,
+      errors: guard.reasons,
+      meta: { timestamp: new Date().toISOString(), user: 'admin@enswork.com', client: slug, cli_equivalent: `pacadev work stop --client ${slug}` },
+    };
+    return NextResponse.json(response, { status: 403 });
   }
 
   const data = workStop(slug);

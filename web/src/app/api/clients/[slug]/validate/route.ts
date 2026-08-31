@@ -1,6 +1,38 @@
 import { NextResponse } from 'next/server';
-import { getClientFromPACAPDEV } from '@/lib/pacadev-service';
-import type { APIResponse } from '@/lib/types';
+import { getClientFromPACAPDEV, getClientHealth } from '@/lib/pacadev-service';
+import type { APIResponse, HealthCheck } from '@/lib/types';
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;
+  const client = getClientFromPACAPDEV(slug);
+
+  if (!client) {
+    const response: APIResponse<null> = {
+      success: false,
+      data: null,
+      errors: [`Client with slug "${slug}" not found`],
+      meta: { timestamp: new Date().toISOString(), user: 'admin@enswork.com', cli_equivalent: `pacadev list --client ${slug}` },
+    };
+    return NextResponse.json(response, { status: 404 });
+  }
+
+  const health: HealthCheck = getClientHealth(slug);
+  const response: APIResponse<HealthCheck> = {
+    success: true,
+    data: health,
+    meta: {
+      timestamp: new Date().toISOString(),
+      user: 'admin@enswork.com',
+      client: slug,
+      source: 'pacadev-service:getClientHealth',
+      cli_equivalent: `pacadev health --client ${slug}`,
+    },
+  };
+  return NextResponse.json(response);
+}
 
 export async function POST(
   request: Request,

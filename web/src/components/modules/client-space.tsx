@@ -30,6 +30,9 @@ import {
   ChevronRight,
   Loader2,
   X,
+  HeartPulse,
+  CircleCheck,
+  CircleX,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -54,7 +57,7 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { GateModal } from '@/components/shared/gate-modal'
 import type { GitBranch as GitBranchType, Ticket as TicketType } from '@/lib/mock-data'
 import { useAppStore, type ClientTab } from '@/lib/store'
-import type { ClientData, ClientModule, Deployment, UserRole } from '@/lib/types'
+import type { ClientData, ClientModule, Deployment, UserRole, HealthCheck } from '@/lib/types'
 import { useAsyncAction } from '@/hooks/use-async-action'
 import { deployApi, rollbackApi, workApi, issueApi, clientsApi } from '@/lib/api'
 
@@ -432,13 +435,13 @@ function BranchesTab({ clientSlug, clientName }: { clientSlug: string; clientNam
       .then((r) => r.json())
       .then((d) => {
         if (d.success && d.data.length > 0) {
-          setBranches(d.data.map((b: { name: string; lastCommitAuthor: string | null; lastCommitDate: string | null; upstream: string | null; current: boolean; type: string }) => ({
+          setBranches(d.data.map((b: { name: string; lastCommitAuthor: string | null; lastCommitDate: string | null; upstream: string | null; current: boolean; type: string; ciStatus?: string; protected?: boolean }) => ({
             name: b.name,
             author: b.lastCommitAuthor || '—',
             date: b.lastCommitDate || new Date().toISOString(),
             status: b.upstream ? 'synced' : 'ahead',
-            ciStatus: b.current ? 'running' : 'pending',
-            isProtected: b.type === 'protected',
+            ciStatus: b.ciStatus && b.ciStatus !== 'unknown' ? b.ciStatus : (b.current ? 'running' : 'pending'),
+            isProtected: b.type === 'protected' || b.protected === true,
           } as GitBranchType)))
         }
       })
@@ -829,6 +832,87 @@ function VersionsTab({ client, clientName }: { client: ClientData; clientName: s
   )
 }
 
+// ── Tab 6: Health Check ───────────────────────────────────────────────────
+function HealthTab({ clientSlug }: { clientSlug: string }) {
+  const [health, setHealth] = useState<HealthCheck | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const load = () => {
+    setLoading(true)
+    fetch(`/api/clients/${clientSlug}/validate`)
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setHealth(d.data) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(load, [clientSlug])
+
+  const checkLabels: Record<string, string> = {
+    docker: 'Conteneur Docker',
+    config: 'Configuration (odoo.conf)',
+    filestore: 'Filestore',
+    odoo_http: 'Réponse HTTP Odoo',
+    db: 'Base de données',
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <HeartPulse className="size-4 text-muted-foreground" />
+          Health Check
+          {health && (
+            <span className="ml-2">
+              <StatusBadge status={health.overall} size="sm" />
+            </span>
+          )}
+          <Button variant="ghost" size="sm" className="ml-auto h-7 px-2 text-xs gap-1" disabled={loading} onClick={load}>
+            {loading ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />}
+            Actualiser
+          </Button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {loading && !health ? (
+          <div className="flex items-center justify-center py-10 text-muted-foreground">
+            <Loader2 className="size-5 animate-spin" />
+          </div>
+        ) : !health ? (
+          <p className="text-center text-muted-foreground py-10">Impossible de récupérer le health check.</p>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {health.checks.map((c) => (
+                <div
+                  key={c.name}
+                  className={`rounded-lg border p-3 space-y-1.5 ${c.ok ? 'border-emerald-200 dark:border-emerald-900/40' : 'border-red-200 dark:border-red-900/40'}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-medium">{checkLabels[c.name] ?? c.name}</p>
+                    {c.ok ? (
+                      <CircleCheck className="size-4 text-emerald-500" />
+                    ) : (
+                      <CircleX className="size-4 text-red-500" />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-snug">{c.detail}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-3">
+              <span>
+                Conteneur : <span className="font-mono">{health.dockerStatus}</span>
+              </span>
+              <span>Dernière vérification : {format(new Date(health.lastCheck), 'HH:mm:ss')}</span>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 // ── Main Espace Client ────────────────────────────────────────────────────
 export function EspaceClient() {
   const { selectedClientSlug, setSelectedClientSlug, clientTab, setClientTab, userRole, realClients } = useAppStore()
@@ -895,6 +979,11 @@ export function EspaceClient() {
             <span className="hidden sm:inline">Versions</span>
             <span className="sm:hidden">Versions</span>
           </TabsTrigger>
+          <TabsTrigger value="health" className="gap-1.5">
+            <HeartPulse className="size-3.5" />
+            <span className="hidden sm:inline">Health</span>
+            <span className="sm:hidden">Health</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="fiche">
@@ -915,6 +1004,10 @@ export function EspaceClient() {
 
         <TabsContent value="versions">
           <VersionsTab client={client} clientName={client.name} />
+        </TabsContent>
+
+        <TabsContent value="health">
+          <HealthTab clientSlug={client.slug} />
         </TabsContent>
       </Tabs>
     </div>

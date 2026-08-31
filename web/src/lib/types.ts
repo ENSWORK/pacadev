@@ -269,6 +269,26 @@ export interface UserSession {
   mfaEnabled?: boolean;
 }
 
+export interface HealthCheck {
+  clientId: string;
+  slug: string;
+  dockerRunning: boolean;
+  dockerStatus: string;
+  dockerHealth: string;
+  dbAccessible: boolean;
+  filestoreReadable: boolean;
+  configValid: boolean;
+  odooResponding: boolean;
+  odooUrl: string | null;
+  lastCheck: string;
+  checks: {
+    name: string;
+    ok: boolean;
+    detail: string;
+  }[];
+  overall: 'healthy' | 'degraded' | 'down';
+}
+
 export interface DashboardStats {
   totalClients: number;
   activeDeployments: number;

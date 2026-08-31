@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { UserRole, ClientData } from './types';
 
 export type AppView = 'dashboard' | 'clients' | 'workspace' | 'pipeline' | 'ai' | 'backup' | 'observability' | 'audit';
-export type ClientTab = 'fiche' | 'modules' | 'branches' | 'tickets' | 'versions';
+export type ClientTab = 'fiche' | 'modules' | 'branches' | 'tickets' | 'versions' | 'health';
 export type WorkspaceTab = 'tickets' | 'workstarter' | 'workflow';
 
 export interface RealPipeline {
