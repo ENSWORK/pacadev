@@ -8,7 +8,7 @@ Machine : `192.168.11.20` (utilisateur `pacadev`). Accès : `ssh pacadev "cd ~/p
 ```bash
 pacadev version   # Version de PACADEV
 pacadev init <client> [--odoo 14|17|19] [--template standard]   # Initialise un client
-pacadev list      # Clients enregistrés (afrequip, mecafric, mecafric_water, sofetelec)
+pacadev list      # Clients enregistrés (afrequip, mecafric, mecafric_water, sofetelec, pacadai)
 pacadev health [--client <c>|--all]   # Santé Odoo + DB par client
 ```
 

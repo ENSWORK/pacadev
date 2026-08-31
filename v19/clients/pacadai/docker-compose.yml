@@ -1,0 +1,30 @@
+services:
+  pacadai_odoo:
+    image: odoo:19.0
+    container_name: pacadai_odoo
+    environment:
+      HOST: pacadev_postgres_shared
+      POSTGRES_DB: pacadai
+      PORT: "5432"
+      USER: odoo
+      PASSWORD: odoo
+    ports:
+      - "8094:8069"
+    volumes:
+      - ./filestore:/var/lib/odoo/filestore
+      - ./addons/oca:/mnt/extra-addons/oca:ro
+      - ./addons/ens_core:/mnt/extra-addons/ens_core:ro
+      - ./addons/custom:/mnt/extra-addons/custom:ro
+      - ./odoo.conf:/etc/odoo/odoo.conf:ro
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pacadai.rule=Host(`pacadai.pacadev.local`)
+      - traefik.http.routers.pacadai.entrypoints=web
+      - traefik.http.services.pacadai.loadbalancer.server.port=8069
+    networks:
+      - pacadev-network
+
+networks:
+  pacadev-network:
+    external: true

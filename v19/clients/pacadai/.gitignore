@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# PACADEV
+.pacadev/
+
+# Runtime / données locales
+filestore/
+data/
+
+# Dépendances tierces (read-only, récupérables)
+addons/oca/
+
+# Scaffold historique openensdev archivé (non versionné)
+.legacy_openensdev/
+
+# IDE
+.vscode/
+.idea/
