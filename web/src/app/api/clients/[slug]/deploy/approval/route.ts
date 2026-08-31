@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getClientFromPACAPDEV, deployApprove, getApprovals } from '@/lib/pacadev-service';
+import { guardAction, auditAction } from '@/lib/action-guard';
 import type { APIResponse } from '@/lib/types';
 
 export async function GET(
@@ -47,6 +48,18 @@ export async function POST(
     approveToken?: string;
     dryRun?: boolean;
   };
+
+  const guard = guardAction(env === 'prod' ? 'deploy_prod' : 'deploy_staging', slug);
+  auditAction(guard, { env, dryRun });
+  if (!guard.allowed) {
+    const response: APIResponse<null> = {
+      success: false,
+      data: null,
+      errors: guard.reasons,
+      meta: { timestamp: new Date().toISOString(), user: 'admin@enswork.com', client: slug, cli_equivalent: `pacadev deploy approve --client ${slug} --env ${env} --reason "..."` },
+    };
+    return NextResponse.json(response, { status: 403 });
+  }
 
   if (!reason) {
     const response: APIResponse<null> = {

@@ -12,6 +12,7 @@ import type {
   Deployment,
   Backup,
   Alert,
+  HealthCheck,
 } from './types';
 
 const PACADEV_HOME = process.env.PACADEV_HOME || path.join('/home/pacadev', '.pacadev');
@@ -296,7 +297,7 @@ export function getClientModules(slug: string): OdooModule[] {
   if (!addonBase) return [];
 
   const modules: OdooModule[] = [];
-  const sources: Array<'ens_core' | 'oca'> = ['ens_core', 'oca'];
+  const sources: Array<'ens_core' | 'oca' | 'custom'> = ['ens_core', 'oca', 'custom'];
 
   for (const source of sources) {
     const sourceDir = path.join(addonBase, source);
@@ -398,6 +399,92 @@ export function getDockerMetrics(slug: string): DockerMetrics {
   }
 }
 
+// ============ CLIENT HEALTH CHECK ============
+export function getClientHealth(slug: string): HealthCheck {
+  const docker = getDockerStatus(slug);
+  const versions = readVersionsJSON();
+  const client = versions.clients[slug];
+  const ver = client?.odoo_version || '';
+  const clientDir = path.join(PACADEV_WORKSPACE, `v${ver}`, 'clients', slug);
+
+  const checks: { name: string; ok: boolean; detail: string }[] = [];
+
+  checks.push({
+    name: 'docker',
+    ok: docker.running,
+    detail: docker.running ? `Conteneur ${docker.containerName} ${docker.status}` : 'Conteneur arrêté',
+  });
+
+  const configPath = path.join(clientDir, 'odoo.conf');
+  const configValid = fs.existsSync(configPath);
+  checks.push({
+    name: 'config',
+    ok: configValid,
+    detail: configValid ? `odoo.conf présent (${configPath})` : 'odoo.conf manquant',
+  });
+
+  const filestorePath = path.join(clientDir, 'filestore');
+  let filestoreReadable = false;
+  try {
+    filestoreReadable = fs.existsSync(filestorePath) && fs.statSync(filestorePath).isDirectory();
+  } catch {
+    filestoreReadable = false;
+  }
+  checks.push({
+    name: 'filestore',
+    ok: filestoreReadable,
+    detail: filestoreReadable ? 'filestore présent et lisible' : 'filestore non provisionné',
+  });
+
+  let dbAccessible = false;
+  let odooResponding = false;
+  const odooUrl = docker.port ? `http://localhost:${docker.port}` : null;
+  try {
+    if (docker.port) {
+      const res = execSync(`curl -s -m 5 -o /dev/null -w '%{http_code}' http://localhost:${docker.port}/`, {
+        timeout: 8000,
+        encoding: 'utf-8',
+      }).trim();
+      const code = parseInt(res, 10);
+      odooResponding = !isNaN(code) && code >= 200 && code < 400;
+      dbAccessible = odooResponding;
+    }
+  } catch {
+    odooResponding = false;
+    dbAccessible = false;
+  }
+  checks.push({
+    name: 'odoo_http',
+    ok: odooResponding,
+    detail: odooResponding ? `Odoo répond sur localhost:${docker.port}` : 'Odoo ne répond pas sur HTTP',
+  });
+  checks.push({
+    name: 'db',
+    ok: dbAccessible,
+    detail: dbAccessible ? 'Base accessible (via instance Odoo)' : 'Base non vérifiable / inaccessible',
+  });
+
+  const okCount = checks.filter((c) => c.ok).length;
+  const overall: HealthCheck['overall'] =
+    okCount === checks.length ? 'healthy' : okCount >= 2 ? 'degraded' : 'down';
+
+  return {
+    clientId: slug,
+    slug,
+    dockerRunning: docker.running,
+    dockerStatus: docker.status,
+    dockerHealth: docker.health,
+    dbAccessible,
+    filestoreReadable,
+    configValid,
+    odooResponding,
+    odooUrl,
+    lastCheck: new Date().toISOString(),
+    checks,
+    overall,
+  };
+}
+
 // ============ DOCKER LOGS ============
 interface LogEntry {
   id: string;
@@ -457,12 +544,15 @@ interface BranchInfo {
   lastCommitAuthor: string | null;
   upstream: string | null;
   type: 'protected' | 'feature';
+  protected?: boolean;
+  ciStatus?: 'success' | 'failure' | 'running' | 'pending' | 'unknown';
 }
 
 export function getClientBranches(slug: string): BranchInfo[] {
   const versions = readVersionsJSON();
   const client = versions.clients[slug];
   const repoPath = client?.target_path || client?.path || `/home/pacadev/pacadev`;
+  const repo = client?.current_repo || readConfigYAML().github.core_repo || 'ENSWORK/pacadev';
 
   try {
     const raw = execSync(
@@ -475,6 +565,23 @@ export function getClientBranches(slug: string): BranchInfo[] {
       { encoding: 'utf-8', timeout: 3000 }
     ).trim();
 
+    // GitHub enrichment : CI status of the current branch + protection of main
+    let ciByBranch: Record<string, string> = {};
+    let protectedBranches: string[] = [];
+    try {
+      const ciResp = githubAPI(`repos/${repo}/actions/runs?branch=${encodeURIComponent(currentRaw)}&per_page=1`, 8000);
+      if (ciResp.success && Array.isArray(ciResp.data) && ciResp.data.length > 0) {
+        const st = (ciResp.data as Array<{ status: string; conclusion: string | null }>)[0];
+        ciByBranch[currentRaw] = st.conclusion || st.status || 'unknown';
+      }
+      const protResp = githubAPI(`repos/${repo}/branches/main`, 8000);
+      if (protResp.success) {
+        protectedBranches = ['main'];
+      }
+    } catch {
+      // ignore GitHub enrichment failures
+    }
+
     const seen = new Set<string>();
     const result: BranchInfo[] = [];
 
@@ -485,6 +592,8 @@ export function getClientBranches(slug: string): BranchInfo[] {
       const cleanName = isRemote ? name.replace('remotes/origin/', '') : name;
       if (cleanName.includes('HEAD') || seen.has(cleanName)) continue;
       seen.add(cleanName);
+      const isProtected = cleanName === 'main' || cleanName === 'staging';
+      const ci = ciByBranch[cleanName];
       result.push({
         name: cleanName,
         sha: (sha || '').slice(0, 7),
@@ -493,7 +602,9 @@ export function getClientBranches(slug: string): BranchInfo[] {
         lastCommitDate: (date || '').trim() || null,
         lastCommitAuthor: (author || '').trim() || null,
         upstream: (upstream || '').trim() || null,
-        type: (cleanName === 'main' || cleanName === 'staging') ? 'protected' : 'feature',
+        type: isProtected ? 'protected' : 'feature',
+        protected: isProtected || protectedBranches.includes(cleanName),
+        ciStatus: (ci as BranchInfo['ciStatus']) || 'unknown',
       });
     }
     return result;
