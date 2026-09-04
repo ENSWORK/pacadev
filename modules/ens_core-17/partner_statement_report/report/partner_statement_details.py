@@ -247,8 +247,10 @@ class InvoiceAbstractReport(models.AbstractModel):
                     ('partner_id', '=', partner.id),
                     ('move_type', '=', move_type),
                     ('state', '=', 'posted'),
-                    ('payment_state', 'not in', ['paid', 'reversed']),
                 ]
+                if statement_type == 'outstanding':
+                    domain.append(('payment_state', 'not in', ['paid', 'reversed']))
+                    domain.append(('invoice_date', '<=', as_of_date))
                 if start_date:
                     domain.append(('invoice_date', '>=', start_date))
                 if end_date:
@@ -257,16 +259,19 @@ class InvoiceAbstractReport(models.AbstractModel):
                 invoice_data = []
                 total_amount = total_balance = 0
                 for invoice in invoices:
+                    balance = abs(invoice.amount_residual_signed)
+                    if statement_type == 'outstanding' and round(balance, 2) <= 0:
+                        continue
                     invoice_data.append({
                         'invoice_date': invoice.invoice_date,
                         'invoice_date_due': invoice.invoice_date_due,
                         'invoice_id': invoice.name,
                         'ref': invoice.ref or '',
                         'amount': fmt(abs(invoice.amount_total_signed)),
-                        'balance_due': fmt(abs(invoice.amount_residual_signed)),
+                        'balance_due': fmt(balance),
                     })
                     total_amount += abs(invoice.amount_total_signed)
-                    total_balance += abs(invoice.amount_residual_signed)
+                    total_balance += balance
 
                 if exclude_zero_balance and round(total_balance, 2) == 0:
                     continue

@@ -38,6 +38,7 @@
                         <h2 style="margin:0;">
                             <t t-if="statement_type == 'activity'">Relevé d'activité</t>
                             <t t-elif="statement_type == 'detailed_activity'">Relevé d'activité détaillé</t>
+                            <t t-elif="statement_type == 'all_invoices'">Toutes les factures</t>
                             <t t-else="">Relevé d'échéances</t>
                         </h2>
                     </div>
@@ -285,7 +286,7 @@
                 </t>
 
                 <!-- Outstanding -->
-                <t t-if="statement_type == 'outstanding'">
+                <t t-if="statement_type in ('outstanding', 'all_invoices')">
                     <table class="table table-sm table-bordered" style="width:100%;table-layout:fixed;margin-top:16px;">
                         <colgroup>
                             <col style="width:11%;"/><col style="width:11%;"/><col style="width:16%;"/>
