@@ -171,6 +171,7 @@
                                         <th class="text-center" style="width:10%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;font-size:14px;">UdM</th>
                                         <th class="text-center" style="width:10%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;font-size:14px;">Qté commandée</th>
                                         <th class="text-center" style="width:10%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;font-size:14px;">Qté Livrée</th>
+                                        <th t-if="o.print_with_price" class="text-right" style="width:10%;padding:8px;border:1px solid #ABABAB;vertical-align:middle;font-size:14px;white-space:nowrap;">PU HT</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -200,6 +201,14 @@
         <td class="text-center" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;">
             <span t-field="line.quantity"/>
         </td>
+        <td t-if="o.print_with_price" class="text-right" style="padding:8px;border-right:1px solid #ABABAB;border-bottom:1px dotted #ABABAB;white-space:nowrap;">
+            <t t-if="o.sale_id">
+                <t t-set="sale_line" t-value="o.sale_id.order_line.filtered(lambda l: l.product_id == line.product_id)[:1]"/>
+                <t t-if="sale_line">
+                    <span t-esc="'{:.2f}'.format(sale_line.price_unit)"/>
+                </t>
+            </t>
+        </td>
     </tr>
 </t>
 <!-- Lignes vides avec uniquement les séparations verticales -->
@@ -219,6 +228,9 @@
             <div style="height:100%;">&amp;nbsp;</div>
         </td>
         <td style="border: none; border-right:1px solid #ABABAB;">
+            <div style="height:100%;">&amp;nbsp;</div>
+        </td>
+        <td t-if="o.print_with_price" style="border: none; border-right:1px solid #ABABAB;">
             <div style="height:100%;">&amp;nbsp;</div>
         </td>
     </tr>
@@ -266,6 +278,25 @@
         <field name="print_report_name">'Bon_De_Livraison_%s' % (object.name)</field>
         <field name="binding_model_id" ref="stock.model_stock_picking"/>
         <field name="binding_type">report</field>
-        <field name="paperformat_id" ref="custom_reports.paperformat_custom_reports_standard"/>
+    </record>
+
+    <!-- ==================== PAPER FORMAT ==================== -->
+    <record id="paperformat_delivery_db" model="report.paperformat">
+        <field name="name">Format Bon de Livraison DB</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">40</field>
+        <field name="margin_bottom">23</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">35</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Assign Paper Format to Report -->
+    <record id="action_report_delivery_db" model="ir.actions.report">
+        <field name="paperformat_id" ref="paperformat_delivery_db"/>
     </record>
 </odoo>
