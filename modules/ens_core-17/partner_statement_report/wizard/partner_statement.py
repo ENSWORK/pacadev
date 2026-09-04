@@ -20,7 +20,8 @@ class CustomerStatementWizard(models.TransientModel):
     statement_type = fields.Selection(
         [('activity', "Relevé d'activité"),
          ('detailed_activity', "Relevé d'activité détaillé"),
-         ('outstanding', 'Relevé des impayés')],
+         ('outstanding', 'Relevé des impayés'),
+         ('all_invoices', 'Toutes les factures')],
         string="Type de relevé",
         required=True,
         default='outstanding',
@@ -115,27 +116,34 @@ class CustomerStatementWizard(models.TransientModel):
         domain = [
             ('partner_id', '=', partner.id),
             ('move_type', '=', move_type),
+            ('state', '=', 'posted'),
         ]
+        if self.statement_type == 'outstanding':
+            domain.append(('payment_state', 'not in', ['paid', 'reversed']))
+            domain.append(('invoice_date', '<=', self.as_of_date))
         if self.start_date:
             domain.append(('invoice_date', '>=', self.start_date))
         if self.end_date:
             domain.append(('invoice_date', '<=', self.end_date))
-        invoices = self.env['account.move'].search(domain)
+        invoices = self.env['account.move'].search(domain, order='invoice_date asc')
         invoice_data = []
         total_amount = total_payment = total_balance = 0
         for invoice in invoices:
-            paid_amount = abs(invoice.amount_total_signed) - abs(invoice.amount_residual_signed)
+            balance = abs(invoice.amount_residual_signed)
+            if self.statement_type == 'outstanding' and round(balance, 2) <= 0:
+                continue
+            paid_amount = abs(invoice.amount_total_signed) - balance
             invoice_data.append({
                 'invoice_date': invoice.invoice_date,
                 'invoice_date_due': invoice.invoice_date_due,
                 'invoice_id': invoice.name,
                 'amount': round(abs(invoice.amount_total_signed), 2),
                 'payment_amount': round(paid_amount, 2),
-                'balance_due': round(abs(invoice.amount_residual_signed), 2),
+                'balance_due': round(balance, 2),
             })
             total_amount += abs(invoice.amount_total_signed)
             total_payment += paid_amount
-            total_balance += abs(invoice.amount_residual_signed)
+            total_balance += balance
         return invoice_data, round(total_amount, 2), round(total_payment, 2), round(total_balance, 2)
 
     def _get_open_invoices(self, partner, as_of_date):
@@ -457,6 +465,7 @@ class CustomerStatementWizard(models.TransientModel):
             'activity': "Relevé d'activité",
             'detailed_activity': "Relevé d'activité détaillé",
             'outstanding': 'Relevé des impayés',
+            'all_invoices': 'Toutes les factures',
         }
         partner_type_label = 'Client' if self.partner_type == 'customer' else 'Fournisseur'
         statement_label = f"{statement_labels.get(self.statement_type, '')} — {partner_type_label}"

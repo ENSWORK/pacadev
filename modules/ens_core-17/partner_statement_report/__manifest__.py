@@ -5,7 +5,7 @@
             Relevé de compte partenaire — module traduit en français pour afrequip
     """,
     'summary': 'Relevé de compte partenaire',
-    'version': '17.0.1.4.0',
+    'version': '17.0.1.4.1',
     'category': 'Accounting',
     'author': 'Yunus Abdulaziz',
     'website': "yuab.odoo@gmail.com",
