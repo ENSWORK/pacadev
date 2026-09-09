@@ -6,6 +6,10 @@
         <xpath expr="//div[hasclass('company_address')]" position="attributes">
             <attribute name="t-att-style">"display:none;" if psr_hide_company_name else None</attribute>
         </xpath>
+        <!-- Imposer la taille du logo définie dans les paramètres société (custom_reports) -->
+        <xpath expr="//img[hasclass('float-start')]" position="attributes">
+            <attribute name="t-att-style">"max-height: {0}px; max-width: {1}px;".format(company.logo_height or 85, company.logo_width or 350) if psr_hide_company_name else None</attribute>
+        </xpath>
         <!-- Supprimer les interlignes dans le footer en injectant un style avant la liste -->
         <xpath expr="//ul[hasclass('list-inline')]" position="before">
             <t t-if="psr_hide_company_name">
