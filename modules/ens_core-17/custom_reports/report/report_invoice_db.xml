@@ -18,7 +18,7 @@
                         <div style="font-family: Arial, sans-serif; line-height: 1.1;">
                          <h5 t-attf-style="font-size: 18px; font-weight: bold; color: #{o.company_id.primary_color}">FACTURE</h5>
                             <div t-attf-style="font-size: 14px; color: #{o.company_id.primary_color}">
-                                <strong>Réf. : </strong><span t-field="o.name"/><br/>
+                                <strong>Facture Réf. : </strong><span t-field="o.name"/><br/>
                                 <strong>Date facturation : </strong><span t-field="o.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/><br/>
                                 <strong>Code client : </strong><span t-field="o.partner_id.ref"/><br/>
                                 <strong>Réf de la commande : </strong><span t-field="o.ref"/><br/>
