@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   AlertTriangle,
   CalendarClock,
@@ -9,7 +9,6 @@ import {
   Database,
   Eye,
   FileWarning,
-  Filter,
   Inbox,
   KeyRound,
   Layers,
@@ -47,6 +46,7 @@ import {
   BUCKET_HINT,
   BUCKET_LABEL,
   BUCKET_ORDER,
+  VISIBLE_BUCKET_ORDER,
 } from '@/lib/operations/buckets'
 import { facetKey } from '@/lib/operations/dashboard'
 import { formatAge, formatIsoFr } from '@/lib/operations/time'
@@ -80,7 +80,10 @@ const DENSITY_OPTIONS: { value: Density; label: string }[] = [
   { value: 'detailed', label: 'Détaillé' },
 ]
 
-const PAGE_SIZES = [10, 25, 50, 100] as const
+// Palier d'affichage des sections de l'onglet Tâches. Règle générale validée par
+// l'utilisateur : jamais de liste de 150 tâches d'un bloc, on déplie par
+// paliers de 10, à la demande. Même valeur que la fenêtre d'ouverture.
+const BUCKET_SECTION_PAGE_SIZE = 10
 
 const ALL = 'all'
 const NONE = '__none__'
@@ -321,26 +324,34 @@ function TaskRow({
 
 // ── Section de bucket ─────────────────────────────────────────────────────
 
+// Même modèle que la fenêtre d'ouverture : 10 lignes, puis « 10 de plus » par
+// palier, ou tout. Le palier vit dans un state local et repart de 10 dès que la
+// liste change (numéro de recherche), donc on ne peut pas se retrouver devant
+// un palier heredite d'un autre filtre.
 function BucketSection({
   bucket,
   tasks,
   today,
   density,
-  page,
-  pageSize,
-  onPage,
+  revision,
 }: {
   bucket: TaskBucket
   tasks: OperationTask[]
   today: string
   density: Density
-  page: number
-  pageSize: number
-  onPage: (page: number) => void
+  revision: string
 }) {
-  const pageCount = Math.max(1, Math.ceil(tasks.length / pageSize))
-  const current = Math.min(page, pageCount)
-  const visible = tasks.slice((current - 1) * pageSize, current * pageSize)
+  const [limit, setLimit] = useState(BUCKET_SECTION_PAGE_SIZE)
+  const previousRevision = useRef(revision)
+  useEffect(() => {
+    if (previousRevision.current !== revision) {
+      previousRevision.current = revision
+      setLimit(BUCKET_SECTION_PAGE_SIZE)
+    }
+  }, [revision])
+
+  const visible = tasks.slice(0, limit)
+  const remaining = tasks.length - visible.length
   const stages = Array.from(new Set(tasks.map((task) => task.stage_key)))
 
   return (
@@ -375,33 +386,107 @@ function BucketSection({
                 <TaskRow key={task.id} task={task} today={today} density={density} />
               ))}
             </div>
-            <div className="flex items-center justify-between gap-2 border-t border-border/60 px-3 py-2 text-[11px] text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-3 py-2 text-[11px] text-muted-foreground">
               <span className="tabular-nums">
-                {visible.length} ligne(s) affichée(s) · {tasks.length} au total · page{' '}
-                {current}/{pageCount}
+                {visible.length} ligne(s) affichée(s) sur {tasks.length}
               </span>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs"
-                  disabled={current <= 1}
-                  onClick={() => onPage(current - 1)}
-                >
-                  Précédent
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs"
-                  disabled={current >= pageCount}
-                  onClick={() => onPage(current + 1)}
-                >
-                  Suivant
-                </Button>
-              </div>
+              {remaining > 0 && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                onClick={() => setLimit((current) => current + BUCKET_SECTION_PAGE_SIZE)}
+              >
+                Afficher {Math.min(BUCKET_SECTION_PAGE_SIZE, remaining)} de plus
+              </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => setLimit(tasks.length)}
+                  >
+                    Tout afficher
+                  </Button>
+                </div>
+              )}
             </div>
           </>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// Les « non classées » suivent la même règle que les sections : 10 lignes puis
+// paliers de 10. Avant, cette carte vidait la liste entière d'un bloc, ce qui
+// pouvait afficher plus de 150 tâches d'un coup.
+function UnclassifiedSection({
+  tasks,
+  today,
+  density,
+  revision,
+}: {
+  tasks: OperationTask[]
+  today: string
+  density: Density
+  revision: string
+}) {
+  const [limit, setLimit] = useState(BUCKET_SECTION_PAGE_SIZE)
+  const previousRevision = useRef(revision)
+  useEffect(() => {
+    if (previousRevision.current !== revision) {
+      previousRevision.current = revision
+      setLimit(BUCKET_SECTION_PAGE_SIZE)
+    }
+  }, [revision])
+
+  const visible = tasks.slice(0, limit)
+  const remaining = tasks.length - visible.length
+
+  return (
+    <Card className="min-w-0 border-orange-300 dark:border-orange-800">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-base font-semibold text-orange-600 dark:text-orange-400">
+            Non classées
+          </span>
+          <Badge variant="secondary" className="tabular-nums">
+            {tasks.length}
+          </Badge>
+          <span className="text-[11px] font-normal text-muted-foreground">
+            Aucune règle de bucket ne s&apos;applique : affichées telles quelles, jamais masquées
+          </span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        {visible.map((task) => (
+          <TaskRow key={task.id} task={task} today={today} density={density} />
+        ))}
+        {remaining > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-3 py-2 text-[11px] text-muted-foreground">
+            <span className="tabular-nums">
+              {visible.length} ligne(s) affichée(s) sur {tasks.length}
+            </span>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => setLimit((current) => current + BUCKET_SECTION_PAGE_SIZE)}
+              >
+                Afficher {Math.min(BUCKET_SECTION_PAGE_SIZE, remaining)} de plus
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => setLimit(tasks.length)}
+              >
+                Tout afficher
+              </Button>
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>
@@ -424,8 +509,6 @@ export function OperationsTasksModule() {
   const [tag, setTag] = useState<string>(ALL)
   const [search, setSearch] = useState('')
   const [density, setDensity] = useState<Density>('standard')
-  const [pageSize, setPageSize] = useState<number>(25)
-  const [pages, setPages] = useState<Record<string, number>>({})
   // Segment ouvert dans la fenêtre, comme sur le tableau de bord. La clé du
   // DrilldownDialog repart de 10 tâches à chaque ouverture, sans état à suivre.
   const [facet, setFacet] = useState<DashboardFacet | null>(null)
@@ -494,7 +577,6 @@ export function OperationsTasksModule() {
   const logout = async () => {
     await fetch('/api/operations/session', { method: 'DELETE' }).catch(() => null)
     setPayload(null)
-    setPages({})
     setState('unauthorized')
   }
 
@@ -537,6 +619,8 @@ export function OperationsTasksModule() {
       }
       return true
     }
+    // Tous les buckets sont filtrés, « done » compris : il reste compté par les
+    // KPI même si sa section n'est plus affichée.
     const buckets = {} as Record<TaskBucket, OperationTask[]>
     for (const key of BUCKET_ORDER) {
       buckets[key] = payload.buckets[key].filter(keep)
@@ -544,14 +628,25 @@ export function OperationsTasksModule() {
     return { buckets, unclassified: payload.unclassified.filter(keep) }
   }, [payload, filters])
 
-  useEffect(() => {
-    setPages({})
-  }, [filters])
-
+  // « Terminées » n'a pas de section : lister 92 tâches closes n'apporte rien
+  // au pilotage (demande explicite de l'utilisateur, 2026-09-25). Le compte
+  // reste visible dans le KPI et dans le tableau de bord, la liste non.
+  const visibleBuckets = VISIBLE_BUCKET_ORDER
   const visibleTotal = filtered
-    ? BUCKET_ORDER.reduce((sum, key) => sum + (filtered.buckets[key]?.length ?? 0), 0) +
+    ? visibleBuckets.reduce((sum, key) => sum + (filtered.buckets[key]?.length ?? 0), 0) +
       filtered.unclassified.length
     : 0
+
+  // Signature des filtres actifs : les sections s'en servent pour remettre leur
+  // palier à 10 quand un filtre change, sans mutualiser un état par section.
+  const filterRevision = [
+    filters.stage,
+    filters.priority,
+    filters.assignee,
+    filters.tag,
+    filters.search,
+    filters.period,
+  ].join('|')
 
   // ── Garde par mot de passe ────────────────────────────────────────────
   if (state === 'unauthorized') {
@@ -785,7 +880,7 @@ export function OperationsTasksModule() {
             return (
               <div
                 key={definition.key}
-                title="Comptage seul : les tâches terminées se consultent dans leur section, plus bas."
+                title="Les tâches terminées restent consultables dans leur section, plus bas."
                 className="flex cursor-default flex-col items-start gap-1 rounded-lg border bg-card p-3 text-left"
               >
                 {body}
@@ -955,22 +1050,10 @@ export function OperationsTasksModule() {
               </SelectContent>
             </Select>
 
-            <div className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <Filter className="size-3.5" />
-              Lignes par page
-            </div>
-            <Select value={String(pageSize)} onValueChange={(value) => setPageSize(Number(value))}>
-              <SelectTrigger size="sm" className="h-8 w-24 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PAGE_SIZES.map((value) => (
-                  <SelectItem key={value} value={String(value)} className="text-xs">
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <p className="text-[11px] text-muted-foreground">
+              Chaque section affiche 10 lignes, puis 10 de plus à la demande, ou la liste entière
+              ({BUCKET_SECTION_PAGE_SIZE} par palier).
+            </p>
 
             <Button
               variant="ghost"
@@ -997,42 +1080,27 @@ export function OperationsTasksModule() {
         </CardContent>
       </Card>
 
-      {/* Sections par bucket, dans l'ordre validé — en colonnes pour rester lisible d'un coup d'œil */}
+      {/* Sections par bucket, dans l'ordre validé — en colonnes pour rester lisible
+          d'un coup d'œil. « Terminées » est volontairement absent de la liste. */}
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        {BUCKET_ORDER.map((bucket) => (
+        {visibleBuckets.map((bucket) => (
           <BucketSection
             key={bucket}
             bucket={bucket}
             tasks={filtered.buckets[bucket] ?? []}
             today={payload.today}
             density={density}
-            page={pages[bucket] ?? 1}
-            pageSize={pageSize}
-            onPage={(page) => setPages((current) => ({ ...current, [bucket]: page }))}
+            revision={filterRevision}
           />
         ))}
 
         {filtered.unclassified.length > 0 && (
-          <Card className="min-w-0 border-orange-300 dark:border-orange-800">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="text-base font-semibold text-orange-600 dark:text-orange-400">
-                  Non classées
-                </span>
-                <Badge variant="secondary" className="tabular-nums">
-                  {filtered.unclassified.length}
-                </Badge>
-                <span className="text-[11px] font-normal text-muted-foreground">
-                  Aucune règle de bucket ne s&apos;applique : affichées telles quelles, jamais masquées
-                </span>
-              </CardTitle>
-            </CardHeader>
-          <CardContent className="p-0">
-            {filtered.unclassified.map((task) => (
-              <TaskRow key={task.id} task={task} today={payload.today} density={density} />
-            ))}
-          </CardContent>
-        </Card>
+          <UnclassifiedSection
+            tasks={filtered.unclassified}
+            today={payload.today}
+            density={density}
+            revision={filterRevision}
+          />
         )}
       </div>
         </TabsContent>

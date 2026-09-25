@@ -1083,6 +1083,56 @@ test('ouverture d\'un segment: les KPI de l\'onglet Tâches ouvrent la fenêtre,
   assert.equal(countDefinitions(read('src/components/modules/operations-tasks.tsx')), 0)
 })
 
+test('affichage des listes: jamais plus de 10 lignes sans dépliage demandé', () => {
+  // Règle générale de l'utilisateur : une liste de 150 tâches d'un bloc est
+  // illisible. Toute liste se déplie par paliers de 10, sur demande.
+  const view = read('src/components/modules/operations-tasks.tsx')
+  const dialog = read('src/components/modules/operations-drilldown.tsx')
+
+  // aucune page de 25, 50 ou 100 lignes ne peut plus être choisie
+  assert.doesNotMatch(view, /PAGE_SIZES/)
+  assert.doesNotMatch(view, /Lignes par page/)
+  assert.doesNotMatch(view, /pageSize/)
+  // plus de navigation par pages : le modèle est « 10 de plus » / « tout »
+  assert.doesNotMatch(view, /Précédent/)
+  assert.doesNotMatch(view, /Suivant/)
+  // le palier vient d'une constante partagée, pas d'un 10 écrit en dur
+  assert.match(view, /const BUCKET_SECTION_PAGE_SIZE = 10/)
+  assert.match(view, /Afficher \{Math\.min\(BUCKET_SECTION_PAGE_SIZE, remaining\)\} de plus/)
+  // le palier est appliqué par slice, donc jamais plus de N lignes rendues
+  assert.match(view, /const visible = tasks\.slice\(0, limit\)/)
+  // « Tout afficher » existe bien, sinon la liste serait inaccessible
+  assert.match(view, /Tout afficher/)
+  // la fenêtre de segment suit la même valeur
+  assert.equal(dialog.includes('DASHBOARD_FACET_PAGE_SIZE'), true)
+})
+
+test('affichage des listes: les tâches terminées ne sont pas listées', () => {
+  // Demande explicite : 92 tâches closes n'apportent rien au pilotage. Le compte
+  // reste visible (KPI et tableau de bord), la liste disparaît.
+  const view = read('src/components/modules/operations-tasks.tsx')
+  const buckets = read('src/lib/operations/buckets.ts')
+
+  assert.match(buckets, /export const VISIBLE_BUCKET_ORDER: readonly TaskBucket\[\] = BUCKET_ORDER\.filter/)
+  assert.match(buckets, /\(bucket\) => bucket !== 'done'/)
+  // les sections affichées viennent bien de cette liste, pas de BUCKET_ORDER
+  assert.match(view, /visibleBuckets\.map\(\(bucket\) => \(/)
+  assert.equal(view.includes('BUCKET_ORDER.map((bucket) => ('), false)
+  // « done » reste compté : le filtre le classe toujours
+  assert.match(buckets, /if \(TERMINAL_STAGE_KEYS\.includes\(stage\)\) return 'done'/)
+})
+
+test('affichage des listes: les non classées sont soumises au même palier', () => {
+  // Cette carte vidait sa liste entière d'un bloc : c'était le seul endroit du
+  // cockpit capable d'afficher plus de 150 tâches d'un coup.
+  const view = read('src/components/modules/operations-tasks.tsx')
+  assert.match(view, /function UnclassifiedSection/)
+  assert.match(view, /const visible = tasks\.slice\(0, limit\)/)
+  assert.match(view, /Tout afficher/)
+  // elle reçoit la même signature de révision que les autres sections
+  assert.equal((view.match(/revision=\{filterRevision\}/g) ?? []).length, 2)
+})
+
 test('ouverture d\'un segment: la vue cockpit rend 10 à la fois avec les deux options', () => {
   // La fenêtre est extraite dans son propre module : c'est là que vit la
   // pagination, donc c'est là que se vérifie « 10 à la fois ».

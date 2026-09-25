@@ -52,6 +52,13 @@ export function emptyBuckets(): Record<TaskBucket, OperationTask[]> {
   }
 }
 
+// Ordre d'affichage des sections de l'onglet Tâches. « done » en est absent :
+// les tâches terminées ne sont pas listées, elles restent seulement comptées
+// (KPI et tableau de bord). Décision utilisateur du 2026-09-25.
+export const VISIBLE_BUCKET_ORDER: readonly TaskBucket[] = BUCKET_ORDER.filter(
+  (bucket) => bucket !== 'done',
+)
+
 // null = aucune regle ne s'applique (donnee hors modele, jamais masquee)
 export function bucketOf(task: OperationTask, today: string): TaskBucket | null {
   const stage = task.stage_key
