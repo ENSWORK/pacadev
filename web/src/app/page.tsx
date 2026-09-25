@@ -7,6 +7,7 @@ import { AppHeader } from '@/components/layout/app-header'
 import { DashboardGlobal } from '@/components/modules/dashboard'
 import { EspaceClient } from '@/components/modules/client-space'
 import { WorkspaceModule } from '@/components/modules/workspace'
+import { OperationsTasksModule } from '@/components/modules/operations-tasks'
 import { PipelineModule } from '@/components/modules/pipeline'
 import { AICenterModule } from '@/components/modules/ai-center'
 import { BackupModule } from '@/components/modules/backup'
@@ -22,6 +23,7 @@ const viewComponents: Record<AppView, React.ComponentType> = {
   dashboard: DashboardGlobal,
   clients: EspaceClient,
   workspace: WorkspaceModule,
+  operations: OperationsTasksModule,
   pipeline: PipelineModule,
   ai: AICenterModule,
   backup: BackupModule,
