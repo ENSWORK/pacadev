@@ -785,7 +785,7 @@ export function OperationsTasksModule() {
             return (
               <div
                 key={definition.key}
-                title="Les tâches terminées restent consultables dans leur section, plus bas."
+                title="Comptage seul : les tâches terminées se consultent dans leur section, plus bas."
                 className="flex cursor-default flex-col items-start gap-1 rounded-lg border bg-card p-3 text-left"
               >
                 {body}
