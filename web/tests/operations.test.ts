@@ -59,7 +59,7 @@ import {
 } from '@/lib/operations/projection-source'
 import { CLICKUP_PARITY_REASON, buildFreshness, loadOperations, staleAfterSeconds } from '@/lib/operations/service'
 import { ageSeconds, diffIsoDays, formatIsoFr, isIsoDate, shiftIsoDate, todayIso } from '@/lib/operations/time'
-import { STAGE_KEY_BY_ID, STAGE_LABEL, type OperationTask } from '@/lib/operations/types'
+import { STAGE_KEY_BY_ID, STAGE_LABEL, type DashboardFacet, type OperationTask, type TaskBucket } from '@/lib/operations/types'
 
 const REPO_ROOT = process.env.OPERATIONS_REPO_ROOT ?? process.cwd()
 const TODAY = '2026-09-25'
@@ -80,6 +80,12 @@ function writeJson(dir: string, name: string, value: unknown): string {
   const path = join(dir, name)
   writeFileSync(path, JSON.stringify(value), 'utf8')
   return path
+}
+
+// Compte les declarations d'un composant donne, pour prouver qu'il n'existe
+// qu'une seule definition de la fenetre dans tout le cockpit.
+function countDefinitions(source: string): number {
+  return (source.match(/function DrilldownDialog/g) ?? []).length
 }
 
 function exportedMethods(source: string): string[] {
@@ -906,15 +912,15 @@ test('tableau de bord: payload complet et cohérent, règles de calcul affichée
 // ═════════════════════════════════════════════════════════════════════════
 
 test('ouverture d\'un segment: le compte affiché et la liste ouverte coïncident', () => {
-  const summary = buildSummary(DASH_TASKS, TODAY).lines
-  assert.ok(summary.length > 0)
-  const pairs = [
-    [{ kind: 'open' as const }, buildSummary(DASH_TASKS, TODAY).open],
-    [{ kind: 'late' as const }, buildSummary(DASH_TASKS, TODAY).late],
-    [{ kind: 'blocked' as const }, buildSummary(DASH_TASKS, TODAY).blocked],
-    [{ kind: 'unassigned' as const }, buildSummary(DASH_TASKS, TODAY).unassigned],
-    [{ kind: 'decisions' as const }, buildSummary(DASH_TASKS, TODAY).decisions_open],
-    [{ kind: 'initiatives' as const }, buildSummary(DASH_TASKS, TODAY).initiatives_open],
+  const summary = buildSummary(DASH_TASKS, TODAY)
+  assert.ok(summary.lines.length > 0)
+  const pairs: [DashboardFacet, number][] = [
+    [{ kind: 'open' }, summary.open],
+    [{ kind: 'late' }, summary.late],
+    [{ kind: 'blocked' }, summary.blocked],
+    [{ kind: 'unassigned' }, summary.unassigned],
+    [{ kind: 'decisions' }, summary.decisions_open],
+    [{ kind: 'initiatives' }, summary.initiatives_open],
   ]
   for (const [facet, count] of pairs) {
     const listed = selectFacet(DASH_TASKS, facet, TODAY)
@@ -1009,22 +1015,89 @@ test('ouverture d\'un segment: identité de clé unique par segment', () => {
     facetKey({ kind: 'blocked' }),
   )
   // chaque type de segment a un libellé lisible
-  for (const kind of ['open', 'late', 'blocked', 'unassigned', 'decisions', 'initiatives', 'stage', 'assignee']) {
-    assert.ok(FACET_LABEL[kind].length > 0)
+  for (const kind of [
+    'open', 'late', 'blocked', 'unassigned', 'decisions', 'initiatives',
+    'stage', 'assignee', 'total', 'bucket',
+  ] as const) {
+    assert.ok(FACET_LABEL[kind].length > 0, `${kind} sans libellé`)
   }
 })
 
-test('ouverture d\'un segment: la vue cockpit rend 10 à la fois avec les deux options', () => {
-  const view = read('src/components/modules/operations-dashboard.tsx')
-  // la fenêtre est présente et paginée
+test('ouverture d\'un segment: le facet « bucket » liste exactement le KPI annoncé', () => {
+  // C'est la garantie qui rend le clic sur un KPI de l'onglet Tâches honnête :
+  // selectFacet passe par bucketOf, la fonction qui a produit le KPI.
+  const tasks = [
+    task({ id: 1, stage_id: 20 }),
+    task({ id: 2, stage_id: 12 }),
+    task({ id: 3, stage_id: 8, deadline: '2026-09-01' }),
+    task({ id: 4, stage_id: 8, deadline: TODAY }),
+    task({ id: 5, stage_id: 10 }),
+    task({ id: 6, stage_id: 8 }),
+    task({ id: 7, stage_id: 9, deadline: '2026-10-01' }),
+    task({ id: 8, stage_id: 9, deadline: '2027-01-01' }),
+    task({ id: 9, stage_id: 9 }),
+  ]
+  const { buckets } = assignBuckets(tasks, TODAY)
+  const kpis = computeKpis(buckets, tasks.length)
+
+  const pairs: [TaskBucket, number][] = [
+    ['late', kpis.late],
+    ['today', kpis.today],
+    ['intervention', kpis.intervention],
+    ['a_planifier', kpis.a_planifier],
+    ['j14', kpis.j14],
+  ]
+  for (const [bucket, count] of pairs) {
+    const listed = selectFacet(tasks, { kind: 'bucket', bucket }, TODAY)
+    assert.equal(listed.length, count, `${bucket} : ${listed.length} listées pour ${count} annoncés`)
+  }
+  // « Total » ouvre tout, terminées comprises : c'est ce que son libellé annonce
+  assert.equal(selectFacet(tasks, { kind: 'total' }, TODAY).length, kpis.total)
+  // une section et son KPI portent la même clé : la fenêtre repart de 10
+  assert.notEqual(facetKey({ kind: 'bucket', bucket: 'late' }), facetKey({ kind: 'bucket', bucket: 'j14' }))
+  assert.notEqual(facetKey({ kind: 'bucket', bucket: 'late' }), facetKey({ kind: 'total' }))
+})
+
+test('ouverture d\'un segment: les KPI de l\'onglet Tâches ouvrent la fenêtre, sauf « Terminées »', () => {
+  const view = read('src/components/modules/operations-tasks.tsx')
+  // la fenêtre est montée dans l'onglet Tâches, sur la projection déjà chargée
   assert.match(view, /DrilldownDialog/)
-  assert.match(view, /selectFacet/)
-  // 10 de plus et tout afficher
-  assert.match(view, /Afficher .* de plus/)
-  assert.match(view, /Tout afficher/)
+  assert.match(view, /facet=\{facet\}/)
+  assert.match(view, /tasks=\{payload\.tasks\}/)
+  // chaque KPI cliquable ouvre son segment, sans second appel réseau
+  assert.match(view, /onClick=\{\(\) => setFacet\(facet\)\}/)
+  // « Total » ouvre tout…
+  assert.match(view, /key: 'total', label: 'Total'.*facet: \{ kind: 'total' \}/)
+  // …et « Terminées » reste un compteur, sans facet donc sans fenêtre
+  assert.match(view, /key: 'done', label: 'Terminées', bucket: 'done', icon: CheckCircle2, facet: null/)
+  // le clic ne défile plus vers la section : la fenêtre prend le relais
+  assert.doesNotMatch(view, /setFocusBucket|scrollIntoView/)
+  // la fenêtre est partagée, pas dupliquée dans les deux onglets
+  const shared = read('src/components/modules/operations-drilldown.tsx')
+  assert.match(shared, /Afficher .* de plus/)
+  assert.match(shared, /Tout afficher/)
+  assert.match(shared, /selectFacet/)
+  const dashboard = read('src/components/modules/operations-dashboard.tsx')
+  assert.match(dashboard, /from '\.\/operations-drilldown'/)
+  // un seul module définit la fenêtre : pas de doublon à faire diverger
+  assert.equal(countDefinitions(read('src/components/modules/operations-tasks.tsx')), 0)
+})
+
+test('ouverture d\'un segment: la vue cockpit rend 10 à la fois avec les deux options', () => {
+  // La fenêtre est extraite dans son propre module : c'est là que vit la
+  // pagination, donc c'est là que se vérifie « 10 à la fois ».
+  const dialog = read('src/components/modules/operations-drilldown.tsx')
+  assert.match(dialog, /DrilldownDialog/)
+  assert.match(dialog, /selectFacet/)
+  assert.match(dialog, /Afficher .* de plus/)
+  assert.match(dialog, /Tout afficher/)
   // le palier vient de la constante partagée, pas d'un 10 écrit en dur
-  assert.match(view, /DASHBOARD_FACET_PAGE_SIZE/)
-  assert.match(view, /slice\(0, limit\)/)
+  assert.match(dialog, /DASHBOARD_FACET_PAGE_SIZE/)
+  assert.match(dialog, /slice\(0, limit\)/)
+  // une seule définition de la fenêtre dans tout le cockpit
+  assert.equal(countDefinitions(dialog), 1)
+  const view = read('src/components/modules/operations-dashboard.tsx')
+  assert.match(view, /DrilldownDialog/)
   // les tuiles et les barres sont des boutons
   assert.match(view, /<button[\s\S]*?onClick=\{\(\) => onOpen\(facet\)\}/)
   assert.match(view, /onClick=\{\(\) => onOpen\(facetFor\(bar\)\)\}/)

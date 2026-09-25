@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   AlertTriangle,
   CalendarClock,
@@ -41,16 +41,19 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { OperationsDashboard } from '@/components/modules/operations-dashboard'
+import { DrilldownDialog } from '@/components/modules/operations-drilldown'
 import { deadlineDelta, isBlocked, secondaryBadges } from '@/lib/operations/badges'
 import {
   BUCKET_HINT,
   BUCKET_LABEL,
   BUCKET_ORDER,
 } from '@/lib/operations/buckets'
+import { facetKey } from '@/lib/operations/dashboard'
 import { formatAge, formatIsoFr } from '@/lib/operations/time'
 import {
   STAGE_LABEL,
   TERMINAL_STAGE_KEYS,
+  type DashboardFacet,
   type OperationTask,
   type OperationsPayload,
   type StageKey,
@@ -104,19 +107,53 @@ const bucketStyles: Record<TaskBucket, string> = {
   plus_tard: 'text-slate-600 dark:text-slate-400',
 }
 
+// Chaque KPI est un bouton qui ouvre la fenêtre de segment, comme les tuiles du
+// tableau de bord : la liste vient de selectFacet(), donc elle affiche exactement
+// le compte annoncé. Le champ bucket ne sert plus qu'à la couleur.
+//
+// Deux exceptions assumées :
+// - « Terminées » n'a pas de facet. Lister 92 tâches terminées n'apporte rien au
+//   pilotage, donc la tuile reste un simple compteur, sans interaction.
+// - « Total » ouvre bien toutes les tâches, terminées comprises, puisque c'est ce
+//   que son libellé annonce ; la fenêtre le rappelle explicitement.
 const kpiDefinitions: {
   key: keyof OperationsPayload['kpis']
   label: string
   bucket: TaskBucket
   icon: React.ElementType
+  facet: DashboardFacet | null
 }[] = [
-  { key: 'total', label: 'Total', bucket: 'done', icon: Layers },
-  { key: 'done', label: 'Terminées', bucket: 'done', icon: CheckCircle2 },
-  { key: 'late', label: 'En retard', bucket: 'late', icon: AlertTriangle },
-  { key: 'today', label: "Aujourd'hui", bucket: 'today', icon: CalendarClock },
-  { key: 'intervention', label: 'Interventions', bucket: 'intervention', icon: ShieldAlert },
-  { key: 'a_planifier', label: 'À planifier', bucket: 'a_planifier', icon: ClipboardList },
-  { key: 'j14', label: 'J+14', bucket: 'j14', icon: Timer },
+  { key: 'total', label: 'Total', bucket: 'done', icon: Layers, facet: { kind: 'total' } },
+  { key: 'done', label: 'Terminées', bucket: 'done', icon: CheckCircle2, facet: null },
+  {
+    key: 'late',
+    label: 'En retard',
+    bucket: 'late',
+    icon: AlertTriangle,
+    facet: { kind: 'bucket', bucket: 'late' },
+  },
+  {
+    key: 'today',
+    label: "Aujourd'hui",
+    bucket: 'today',
+    icon: CalendarClock,
+    facet: { kind: 'bucket', bucket: 'today' },
+  },
+  {
+    key: 'intervention',
+    label: 'Interventions',
+    bucket: 'intervention',
+    icon: ShieldAlert,
+    facet: { kind: 'bucket', bucket: 'intervention' },
+  },
+  {
+    key: 'a_planifier',
+    label: 'À planifier',
+    bucket: 'a_planifier',
+    icon: ClipboardList,
+    facet: { kind: 'bucket', bucket: 'a_planifier' },
+  },
+  { key: 'j14', label: 'J+14', bucket: 'j14', icon: Timer, facet: { kind: 'bucket', bucket: 'j14' } },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -292,7 +329,6 @@ function BucketSection({
   page,
   pageSize,
   onPage,
-  sectionRef,
 }: {
   bucket: TaskBucket
   tasks: OperationTask[]
@@ -301,7 +337,6 @@ function BucketSection({
   page: number
   pageSize: number
   onPage: (page: number) => void
-  sectionRef?: React.RefCallback<HTMLDivElement>
 }) {
   const pageCount = Math.max(1, Math.ceil(tasks.length / pageSize))
   const current = Math.min(page, pageCount)
@@ -309,7 +344,7 @@ function BucketSection({
   const stages = Array.from(new Set(tasks.map((task) => task.stage_key)))
 
   return (
-    <Card ref={sectionRef} data-bucket={bucket} className="min-w-0 gap-3">
+    <Card data-bucket={bucket} className="min-w-0 gap-3">
       <CardHeader className="pb-2">
         <CardTitle className="flex flex-wrap items-center gap-2 text-sm">
           <span className={cn('text-base font-semibold', bucketStyles[bucket])}>
@@ -391,22 +426,11 @@ export function OperationsTasksModule() {
   const [density, setDensity] = useState<Density>('standard')
   const [pageSize, setPageSize] = useState<number>(25)
   const [pages, setPages] = useState<Record<string, number>>({})
-  const [focusBucket, setFocusBucket] = useState<TaskBucket | null>(null)
+  // Segment ouvert dans la fenêtre, comme sur le tableau de bord. La clé du
+  // DrilldownDialog repart de 10 tâches à chaque ouverture, sans état à suivre.
+  const [facet, setFacet] = useState<DashboardFacet | null>(null)
   // Le tableau de bord est l'écran d'arrivée : le cockpit sert d'abord au pilotage.
   const [tab, setTab] = useState<OpsTab>('dashboard')
-  // Les noeuds de section vivent dans un ref, jamais dans un state : un ref callback
-  // setState declenche detachement/reattachement a chaque rendu (React rejoue les refs
-  // dont l'identite change) et provoque une boucle infinie.
-  const sectionNodes = useRef(new Map<string, HTMLElement | null>())
-  const sectionRefs = useMemo(() => {
-    const refs = new Map<string, React.RefCallback<HTMLDivElement>>()
-    for (const bucket of BUCKET_ORDER) {
-      refs.set(bucket, (element) => {
-        sectionNodes.current.set(bucket, element)
-      })
-    }
-    return refs
-  }, [])
 
   const load = useCallback(async () => {
     setState('loading')
@@ -523,13 +547,6 @@ export function OperationsTasksModule() {
   useEffect(() => {
     setPages({})
   }, [filters])
-
-  useEffect(() => {
-    if (!focusBucket) return
-    const node = sectionNodes.current.get(focusBucket)
-    if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    setFocusBucket(null)
-  }, [focusBucket])
 
   const visibleTotal = filtered
     ? BUCKET_ORDER.reduce((sum, key) => sum + (filtered.buckets[key]?.length ?? 0), 0) +
@@ -749,17 +766,12 @@ export function OperationsTasksModule() {
         </CardContent>
       </Card>
 
-      {/* KPI */}
+      {/* KPI — chaque compteur ouvre la fenêtre de segment, sauf « Terminées ». */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
         {kpiDefinitions.map((definition) => {
           const value = payload.kpis[definition.key]
-          return (
-            <button
-              key={definition.key}
-              type="button"
-              onClick={() => setFocusBucket(definition.bucket)}
-              className="flex flex-col items-start gap-1 rounded-lg border bg-card p-3 text-left transition-colors hover:bg-accent/50"
-            >
+          const body = (
+            <>
               <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
                 <definition.icon className="size-3.5" />
                 {definition.label}
@@ -767,10 +779,46 @@ export function OperationsTasksModule() {
               <span className={cn('text-2xl font-semibold tabular-nums', bucketStyles[definition.bucket])}>
                 {value}
               </span>
+            </>
+          )
+          if (!definition.facet) {
+            return (
+              <div
+                key={definition.key}
+                title="Les tâches terminées restent consultables dans leur section, plus bas."
+                className="flex cursor-default flex-col items-start gap-1 rounded-lg border bg-card p-3 text-left"
+              >
+                {body}
+              </div>
+            )
+          }
+          const facet = definition.facet
+          return (
+            <button
+              key={definition.key}
+              type="button"
+              onClick={() => setFacet(facet)}
+              title={`Afficher les ${value} tâche(s) de « ${definition.label} »`}
+              className="group flex flex-col items-start gap-1 rounded-lg border bg-card p-3 text-left transition-colors hover:bg-accent/50 focus-visible:outline-foreground"
+            >
+              {body}
             </button>
           )
         })}
       </div>
+
+      {/* Ouverture d'un segment depuis un KPI : mêmes 10 tâches, mêmes paliers que
+          le tableau de bord. La liste vient de selectFacet(), donc elle affiche
+          exactement le compte du KPI. */}
+      <DrilldownDialog
+        key={facet ? facetKey(facet) : 'closed'}
+        facet={facet}
+        tasks={payload.tasks}
+        today={payload.today}
+        onOpenChange={(open) => {
+          if (!open) setFacet(null)
+        }}
+      />
 
       {/* Filtres */}
       <Card className="gap-3">
@@ -961,7 +1009,6 @@ export function OperationsTasksModule() {
             page={pages[bucket] ?? 1}
             pageSize={pageSize}
             onPage={(page) => setPages((current) => ({ ...current, [bucket]: page }))}
-            sectionRef={sectionRefs.get(bucket)}
           />
         ))}
 

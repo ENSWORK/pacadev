@@ -5,6 +5,9 @@
 // le nom ou la description, jamais sur une interpretation libre.
 
 import { deadlineDelta, isBlocked } from './badges'
+// bucketOf est la règle des sections de l'onglet Tâches : la réutiliser ici est ce
+// qui garantit que la fenêtre ouverte depuis un KPI affiche le compte du KPI.
+import { bucketOf } from './buckets'
 import {
   STAGE_LABEL,
   TERMINAL_STAGE_KEYS,
@@ -327,6 +330,8 @@ export const FACET_LABEL: Record<DashboardFacet['kind'], string> = {
   initiatives: 'Initiatives en cours',
   stage: 'Tâches à l’étape',
   assignee: 'Charge d’un responsable',
+  total: 'Toutes les tâches',
+  bucket: 'Tâches de la section',
 }
 
 // Identité textuelle d'un segment: sert de clé React pour que la fenêtre
@@ -337,6 +342,8 @@ export function facetKey(facet: DashboardFacet): string {
       return `stage:${facet.key}`
     case 'assignee':
       return `assignee:${facet.key}:${facet.openOnly ? 'open' : 'all'}`
+    case 'bucket':
+      return `bucket:${facet.bucket}`
     default:
       return facet.kind
   }
@@ -370,6 +377,10 @@ export function selectFacet(
         return (
           primaryAssignee(task) === facet.key && (!facet.openOnly || !task.is_terminal)
         )
+      case 'total':
+        return true
+      case 'bucket':
+        return bucketOf(task, today) === facet.bucket
     }
   })
   // tri de pilotage: non terminées d'abord, puis priorité, puis échéance la

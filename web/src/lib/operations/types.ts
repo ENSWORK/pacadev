@@ -157,6 +157,10 @@ export interface DashboardSummary {
 // Un clic sur une tuile ou une barre ouvre les tâches concernées. La sélection
 // est un simple filtre sur la projection déjà chargée : aucun appel réseau, donc
 // le compte affiché et la liste ouverte ne peuvent pas diverger.
+//
+// 'total' et 'bucket' servent l'onglet Tâches : ils réutilisent bucketOf(), donc
+// la fenêtre affiche exactement le compte du KPI. Le KPI « Terminées » n'a pas de
+// facet : lister 92 tâches terminées n'apporte rien au pilotage.
 export type DashboardFacet =
   | { kind: 'open' }
   | { kind: 'late' }
@@ -166,6 +170,8 @@ export type DashboardFacet =
   | { kind: 'initiatives' }
   | { kind: 'stage'; key: StageKey }
   | { kind: 'assignee'; key: string; openOnly: boolean }
+  | { kind: 'total' }
+  | { kind: 'bucket'; bucket: TaskBucket }
 
 export interface DashboardRules {
   decisions: string

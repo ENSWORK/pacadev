@@ -9,38 +9,24 @@ import {
   CircleDot,
   Gavel,
   Layers,
-  ListFilter,
   ShieldAlert,
   TrendingUp,
   UserX,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import { diffIsoDays, formatIsoFr } from '@/lib/operations/time'
-import {
-  DASHBOARD_FACET_PAGE_SIZE,
-  FACET_LABEL,
-  facetKey,
-  selectFacet,
-} from '@/lib/operations/dashboard'
+import { formatIsoFr } from '@/lib/operations/time'
+import { facetKey } from '@/lib/operations/dashboard'
 import {
   STAGE_LABEL,
   type DashboardBar,
   type DashboardFacet,
   type DashboardInitiative,
   type OperationsPayload,
-  type OperationTask,
   type StageKey,
 } from '@/lib/operations/types'
+import { DrilldownDialog, daysUntil, stageBadge } from './operations-drilldown'
 
 // Barres CSS : aucune dépendance de graphique n'est introduite, le rendu reste
 // identique en mode sombre et ne coûte aucun bundle supplémentaire.
@@ -56,27 +42,8 @@ const stageBarColor: Record<StageKey, string> = {
   inconnu: 'bg-orange-500',
 }
 
-const stageBadge: Record<StageKey, string> = {
-  reception: 'bg-slate-100 text-slate-700 dark:bg-slate-900/50 dark:text-slate-300',
-  a_faire: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  en_cours: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-  bloque: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-  en_validation: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
-  termine: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
-  annule: 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
-  acheve: 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
-  inconnu: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
-}
-
 function rule(hint: string): string {
   return `Règle de calcul — ${hint}`
-}
-
-// jours restants avant l'échéance (négatif = en retard), null si non planifiée
-function daysUntil(deadline: string | null, today: string): number | null {
-  if (!deadline) return null
-  const delta = diffIsoDays(today, deadline)
-  return Number.isFinite(delta) ? delta : null
 }
 
 // Chaque barre est un bouton: le clic ouvre les tâches du segment. Le libellé et
@@ -224,126 +191,6 @@ function ChartCard({
 
 // Une ligne de la fenêtre d'ouverture: même présentation que les lignes des
 // blocs, pour que la lecture soit continue entre le tableau de bord et la liste.
-function DrillRow({ task, today }: { task: OperationTask; today: string }) {
-  const delta = daysUntil(task.deadline, today)
-  const late = delta !== null && delta < 0
-  return (
-    <li className="flex flex-col gap-1 border-b border-border/60 px-3 py-2 last:border-b-0">
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <span className="font-mono text-[11px] text-muted-foreground">{task.ref}</span>
-        <span className="min-w-0 flex-1 text-sm">{task.name}</span>
-        <span
-          className={cn(
-            'rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap',
-            stageBadge[task.stage_key],
-          )}
-        >
-          {STAGE_LABEL[task.stage_key]}
-        </span>
-      </div>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
-        <span className="tabular-nums">Prio {task.priority}</span>
-        <span className={cn('inline-flex items-center gap-1', late && 'font-semibold text-red-600 dark:text-red-400')}>
-          <CalendarClock className="size-3" />
-          {task.deadline ? formatIsoFr(task.deadline) : 'Sans échéance'}
-          {late && ` · retard ${Math.abs(delta ?? 0)} j`}
-        </span>
-        {task.assignees.length > 0 && <span>{task.assignees.join(', ')}</span>}
-        {task.tags.length > 0 && <span>{task.tags.join(' · ')}</span>}
-        {task.parent_id !== null && <span>sous-tâche de {task.parent_id}</span>}
-      </div>
-    </li>
-  )
-}
-
-// La fenêtre demandée: 10 tâches, puis « 10 de plus » par palier, ou tout.
-// Le compteur reste visible pour toujours savoir combien sont affichées sur
-// combien, y compris quand la liste est entièrement dépliée.
-function DrilldownDialog({
-  facet,
-  tasks,
-  today,
-  onOpenChange,
-}: {
-  facet: DashboardFacet | null
-  tasks: OperationTask[]
-  today: string
-  onOpenChange: (open: boolean) => void
-}) {
-  const [limit, setLimit] = useState(DASHBOARD_FACET_PAGE_SIZE)
-
-  const selected = useMemo(
-    () => (facet ? selectFacet(tasks, facet, today) : []),
-    [facet, tasks, today],
-  )
-
-  const visible = selected.slice(0, limit)
-  const remaining = selected.length - visible.length
-  const title = facet ? FACET_LABEL[facet.kind] : ''
-  const subtitle =
-    facet?.kind === 'stage'
-      ? STAGE_LABEL[facet.key]
-      : facet?.kind === 'assignee'
-        ? `${facet.key}${facet.openOnly ? ' — charge ouverte' : ''}`
-        : null
-
-  return (
-    <Dialog open={facet !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[85vh] flex-col gap-3 sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex flex-wrap items-center gap-2 text-base">
-            <ListFilter className="size-4 text-muted-foreground" />
-            {title}
-            {subtitle && <Badge variant="secondary">{subtitle}</Badge>}
-          </DialogTitle>
-          <DialogDescription>
-            {selected.length} tâche{selected.length > 1 ? 's' : ''} concernée
-            {selected.length > 1 ? 's' : ''} — non terminées d&apos;abord, puis priorité et échéance la
-            plus proche.
-          </DialogDescription>
-        </DialogHeader>
-
-        {selected.length === 0 ? (
-          <p className="py-6 text-center text-xs text-muted-foreground">
-            Aucune tâche dans ce segment.
-          </p>
-        ) : (
-          <>
-            <ul className="-mx-3 max-h-[52vh] overflow-y-auto border-y border-border/60">
-              {visible.map((task) => (
-                <DrillRow key={task.id} task={task} today={today} />
-              ))}
-            </ul>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[11px] tabular-nums text-muted-foreground">
-                {visible.length} sur {selected.length} affichée
-                {selected.length > 1 ? 's' : ''}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {remaining > 0 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setLimit((current) => current + DASHBOARD_FACET_PAGE_SIZE)}
-                  >
-                    Afficher {Math.min(DASHBOARD_FACET_PAGE_SIZE, remaining)} de plus
-                  </Button>
-                )}
-                {remaining > 0 && (
-                  <Button type="button" size="sm" onClick={() => setLimit(selected.length)}>
-                    Tout afficher
-                  </Button>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
-  )
-}
-
 function InitiativeRow({ initiative, today }: { initiative: DashboardInitiative; today: string }) {
   const delta = daysUntil(initiative.deadline, today)
   const late = delta !== null && delta < 0
