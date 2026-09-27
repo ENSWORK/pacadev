@@ -221,7 +221,9 @@ function InitiativeRow({ initiative, today }: { initiative: DashboardInitiative;
     <li className="flex flex-col gap-1.5 border-b border-border/60 px-3 py-2.5 last:border-b-0">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="font-mono text-[11px] text-muted-foreground">{initiative.ref}</span>
-        <span className="min-w-0 flex-1 text-sm">{initiative.name}</span>
+        <span className="min-w-0 flex-1 text-sm line-clamp-3" title={initiative.name}>
+          {initiative.name}
+        </span>
         <span
           className={cn(
             'rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap',
@@ -264,7 +266,9 @@ function ActionRow({ action, today }: { action: DashboardAction; today: string }
     <li className="flex flex-col gap-1 border-b border-border/60 px-3 py-2.5 last:border-b-0">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="font-mono text-[11px] text-muted-foreground">{action.ref}</span>
-        <span className="min-w-0 flex-1 text-sm">{action.name}</span>
+        <span className="min-w-0 flex-1 text-sm line-clamp-3" title={action.name}>
+          {action.name}
+        </span>
         <span
           className={cn(
             'rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap',
@@ -533,7 +537,9 @@ export function OperationsDashboard({ payload }: { payload: OperationsPayload })
                         <span className="font-mono text-[11px] text-muted-foreground">
                           {decision.ref}
                         </span>
-                        <span className="min-w-0 flex-1 text-sm">{decision.name}</span>
+                        <span className="min-w-0 flex-1 text-sm line-clamp-3" title={decision.name}>
+                          {decision.name}
+                        </span>
                         <span
                           className={cn(
                             'rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap',
