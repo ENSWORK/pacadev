@@ -6,7 +6,7 @@
 
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdirSync, mkdtempSync, statSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, statSync, utimesSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -38,9 +38,24 @@ function mkdirHistory(dir: string): string {
   return chemin
 }
 
+// Une fixture ecrite maintenant porte l horaire du poste, alors que la suite
+// raisonne sur des instants figes (12:00Z, 23:30Z). Un `mtime` plus tardif que
+// ces instants rend le fichier « dans le futur » : le lecteur l ignore, car
+// `maintenant - mtime < 0`, et les tests echouent selon l heure de la journee.
+// Reculer le `mtime` rend la suite reproductible a toute heure, ce qu annonce
+// deja son en-tete. La valeur precede le plus petit instant fige employe ici.
+const MTIME_FIXTURE = Date.parse('2026-09-27T06:00:00Z')
+
+/** Ecrit un fichier de fixture avec un `mtime` anterieur a tout instant fige. */
+function ecrireFixture(path: string, contenu: string): void {
+  writeFileSync(path, contenu, 'utf8')
+  const quand = new Date(MTIME_FIXTURE)
+  utimesSync(path, quand, quand)
+}
+
 function writeArchive(dir: string, name: string, value: unknown): string {
   const path = join(dir, name)
-  writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value), 'utf8')
+  ecrireFixture(path, typeof value === 'string' ? value : JSON.stringify(value))
   return path
 }
 
@@ -340,10 +355,9 @@ const INSTANT = Date.parse('2026-09-27T12:00:00Z')
 
 function ecrireSerie(dir: string, dates: string[]): void {
   for (const date of dates) {
-    writeFileSync(
+    ecrireFixture(
       join(dir, `${date}.json`),
       JSON.stringify({ schema_version: 1, generated_at: `${date}T06:00:00Z`, tasks: [tache(1, 'a_faire')] }),
-      'utf8',
     )
   }
 }
