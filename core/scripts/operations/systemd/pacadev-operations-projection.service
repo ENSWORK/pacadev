@@ -1,0 +1,28 @@
+[Unit]
+Description=Projection des taches Odoo pour le cockpit PACADEV
+Documentation=file:/home/pacadev/pacadev/core/scripts/operations/README.md
+# Le reseau doit etre pret : sur un boot, l'unit demarre trop tot sinon.
+After=network-online.target
+Wants=network-online.target
+# Une echec de job doit se voir dans le journal, meme si la sortie du script
+# est noyee : cette unite ne fait qu'ecrire une ligne d'alerte explicite.
+OnFailure=pacadev-operations-projection-alerte@%n.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/pacadev/pacadev
+# Le "-" devant le chemin est indispensable : sans lui, systemd refuse de
+# demarrer l'unit si le fichier manque, et l'echec remonte comme
+# "Result=resources", c'est-a-dire un message incomprehensible. Avec le "-",
+# le demarrage a lieu, le script detecte l'absence de cle et sort avec son
+# propre message, puis l'unite d'alerte s'active.
+EnvironmentFile=-/home/pacadev/pacadev/core/scripts/operations/.env
+ExecStart=/usr/bin/python3 /home/pacadev/pacadev/core/scripts/operations/export_operations_tasks.py
+# Le job est prive : priorite basse pour ne pas gener le serveur web.
+Nice=10
+IOSchedulingClass=idle
+# 2 min suffisent : 3 lots de 100 taches + 2 tables de libelles.
+TimeoutStartSec=180
+# Pas de secret ni d'URL de service dans les journaux systemd.
+StandardOutput=journal
+StandardError=journal
