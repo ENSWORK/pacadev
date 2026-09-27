@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Database,
   Eye,
+  ExternalLink,
   FileWarning,
   Inbox,
   KeyRound,
@@ -42,6 +43,8 @@ import { cn } from '@/lib/utils'
 import { OperationsDashboard } from '@/components/modules/operations-dashboard'
 import { DrilldownDialog } from '@/components/modules/operations-drilldown'
 import { deadlineDelta, isBlocked, secondaryBadges } from '@/lib/operations/badges'
+import { odooTaskUrl } from '@/lib/operations/odoo-url'
+import { matchesTaskSearch } from '@/lib/operations/search'
 import {
   BUCKET_HINT,
   BUCKET_LABEL,
@@ -172,16 +175,6 @@ function formatClock(iso: string): string {
   }).format(new Date(stamp))
 }
 
-function matchesReference(task: OperationTask, needle: string): boolean {
-  if (needle.length === 0) return true
-  const lower = needle.toLowerCase()
-  if (task.ref.toLowerCase().includes(lower)) return true
-  if (String(task.id) === needle.trim()) return true
-  if (task.clickup_id && task.clickup_id.toLowerCase().includes(lower)) return true
-  if (task.github_issue !== null && String(task.github_issue) === needle.trim()) return true
-  return false
-}
-
 function deadlineLabel(task: OperationTask, today: string): { text: string; urgent: boolean } {
   const delta = deadlineDelta(task, today)
   if (delta === null) return { text: 'Sans échéance', urgent: false }
@@ -227,6 +220,7 @@ function TaskRow({
   const deadlineText = task.deadline ? formatIsoFr(task.deadline) : '—'
   const stage = STAGE_LABEL[task.stage_key]
   const badges = new Set(secondaryBadges(task, today))
+  const href = odooTaskUrl(task.id)
 
   return (
     <div
@@ -236,7 +230,20 @@ function TaskRow({
       )}
     >
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <span className="font-mono text-[11px] text-muted-foreground">{task.ref}</span>
+        {href === null ? (
+          <span className="font-mono text-[11px] text-muted-foreground">{task.ref}</span>
+        ) : (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Ouvrir ${task.ref} dans Odoo`}
+            className="inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            {task.ref}
+            <ExternalLink className="size-2.5" />
+          </a>
+        )}
         <span className={cn('min-w-0 flex-1', density === 'compact' ? 'text-xs' : 'text-sm')}>
           {task.name}
         </span>
@@ -612,7 +619,7 @@ export function OperationsTasksModule() {
       }
       if (filters.tag === NONE && task.tags.length > 0) return false
       if (filters.tag !== ALL && filters.tag !== NONE && !task.tags.includes(filters.tag)) return false
-      if (!matchesReference(task, filters.search)) return false
+      if (!matchesTaskSearch(task, filters.search)) return false
       if (filters.period > 0) {
         const delta = deadlineDelta(task, payload.today)
         if (delta !== null && (delta < -filters.period || delta > filters.period)) return false

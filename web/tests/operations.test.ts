@@ -64,6 +64,8 @@ import {
   stageKeyFromId,
 } from '@/lib/operations/normalize'
 import { buildOdooConfig } from '@/lib/operations/odoo-source'
+import { odooTaskUrl } from '@/lib/operations/odoo-url'
+import { matchesTaskSearch } from '@/lib/operations/search'
 import {
   createProjectionSource,
   readProjectionFile,
@@ -648,7 +650,9 @@ test('aucune dépendance externe ajoutée dans src/lib/operations', () => {
     'lenses.ts',
     'normalize.ts',
     'odoo-source.ts',
+    'odoo-url.ts',
     'projection-source.ts',
+    'search.ts',
     'service.ts',
     'time.ts',
     'types.ts',
@@ -1454,11 +1458,18 @@ test('affichage: la file d\'action est une liste bornee, en lecture seule', () =
   assert.equal(ACTION_QUEUE_LIMIT, 5)
   // la regle de tri est affichee sous la file
   assert.match(view, /rule\(dashboard\.rules\.action\)/)
-  // lecture seule assumee : le cockpit n'a aucun lien vers une tache Odoo, donc
-  // aucun lien ne doit apparaitre. Un bouton qui ne mene nulle part est pire
-  // qu'une liste honnete.
-  assert.equal(view.includes('<a '), false, 'le tableau de bord ne doit pas de lien')
-  assert.equal(view.includes('href'), false, 'le tableau de bord ne doit pas de lien')
+  // Lecture seule maintenue : le cockpit n'ecrit rien dans Odoo. Le seul lien
+  // tolere est une navigation vers la forme de la tache, construite par le
+  // module partage et ouverte dans un onglet (demande explicite de
+  // l'utilisateur, 2026-09-27). Cette regle remplace l'interdiction totale
+  // d'avant-lot, qui visait un bouton qui ne menait nulle part.
+  assert.match(view, /odooTaskUrl\(action\.id\)/)
+  assert.match(view, /odooTaskUrl\(initiative\.id\)/)
+  assert.match(view, /target="_blank"/)
+  assert.match(view, /rel="noopener noreferrer"/)
+  // aucun moyen d'ecrire : ni formulaire, ni gestionnaire de soumission
+  assert.equal(view.includes('<form'), false, 'le tableau de bord ne doit pas ecrire dans Odoo')
+  assert.equal(view.includes('onSubmit'), false, 'le tableau de bord ne doit pas ecrire dans Odoo')
   // la ligne porte la reference et le retard, ce qui permet de la retrouver
   assert.match(view, /action\.overdue_days/)
   assert.match(view, /action\.ref/)
@@ -1487,4 +1498,110 @@ test('affichage: chaque regle du payload est affichee quelque part', () => {
       `la regle rules.${cle} est dans le payload mais pas dans le tableau de bord`,
     )
   }
+})
+
+
+// ── Lot B : recherche designation + reference, lien vers la tache Odoo ──────
+
+test('recherche: la designation ET la reference repondent', () => {
+  const visite = task({ id: 5, name: 'Visite informatique mensuelle - SPECTA', stage_id: 8 })
+  const paie = task({ id: 147, name: 'Paie', stage_id: 8 })
+
+  // par reference
+  assert.equal(matchesTaskSearch(visite, 'odoo:5'), true)
+  assert.equal(matchesTaskSearch(visite, '5'), true)
+  assert.equal(matchesTaskSearch(paie, 'odoo:147'), true)
+  assert.equal(matchesTaskSearch(paie, '147'), true)
+
+  // par designation
+  assert.equal(matchesTaskSearch(visite, 'SPECTA'), true)
+  assert.equal(matchesTaskSearch(visite, 'specTa'), true)
+  assert.equal(matchesTaskSearch(paie, 'paie'), true)
+
+  // une reference qui appartient a une autre tache ne ramene pas celle-ci
+  assert.equal(matchesTaskSearch(paie, 'odoo:5'), false)
+  // ni designation ni reference : rien
+  assert.equal(matchesTaskSearch(paie, 'facture'), false)
+})
+
+test('recherche: accents et casse ignores', () => {
+  const cns = task({ id: 18, name: 'Declaration CNSS - Août 2026', stage_id: 8 })
+  assert.equal(matchesTaskSearch(cns, 'declaration'), true)
+  assert.equal(matchesTaskSearch(cns, 'DECLARATION'), true)
+  assert.equal(matchesTaskSearch(cns, 'cnss'), true)
+  assert.equal(matchesTaskSearch(cns, 'aout'), true)
+})
+
+test('recherche: les mots se cumulent et une recherche vide ne filtre rien', () => {
+  const visite = task({ id: 5, name: 'Visite informatique mensuelle - SPECTA', stage_id: 8 })
+  const ir = task({ id: 47, name: 'IR', stage_id: 9 })
+
+  assert.equal(matchesTaskSearch(visite, 'visite informatique'), true)
+  assert.equal(matchesTaskSearch(visite, 'specTA visite'), true)
+  // un seul mot absent suffit a exclure la tache
+  assert.equal(matchesTaskSearch(visite, 'visite ir'), false)
+  assert.equal(matchesTaskSearch(ir, 'visite'), false)
+  assert.equal(matchesTaskSearch(visite, ''), true)
+  assert.equal(matchesTaskSearch(visite, '   '), true)
+})
+
+test('recherche: les references ClickUp et GitHub restent trouvees', () => {
+  const t = task({
+    id: 142,
+    name: 'Changer le token API ClickUp',
+    stage_id: 8,
+    description: '[CU:86cb247dd] [GH:412]',
+  })
+  assert.equal(matchesTaskSearch(t, '86cb247dd'), true)
+  assert.equal(matchesTaskSearch(t, '412'), true)
+})
+
+test('lien Odoo: forme verifiee, base configurable, barre oblique toleree', () => {
+  const avant = process.env.NEXT_PUBLIC_ODOO_WEB_URL
+  try {
+    delete process.env.NEXT_PUBLIC_ODOO_WEB_URL
+    const parDefaut = odooTaskUrl(147)
+    assert.ok(parDefaut !== null)
+    assert.ok(parDefaut.startsWith('http://192.168.11.50/web#'), parDefaut)
+    const params = new URLSearchParams(parDefaut.split('#')[1] as string)
+    assert.equal(params.get('action'), 'base.action_open_form')
+    assert.equal(params.get('model'), 'project.task')
+    assert.equal(params.get('view_type'), 'form')
+    assert.equal(params.get('id'), '147')
+
+    process.env.NEXT_PUBLIC_ODOO_WEB_URL = 'http://odoo.enswork.local///'
+    const configuree = odooTaskUrl(147)
+    assert.ok(configuree !== null)
+    assert.ok(configuree.startsWith('http://odoo.enswork.local/web#'), configuree)
+  } finally {
+    if (avant === undefined) delete process.env.NEXT_PUBLIC_ODOO_WEB_URL
+    else process.env.NEXT_PUBLIC_ODOO_WEB_URL = avant
+  }
+})
+
+test('lien Odoo: un identifiant invalide ne produit aucun lien', () => {
+  assert.equal(odooTaskUrl(0), null)
+  assert.equal(odooTaskUrl(-3), null)
+  assert.equal(odooTaskUrl(1.5), null)
+  assert.equal(odooTaskUrl(Number.NaN), null)
+})
+
+test('le lien Odoo est cable sur chaque surface qui liste une tache', () => {
+  for (const fichier of [
+    'src/components/modules/operations-tasks.tsx',
+    'src/components/modules/operations-drilldown.tsx',
+    'src/components/modules/operations-dashboard.tsx',
+  ]) {
+    const source = read(fichier)
+    assert.ok(
+      source.includes('operations/odoo-url'),
+      `${fichier} n importe pas odooTaskUrl`,
+    )
+    assert.ok(source.includes('odooTaskUrl('), `${fichier} ne construit aucun lien`)
+  }
+  // plus aucun vestige de la decision d avant-lot qui interdisait le lien
+  const dash = read('src/components/modules/operations-dashboard.tsx')
+  assert.equal(dash.includes("n'a aucun lien"), false, 'le commentaire interdit toujours le lien Odoo')
+  // et le cockpit n ecrit toujours rien dans Odoo
+  assert.equal(read('src/lib/operations/odoo-url.ts').includes('fetch('), false)
 })

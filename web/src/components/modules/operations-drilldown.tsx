@@ -9,7 +9,7 @@
 // appel réseau, donc le compte affiché et la liste ouverte ne peuvent pas diverger.
 
 import { useMemo, useState } from 'react'
-import { CalendarClock, ListFilter } from 'lucide-react'
+import { CalendarClock, ExternalLink, ListFilter } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { BUCKET_HINT, BUCKET_LABEL } from '@/lib/operations/buckets'
+import { odooTaskUrl } from '@/lib/operations/odoo-url'
 import {
   DASHBOARD_FACET_PAGE_SIZE,
   FACET_LABEL,
@@ -61,10 +62,24 @@ export function daysUntil(deadline: string | null, today: string): number | null
 function DrillRow({ task, today }: { task: OperationTask; today: string }) {
   const delta = daysUntil(task.deadline, today)
   const late = delta !== null && delta < 0
+  const href = odooTaskUrl(task.id)
   return (
     <li className="flex flex-col gap-1 border-b border-border/60 px-3 py-2 last:border-b-0">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <span className="font-mono text-[11px] text-muted-foreground">{task.ref}</span>
+        {href === null ? (
+          <span className="font-mono text-[11px] text-muted-foreground">{task.ref}</span>
+        ) : (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Ouvrir ${task.ref} dans Odoo`}
+            className="inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            {task.ref}
+            <ExternalLink className="size-2.5" />
+          </a>
+        )}
         <span className="min-w-0 flex-1 text-sm">{task.name}</span>
         <span
           className={cn(

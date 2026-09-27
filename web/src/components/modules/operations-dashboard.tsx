@@ -7,6 +7,7 @@ import {
   CalendarClock,
   ChevronRight,
   CircleDot,
+  ExternalLink,
   Gavel,
   Layers,
   ShieldAlert,
@@ -17,6 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { formatIsoFr } from '@/lib/operations/time'
+import { odooTaskUrl } from '@/lib/operations/odoo-url'
 import { facetKey } from '@/lib/operations/dashboard'
 import { ACTION_QUEUE_LIMIT } from '@/lib/operations/lenses'
 import {
@@ -217,13 +219,26 @@ function InitiativeRow({ initiative, today }: { initiative: DashboardInitiative;
   const delta = daysUntil(initiative.deadline, today)
   const late = delta !== null && delta < 0
   const percent = Math.round(initiative.completion * 100)
+  const href = odooTaskUrl(initiative.id)
   return (
     <li className="flex flex-col gap-1.5 border-b border-border/60 px-3 py-2.5 last:border-b-0">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="font-mono text-[11px] text-muted-foreground">{initiative.ref}</span>
-        <span className="min-w-0 flex-1 text-sm line-clamp-3" title={initiative.name}>
-          {initiative.name}
-        </span>
+        {href === null ? (
+          <span className="min-w-0 flex-1 text-sm line-clamp-3" title={initiative.name}>
+            {initiative.name}
+          </span>
+        ) : (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Ouvrir ${initiative.ref} dans Odoo`}
+            className="min-w-0 flex-1 text-sm line-clamp-3 underline-offset-2 hover:text-foreground hover:underline"
+          >
+            {initiative.name}
+          </a>
+        )}
         <span
           className={cn(
             'rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap',
@@ -256,19 +271,32 @@ function InitiativeRow({ initiative, today }: { initiative: DashboardInitiative;
   )
 }
 
-// La file d'action est en lecture seule, et le dit. Le cockpit n'a aucun lien
-// vers une tâche Odoo : en afficher un serait un bouton qui ne mène nulle part.
-// La référence `odoo:<id>` est celle que l'onglet Tâches affiche déjà, donc la
-// tâche se retrouve dans Odoo par son identifiant.
+// La file d'action reste en lecture seule : le cockpit n'écrit rien dans Odoo.
+// En revanche chaque ligne ouvre désormais la tâche dans un onglet (demande
+// explicite de l'utilisateur, 2026-09-27). Cette décision inverse la règle
+// d'avant-lot, qui interdisait le lien parce qu'aucune URL n'existait encore.
 function ActionRow({ action, today }: { action: DashboardAction; today: string }) {
   const late = action.overdue_days > 0
+  const href = odooTaskUrl(action.id)
   return (
     <li className="flex flex-col gap-1 border-b border-border/60 px-3 py-2.5 last:border-b-0">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="font-mono text-[11px] text-muted-foreground">{action.ref}</span>
-        <span className="min-w-0 flex-1 text-sm line-clamp-3" title={action.name}>
-          {action.name}
-        </span>
+        {href === null ? (
+          <span className="min-w-0 flex-1 text-sm line-clamp-3" title={action.name}>
+            {action.name}
+          </span>
+        ) : (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Ouvrir ${action.ref} dans Odoo`}
+            className="min-w-0 flex-1 text-sm line-clamp-3 underline-offset-2 hover:text-foreground hover:underline"
+          >
+            {action.name}
+          </a>
+        )}
         <span
           className={cn(
             'rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap',
