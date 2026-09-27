@@ -38,7 +38,11 @@ from pathlib import Path
 import odoo_mcp
 
 ICI = Path(__file__).resolve().parent
-RACINE = ICI.parent.parent  # core/scripts/operations -> racine du depot
+# core/scripts/operations -> on remonte de 3 crans pour arriver a la racine du
+# depot. Avec 2 crans on atterrissait sur core/, et la projection partait dans
+# core/web/.data : invisible, et le cockpit continuait de lire l'ancien
+# fichier. D'ou le garde-fou `resoudre_racine()` plus bas.
+RACINE = ICI.parent.parent.parent
 
 # Cible par defaut : la projection consommee par le cockpit web.
 CHEMIN_DEFAUT = RACINE / "web" / ".data" / "operations-tasks.json"
@@ -286,6 +290,23 @@ def serialiser(payload):
     return json.dumps(payload, ensure_ascii=False, indent=2)
 
 
+def resoudre_racine(racine=None):
+    """Verifie que la racine est bien celle du depot, et la retourne.
+
+    Ecrit dans un mauvais repertoire le pire qui puisse arriver a un job
+    automatique : la projection part dans un coin que personne ne lit, et
+    l'ancien fichier reste servi sans que rien ne le signale. On refuse donc de
+    demarrer si `web/` n'est pas a cet endroit-la.
+    """
+    racine = Path(racine) if racine else RACINE
+    if not (racine / "web").is_dir():
+        raise RuntimeError(
+            f"racine de depot incorrecte : {racine} ne contient pas de repertoire "
+            "'web'. Le job refuse d'ecrire plutot que d'ecrire au mauvais endroit."
+        )
+    return racine
+
+
 # --------------------------------------------------------------------------
 # Historique et purge
 # --------------------------------------------------------------------------
@@ -456,6 +477,14 @@ def main():
 
     if args.selftest:
         return selectionner()
+
+    # Garde-fou de destination : mieux vaut un echec franc qu'une projection
+    # ecrite dans un repertoire que le cockpit ne lit pas.
+    try:
+        resoudre_racine()
+    except RuntimeError as exc:
+        odoo_mcp.log(f"ABANDON : {exc}")
+        return 2
 
     try:
         brut = fetch_all()
