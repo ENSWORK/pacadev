@@ -146,3 +146,47 @@ def records(reponse):
     if isinstance(reponse.get("result", {}).get("records"), list):
         return reponse["result"]["records"]
     return []
+
+
+def groups(reponse):
+    """Extrait la liste de groupes d'une reponse `aggregate_records`.
+
+    Meme forme que `records`, pour `structuredContent.groups`. Son total sert de
+    temoin d'exhaustivite : sans temoin, une page vide vaut aussi bien fin de
+    liste que panne reseau, et le job ne peut pas distinguer les deux.
+    """
+    if not reponse:
+        return []
+    contenu = reponse.get("result", {}).get("structuredContent", {})
+    if isinstance(contenu, dict) and isinstance(contenu.get("groups"), list):
+        return contenu["groups"]
+    if isinstance(reponse.get("result", {}).get("groups"), list):
+        return reponse["result"]["groups"]
+    return []
+
+
+def call_obligatoire(name, arguments, env_file=None, env=None,
+                     timeout_s=DEFAULT_TIMEOUT_S):
+    """Comme `call`, mais une panne de transport est fatale.
+
+    `call` rend `None` quand Odoo ne repond pas : c'est utile pour un appel
+    facultatif, et dangereux pour la pagination d'un job automatique, ou `None`
+    se lit ensuite comme une liste vide. Ici on leve.
+    """
+    reponse = call(name, arguments, env_file=env_file, env=env, timeout_s=timeout_s)
+    if reponse is None:
+        raise McpError(f"transport MCP en echec sur {name} : Odoo n'a pas repondu")
+    if reponse.get("result", {}).get("isError"):
+        # Le serveur explique toujours pourquoi. Renvoyer "une erreur" sans
+        # plus oblige a rejouer la sonde a la main pour comprendre l'arret.
+        raise McpError(f"l'outil MCP {name} a renvoye une erreur : {texte_erreur(reponse)}")
+    return reponse
+
+
+def texte_erreur(reponse, maximum=300):
+    """Le message d'erreur du serveur, ou 'raison inconnue'."""
+    morceaux = []
+    for bloc in (reponse.get("result", {}).get("content") or []):
+        if isinstance(bloc, dict) and isinstance(bloc.get("text"), str):
+            morceaux.append(bloc["text"].strip())
+    return " / ".join(morceaux)[:maximum] or "raison inconnue"

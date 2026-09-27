@@ -72,6 +72,8 @@ STAGE_KEYS = {
 # (fait memoire : is_terminal valait false sur des taches acheve), mais le
 # fichier doit dire vrai.
 TERMINAL_KEYS = {"termine", "annule", "acheve"}
+# Plafond de l'outil aggregate_records : au-dela, il tronque les groupes.
+PLAFOND_GROUPES = 100
 
 CU_RE = re.compile(r"\[CU:([0-9A-Za-z]+)\]")
 GH_RE = re.compile(r"\[GH:(\d+)\]")
@@ -123,48 +125,145 @@ def m2m_ids(champ):
     return sortie
 
 
-def fetch_label_map(modele, champs=("id", "name")):
-    """Table id -> libelle pour un modele expose en lecture par le MCP."""
-    table = {}
+def compter(modele, domaine, groupby):
+    """Nombre d'enregistrements, par aggregate_records.
+
+    Temoin d'exhaustivite, independant de la pagination : c'est la seule facon
+    de distinguer « la liste est finie » de « la reponse s'est interrompue ».
+    Le `groupby` doit etre un champ de TRI, pas un champ de FILTRE : `active`
+    n'existe pas sur project.tags, alors que `id` existe partout.
+    """
+    reponse = odoo_mcp.call_obligatoire("aggregate_records", {
+        "model": modele,
+        "domain": list(domaine),
+        "groupby": [groupby],
+        "aggregates": ["__count"],
+        "limit": PLAFOND_GROUPES,
+    })
+    groupes = odoo_mcp.groups(reponse)
+    if len(groupes) >= PLAFOND_GROUPES:
+        # Au plafond, l'outil a tronque : le total devient une borne basse, et
+        # un temoin qui ne tire que vers le bas ne prouve plus rien.
+        raise RuntimeError(
+            f"{modele} : plus de {PLAFOND_GROUPES} groupes pour {groupby}, "
+            "temoin d'exhaustivite inutilisable - choisir un groupby plus court")
+    total = 0
+    for groupe in groupes:
+        valeur = groupe.get("__count")
+        if isinstance(valeur, int):
+            total += valeur
+    return total
+
+
+def controler_doublons(lignes):
+    """Identifiants vues deux fois. Causés par un offset qui derive parce que
+    la liste a bouge pendant la lecture. Renvoie les premiers trouves."""
+    vus, doublons = set(), []
+    for ligne in lignes:
+        rid = ligne.get("id") if isinstance(ligne, dict) else None
+        if rid is None:
+            continue
+        if rid in vus and rid not in doublons:
+            doublons.append(rid)
+        vus.add(rid)
+    return doublons
+
+
+def lire_page(modele, domaine, champs, offset, page):
+    """Une page. Un transport en echec leve au lieu de rendre une liste vide."""
+    reponse = odoo_mcp.call_obligatoire("search_records", {
+        "model": modele,
+        "domain": list(domaine),
+        "fields": list(champs),
+        "limit": page,
+        "offset": offset,
+    })
+    return odoo_mcp.records(reponse)
+
+
+def paginer(lire, modele, domaine, champs, temoin=None, tolere_court=False,
+            page=PAGE):
+    """Parcourt par offset et refuse de rendre une liste possiblement tronquee.
+
+    `temoin` est le total attendu, obtenu par aggregate_records. Si la lecture
+    s'arrete avant lui, c'est une panne : on leve plutot que d'ecrire une
+    projection partielle - qui passerait les controles de coherence, puisque
+    ceux-la verifient la coherence interne, pas l'exhaustivite.
+
+    `tolere_court` reserve ce traitement aux tables de libelles, ou un droit
+    d'acces legitime peut legitimement limiter la lecture. On y prefere alors
+    une degradation **visible** (journal + compteurs) a une degradation
+    silencieuse, qui ferait passer des taches assignees pour non assignees.
+    """
+    lignes = []
     offset = 0
     while True:
-        reponse = odoo_mcp.call("search_records", {
-            "model": modele, "fields": list(champs), "limit": PAGE, "offset": offset,
-        })
-        lot = odoo_mcp.records(reponse)
+        lot = lire(modele, domaine, champs, offset, page)
         if not lot:
+            if offset == 0:
+                raise RuntimeError(f"{modele} : Odoo n'a renvoye aucun enregistrement")
+            # Un total multiple de la page se termine par une page vide : c'est
+            # la fin, pas une panne. Le temoin est ce qui permet de trancher -
+            # sans lui, les deux cas sont indiscernables.
+            if temoin is not None and offset >= temoin:
+                break
+            raise RuntimeError(
+                f"{modele} : page vide a l'offset {offset} apres {len(lignes)} ligne(s) "
+                f"pour {temoin} attendues - reponse interrompue, ecriture refusee")
+        lignes.extend(lot)
+        if len(lot) < page:
             break
-        for rec in lot:
-            rid = rec.get("id")
-            if rid is not None:
-                table[rid] = rec.get("name") or f"#{rid}"
-        if len(lot) < PAGE:
-            break
-        offset += PAGE
-    return table
+        offset += page
+
+    if temoin is not None and len(lignes) < temoin:
+        message = (f"{modele} : {len(lignes)} ligne(s) lues pour {temoin} attendues "
+                   "- reponse partielle")
+        if not tolere_court:
+            raise RuntimeError(message + ", ecriture refusee")
+        odoo_mcp.log(f"AVERTISSEMENT {message} (degradation signalee, non bloquante)")
+
+    doublons = controler_doublons(lignes)
+    if doublons:
+        raise RuntimeError(
+            f"{modele} : identifiants en double {doublons[:5]} - la liste a bouge "
+            "pendant la lecture, ecriture refusee")
+    return lignes
+
+
+def fetch_label_map(modele, champs=("id", "name")):
+    """Table id -> libelle pour un modele expose en lecture par le MCP.
+
+    Le temoin est demande mais jamais rendu bloquant : un droit d'acces
+    legitime peut limiter la lecture, et perdre le job pour ca serait pire que
+    la degradation. L'ecart est annonce, et c'est `unresolved_assignee` qui dit
+    reellement combien de taches en ont subi les consequences.
+    """
+    return {rec["id"]: (rec.get("name") or f"#{rec['id']}")
+            for rec in paginer(lire_page, modele, [], champs,
+                               temoin=compter(modele, [], "id"),
+                               tolere_court=True)}
+
+
+def compter_inconnus(brut_liste, table, champ):
+    """Identifiants references par une tache mais absents de la table.
+
+    Un utilisateur archive reste referencable par `user_ids` alors qu'il
+    n'apparait plus dans `res.users` : la tache paraissait alors non assignee.
+    Ce n'est pas bloquant - archiver quelqu'un est normal - mais ca doit se voir.
+    """
+    inconnus = set()
+    for tache in brut_liste:
+        for rid in m2m_ids(tache.get(champ)):
+            if rid not in table:
+                inconnus.add(rid)
+    return sorted(inconnus)
 
 
 def fetch_all():
-    taches = []
-    offset = 0
-    while True:
-        reponse = odoo_mcp.call("search_records", {
-            "model": "project.task",
-            "domain": [["project_id", "=", PROJECT_ID]],
-            "fields": FIELDS,
-            "limit": PAGE,
-            "offset": offset,
-        })
-        lot = odoo_mcp.records(reponse)
-        if not lot:
-            if not taches and offset == 0:
-                raise RuntimeError("Odoo injoignable via le connecteur MCP")
-            break
-        taches.extend(lot)
-        if len(lot) < PAGE:
-            break
-        offset += PAGE
-    return taches
+    domaine = [["project_id", "=", PROJECT_ID]]
+    return paginer(lire_page, "project.task", domaine, FIELDS,
+                   temoin=compter("project.task", domaine, "project_id"))
+
 
 
 def normaliser(brut, users, tags):
@@ -206,6 +305,9 @@ def construire_payload(taches, users, tags):
     for t in normalisees:
         par_stage[t["stage_key"]] = par_stage.get(t["stage_key"], 0) + 1
 
+    inconnus_users = compter_inconnus(taches, users, "user_ids")
+    inconnus_tags = compter_inconnus(taches, tags, "tag_ids")
+
     maintenant = datetime.now(timezone.utc)
     return {
         "schema_version": SCHEMA_VERSION,
@@ -226,6 +328,8 @@ def construire_payload(taches, users, tags):
             "with_assignee": len([t for t in normalisees if t["assignees"]]),
             "with_tag": len([t for t in normalisees if t["tags"]]),
             "with_deadline": len([t for t in normalisees if t["deadline"]]),
+            "unresolved_assignee": len(inconnus_users),
+            "unresolved_tag": len(inconnus_tags),
         },
         "labels": {"users": users, "tags": tags},
         "tasks": normalisees,
@@ -456,6 +560,60 @@ def selectionner():
     finally:
         shutil.rmtree(racine, ignore_errors=True)
 
+    # Pagination : le cas qui ecrivait 100 taches sur 232 sans rien dire.
+    def faux_complet(modele, domaine, champs, offset, page):
+        # 20 lignes par pages de 10 : la derniere page est vide, et c'est legal.
+        if offset >= 20:
+            return []
+        return [{"id": offset + i, "name": f"t{offset + i}"} for i in range(page)]
+
+    def faux_tronque(modele, domaine, champs, offset, page):
+        # page pleine, puis silence : c'est la panne reseau, pas la fin.
+        if offset == 0:
+            return faux_complet(modele, domaine, champs, offset, page)
+        return []
+
+    def faux_doublon(modele, domaine, champs, offset, page):
+        # Toute page pleine porte le meme id : derive d'offset. Borne comme les
+        # autres, sinon la pagination ne s'arrete jamais.
+        if offset >= 20:
+            return []
+        return [{"id": 1, "name": "t1"} for _ in range(page)]
+
+    def faux_court(modele, domaine, champs, offset, page):
+        return [{"id": offset + i, "name": f"t{offset + i}"} for i in range(7)]
+
+    def tente(lire, **kwargs):
+        try:
+            paginer(lire, "project.task", [], ["id"], page=10, **kwargs)
+            return "AUCUNE ERREUR"
+        except RuntimeError as exc:
+            return str(exc)
+
+    cas = [
+        ("pagination complete", tente(faux_complet, temoin=20), None),
+        ("pagination rompue   ", tente(faux_tronque, temoin=20), "reponse interrompue"),
+        ("pagination courte   ", tente(faux_court, temoin=20), "reponse partielle"),
+        ("identifiants double ", tente(faux_doublon, temoin=20), "en double"),
+        ("total multiple page ", tente(faux_complet, temoin=20), None),
+        ("libelles tolerants ", tente(faux_court, temoin=20, tolere_court=True), None),
+    ]
+    for nom, resultat, attendu in cas:
+        if attendu is None:
+            print(f"selftest {nom}: {'OK' if 'reponse' not in resultat else 'ECHEC ' + resultat}")
+        else:
+            print(f"selftest {nom}: {'OK' if attendu in resultat else 'ECHEC ' + resultat}")
+
+    # Le temoin d'exhaustivite se lit dans la forme reelle de la reponse MCP.
+    reponse_agregat = {"result": {"structuredContent": {"groups": [
+        {"project_id": [1, "Enswork"], "__count": 232}]}}}
+    total = 0
+    for groupe in odoo_mcp.groups(reponse_agregat):
+        total += groupe.get("__count", 0)
+    print(f"selftest temoin agregat: {'OK' if total == 232 else 'ECHEC ' + str(total)}")
+    print(f"selftest groupes vide  : "
+          f"{'OK' if odoo_mcp.groups(None) == [] and odoo_mcp.groups({}) == [] else 'ECHEC'}")
+
     print("selftest termine")
     return 0
 
@@ -499,8 +657,12 @@ def main():
         odoo_mcp.log("ABANDON : Odoo a repondu sans aucune tache")
         return 2
 
-    users = fetch_label_map("res.users")
-    tags = fetch_label_map("project.tags")
+    try:
+        users = fetch_label_map("res.users")
+        tags = fetch_label_map("project.tags")
+    except (odoo_mcp.McpError, RuntimeError) as exc:
+        odoo_mcp.log(f"ABANDON : table de libelles illisible ({exc})")
+        return 2
     payload = construire_payload(brut, users, tags)
 
     problemes = controler_coherence(payload, attendu_minimum=1)
@@ -527,6 +689,15 @@ def main():
 
     if erreurs:
         odoo_mcp.log(f"AVERTISSEMENT purge partielle : {erreurs}")
+
+    for champ, cle in (("unresolved_assignee", "utilisateurs"),
+                       ("unresolved_tag", "etiquettes")):
+        nombre = payload["counts"][champ]
+        if nombre:
+            odoo_mcp.log(
+                f"AVERTISSEMENT {nombre} identifiant(s) {cle} non resolu(s) : des "
+                "taches peuvent paraitre non assignees ou sans etiquette. Cause "
+                "probable : un utilisateur archive encore reference par user_ids.")
 
     par_stage = payload["counts"]["by_stage"]
     print(f"OK {payload['counts']['total']} taches -> {args.out}")
