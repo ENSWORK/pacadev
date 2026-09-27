@@ -26,6 +26,9 @@ import {
   FACET_LABEL,
   selectFacet,
 } from '@/lib/operations/dashboard'
+// LENS_LABEL et LENS_HINT viennent du module des loupes : la fenêtre ne réécrit
+// pas les règles, elle affiche celles qui ont produit le chiffre.
+import { LENS_HINT, LENS_LABEL } from '@/lib/operations/lenses'
 import { diffIsoDays, formatIsoFr } from '@/lib/operations/time'
 import {
   STAGE_LABEL,
@@ -121,14 +124,20 @@ export function DrilldownDialog({
         ? `${facet.key}${facet.openOnly ? ' — charge ouverte' : ''}`
         : facet?.kind === 'bucket'
           ? BUCKET_LABEL[facet.bucket]
-          : facet?.kind === 'total'
-            ? 'terminées comprises'
-            : null
+          : facet?.kind === 'lens'
+            ? LENS_LABEL[facet.lens]
+            : facet?.kind === 'total'
+              ? 'terminées comprises'
+              : null
 
+  // La règle affichée est celle qui a produit le chiffre : sans elle, une tâche
+  // listée ici semblerait mal classée.
   const hint =
     facet?.kind === 'bucket'
       ? BUCKET_HINT[facet.bucket]
-      : 'non terminées d’abord, puis priorité et échéance la plus proche'
+      : facet?.kind === 'lens'
+        ? LENS_HINT[facet.lens]
+        : 'non terminées d’abord, puis priorité et échéance la plus proche'
 
   return (
     <Dialog open={facet !== null} onOpenChange={onOpenChange}>

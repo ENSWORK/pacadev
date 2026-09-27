@@ -43,7 +43,7 @@ export type TaskBucket =
   | 'late'
   | 'today'
   | 'intervention'
-  | 'a_planifier'
+  | 'sans_echeance'
   | 'j14'
   | 'plus_tard'
 
@@ -87,8 +87,42 @@ export interface OperationsKpis {
   late: number
   today: number
   intervention: number
-  a_planifier: number
+  sans_echeance: number
   j14: number
+}
+
+// ── Loupes du cockpit (Lot A) ─────────────────────────────────────────────
+// Les sections de l'onglet Tâches classent chaque tâche dans **une seule**
+// colonne : une tâche est soit « en retard », soit « bloquée », jamais les deux.
+// Une loupe regarde un autre axe et se superpose donc aux sections : une tâche
+// sans échéance ET récurrente ET bloquée apparaît dans trois loupes, et nulle
+// part deux fois dans les sections.
+//
+// Toutes les loupes ne comptent que les tâches **non terminées** : une tâche
+// terminée n'a plus rien à piloter, la compter ici gonflerait le chiffre sans
+// dire quoi faire.
+export type TaskLens = 'non_assignee' | 'recurrente' | 'bloque' | 'en_validation'
+
+export interface DashboardLens {
+  lens: TaskLens
+  label: string
+  count: number
+  hint: string
+}
+
+// La file d'action : les 5 tâches à traiter en premier, dans l'ordre.
+// `overdue_days` est positif quand l'échéance est dépassée, 0 si elle est
+// aujourd'hui ou absente.
+export interface DashboardAction {
+  id: number
+  ref: string
+  name: string
+  stage_key: StageKey
+  deadline: string | null
+  overdue_days: number
+  priority: number
+  assignees: string[]
+  is_recurring: boolean
 }
 
 // ── Tableau de bord de pilotage ────────────────────────────────────────────
@@ -172,6 +206,7 @@ export type DashboardFacet =
   | { kind: 'assignee'; key: string; openOnly: boolean }
   | { kind: 'total' }
   | { kind: 'bucket'; bucket: TaskBucket }
+  | { kind: 'lens'; lens: TaskLens }
 
 export interface DashboardRules {
   decisions: string
@@ -181,6 +216,8 @@ export interface DashboardRules {
   risk: string
   completion: string
   drilldown: string
+  lenses: string
+  action: string
 }
 
 export interface DashboardPayload {
@@ -190,6 +227,8 @@ export interface DashboardPayload {
   by_assignee_open: DashboardBar[]
   decisions: DashboardDecision[]
   initiatives: DashboardInitiative[]
+  lenses: DashboardLens[]
+  action_queue: DashboardAction[]
   rules: DashboardRules
 }
 

@@ -18,13 +18,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { formatIsoFr } from '@/lib/operations/time'
 import { facetKey } from '@/lib/operations/dashboard'
+import { ACTION_QUEUE_LIMIT } from '@/lib/operations/lenses'
 import {
   STAGE_LABEL,
+  type DashboardAction,
   type DashboardBar,
   type DashboardFacet,
   type DashboardInitiative,
+  type DashboardLens,
   type OperationsPayload,
   type StageKey,
+  type TaskLens,
 } from '@/lib/operations/types'
 import { DrilldownDialog, daysUntil, stageBadge } from './operations-drilldown'
 
@@ -40,6 +44,24 @@ const stageBarColor: Record<StageKey, string> = {
   annule: 'bg-zinc-400',
   acheve: 'bg-teal-500',
   inconnu: 'bg-orange-500',
+}
+
+// Une icone par loupe, prise dans la bibliotheque deja importee : ajouter une
+// dependance pour un icone n'en vaut pas le cout.
+const lensIcon: Record<TaskLens, React.ElementType> = {
+  non_assignee: UserX,
+  recurrente: CalendarClock,
+  bloque: ShieldAlert,
+  en_validation: Gavel,
+}
+
+// La teinte suit la section equivalente, pour qu'on reconnaisse la loupe a la
+// tuile « Interventions » ou « Sans responsable » sans lire le libelle.
+const lensTone: Record<TaskLens, string> = {
+  non_assignee: 'text-amber-600 dark:text-amber-400',
+  recurrente: 'text-blue-600 dark:text-blue-400',
+  bloque: 'text-red-600 dark:text-red-400',
+  en_validation: 'text-violet-600 dark:text-violet-400',
 }
 
 function rule(hint: string): string {
@@ -232,6 +254,45 @@ function InitiativeRow({ initiative, today }: { initiative: DashboardInitiative;
   )
 }
 
+// La file d'action est en lecture seule, et le dit. Le cockpit n'a aucun lien
+// vers une tâche Odoo : en afficher un serait un bouton qui ne mène nulle part.
+// La référence `odoo:<id>` est celle que l'onglet Tâches affiche déjà, donc la
+// tâche se retrouve dans Odoo par son identifiant.
+function ActionRow({ action, today }: { action: DashboardAction; today: string }) {
+  const late = action.overdue_days > 0
+  return (
+    <li className="flex flex-col gap-1 border-b border-border/60 px-3 py-2.5 last:border-b-0">
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <span className="font-mono text-[11px] text-muted-foreground">{action.ref}</span>
+        <span className="min-w-0 flex-1 text-sm">{action.name}</span>
+        <span
+          className={cn(
+            'rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap',
+            stageBadge[action.stage_key],
+          )}
+        >
+          {STAGE_LABEL[action.stage_key]}
+        </span>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+        <span className="tabular-nums">Prio {action.priority}</span>
+        <span
+          className={cn(
+            'inline-flex items-center gap-1 tabular-nums',
+            late && 'font-semibold text-red-600 dark:text-red-400',
+          )}
+        >
+          <CalendarClock className="size-3" />
+          {action.deadline ? formatIsoFr(action.deadline) : 'Sans échéance'}
+          {late && ` · retard ${action.overdue_days} j`}
+        </span>
+        {action.assignees.length > 0 && <span>{action.assignees.join(', ')}</span>}
+        {action.is_recurring && <span className="text-blue-600 dark:text-blue-400">récurrente</span>}
+      </div>
+    </li>
+  )
+}
+
 export function OperationsDashboard({ payload }: { payload: OperationsPayload }) {
   const dashboard = payload.dashboard
   const today = payload.today
@@ -328,6 +389,38 @@ export function OperationsDashboard({ payload }: { payload: OperationsPayload })
               onOpen={openFacet}
             />
           </div>
+          {/* Loupes — quatre axes qui se superposent aux sections de l'onglet
+              Tâches. Cliquables comme les tuiles : meme selectFacet, meme
+              fenetre, donc le compte et la liste ne peuvent pas diverger. */}
+          <div className="flex flex-col gap-1.5">
+            <h3 className="flex flex-wrap items-center gap-2 text-[11px] font-medium text-muted-foreground">
+              <CircleDot className="size-3.5" />
+              Loupes
+              <span className="font-normal">
+                — ne comptent que les tâches non terminées, et se superposent aux
+                sections
+              </span>
+            </h3>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {dashboard.lenses.map((lens: DashboardLens) => {
+                const Icon = lensIcon[lens.lens]
+                return (
+                  <MetricTile
+                    key={lens.lens}
+                    icon={Icon}
+                    label={lens.label}
+                    value={lens.count}
+                    tone={lensTone[lens.lens]}
+                    facet={{ kind: 'lens', lens: lens.lens }}
+                    onOpen={openFacet}
+                  />
+                )
+              })}
+              <p className="text-[10px] leading-relaxed text-muted-foreground/80">
+                {rule(dashboard.rules.lenses)}
+              </p>
+            </div>
+          </div>
           <p className="text-[10px] leading-relaxed text-muted-foreground/80">
             {rule(`${dashboard.rules.risk} ${dashboard.rules.drilldown}`)}
           </p>
@@ -371,6 +464,39 @@ export function OperationsDashboard({ payload }: { payload: OperationsPayload })
           footer={`${dashboard.summary.open} tâche(s) non terminée(s) répartie(s) sur ce graphique.`}
         />
       </div>
+
+      {/* File d'action — l'ordre est l'information, pas les chiffres */}
+      <Card className="gap-3">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex flex-wrap items-center gap-2 text-sm">
+            <TrendingUp className="size-4 text-muted-foreground" />
+            File d&apos;action
+            <Badge variant="secondary" className="tabular-nums">
+              {dashboard.action_queue.length}
+            </Badge>
+            <span className="text-[11px] font-normal text-muted-foreground">
+              les {ACTION_QUEUE_LIMIT} tâches non terminées à l&apos;échéance la plus ancienne
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {dashboard.action_queue.length === 0 ? (
+            <p className="px-3 py-6 text-center text-xs text-muted-foreground">
+              Aucune tâche ouverte : la file est vide. Le bloc reste affiché plutôt que
+              d&apos;être masqué, pour que son absence soit visible et pas interpretée.
+            </p>
+          ) : (
+            <ul className="border-t border-border/60">
+              {dashboard.action_queue.map((action) => (
+                <ActionRow key={action.id} action={action} today={today} />
+              ))}
+            </ul>
+          )}
+          <p className="px-3 py-2 text-[10px] leading-relaxed text-muted-foreground/80">
+            {rule(dashboard.rules.action)}
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 items-start gap-4 2xl:grid-cols-2">
         {/* Décisions clés */}

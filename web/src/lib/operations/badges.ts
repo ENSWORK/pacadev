@@ -44,8 +44,16 @@ export function deadlineDelta(task: OperationTask, today: string): number | null
   return Number.isFinite(delta) ? delta : null
 }
 
-export function isLate(task: OperationTask, today: string): boolean {
+// ATTENTION : ce predicat n'est PAS `isLate` de buckets.ts, et c'est volontaire.
+// Ici on decrit ce qui est vrai de la ligne : une tache bloquee ET depassee garde
+// son badge « en retard », parce que c'est precisement l'information qui permet de
+// la debloquer. La priorisation, elle, ignore l'echeance quand l'etape est
+// Bloquee ou En validation. Deux reponses legitimes a deux questions
+// differentes : deux noms, sinon le prochain import reintroduit l'ecart 25/22
+// entre la tuile « En retard » et la section « En retard ».
+export function isDeadlineOverdue(task: OperationTask, today: string): boolean {
   const delta = deadlineDelta(task, today)
+  // `delta !== null` est necessaire : en JavaScript, `null < 0` vaut true.
   return delta !== null && delta < 0
 }
 
@@ -53,15 +61,18 @@ export function isBlocked(task: OperationTask): boolean {
   return task.stage_key === 'bloque'
 }
 
-// une tâche bloquée ET en retard conserve deux badges, un seul bucket (`late`)
+// Une tache bloquee ET en retard conserve deux badges, mais un seul bucket, et ce
+// bucket est « Interventions » : les badges sont exhaustifs, les sections sont
+// exclusives. C'est ce qui permet d'afficher « Bloquee » + « En retard » sur une
+// ligne que la priorisation, elle, classe en attente.
 export function secondaryBadges(task: OperationTask, today: string): SecondaryBadge[] {
   const badges: SecondaryBadge[] = []
   if (task.stage_key === 'bloque') badges.push('bloquee')
   if (task.stage_key === 'en_validation') badges.push('en_validation')
 
   const delta = deadlineDelta(task, today)
-  if (delta === null) badges.push('sans_echeance')
-  else if (delta < 0) badges.push('en_retard')
+  if (isDeadlineOverdue(task, today)) badges.push('en_retard')
+  else if (delta === null) badges.push('sans_echeance')
   else if (delta === 0) badges.push('echeance_aujourdhui')
   else if (delta <= BUCKET_WINDOW_DAYS) badges.push('echeance_proche')
 

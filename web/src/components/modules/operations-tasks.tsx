@@ -105,7 +105,7 @@ const bucketStyles: Record<TaskBucket, string> = {
   late: 'text-red-600 dark:text-red-400',
   today: 'text-amber-600 dark:text-amber-400',
   intervention: 'text-violet-600 dark:text-violet-400',
-  a_planifier: 'text-blue-600 dark:text-blue-400',
+  sans_echeance: 'text-blue-600 dark:text-blue-400',
   j14: 'text-cyan-600 dark:text-cyan-400',
   plus_tard: 'text-slate-600 dark:text-slate-400',
 }
@@ -150,11 +150,11 @@ const kpiDefinitions: {
     facet: { kind: 'bucket', bucket: 'intervention' },
   },
   {
-    key: 'a_planifier',
-    label: 'À planifier',
-    bucket: 'a_planifier',
+    key: 'sans_echeance',
+    label: 'Sans échéance',
+    bucket: 'sans_echeance',
     icon: ClipboardList,
-    facet: { kind: 'bucket', bucket: 'a_planifier' },
+    facet: { kind: 'bucket', bucket: 'sans_echeance' },
   },
   { key: 'j14', label: 'J+14', bucket: 'j14', icon: Timer, facet: { kind: 'bucket', bucket: 'j14' } },
 ]

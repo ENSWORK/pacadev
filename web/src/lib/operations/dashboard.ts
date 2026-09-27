@@ -7,7 +7,11 @@
 import { deadlineDelta, isBlocked } from './badges'
 // bucketOf est la règle des sections de l'onglet Tâches : la réutiliser ici est ce
 // qui garantit que la fenêtre ouverte depuis un KPI affiche le compte du KPI.
-import { bucketOf } from './buckets'
+// isLate et isDueToday viennent de la même règle : « en retard » et « aujourd'hui »
+// doivent avoir un sens unique, sinon la tuile et la section ne peuvent pas
+// afficher le même nombre, et un clic ouvrirait une liste différente du chiffre.
+import { bucketOf, isDueToday, isLate } from './buckets'
+import { ACTION_RULE, LENS_RULE, buildActionQueue, buildLenses, matchesLens } from './lenses'
 import {
   STAGE_LABEL,
   TERMINAL_STAGE_KEYS,
@@ -79,6 +83,8 @@ export const DASHBOARD_RULES: DashboardPayload['rules'] = {
     `Un clic sur une tuile ou une barre ouvre les tâches concernées, ${DASHBOARD_FACET_PAGE_SIZE} ` +
     `à la fois puis 10 de plus ou la liste entière. Même filtre que le chiffre affiché, donc le ` +
     `compte et la liste ne peuvent pas diverger.`,
+  lenses: LENS_RULE,
+  action: ACTION_RULE,
 }
 
 function ratio(count: number, total: number): number {
@@ -240,8 +246,8 @@ export function buildSummary(tasks: OperationTask[], today: string): DashboardSu
   const total = tasks.length
   const open = tasks.filter((task) => !task.is_terminal).length
   const done = total - open
-  const late = tasks.filter((task) => !task.is_terminal && (deadlineDelta(task, today) ?? 1) < 0).length
-  const dueToday = tasks.filter((task) => !task.is_terminal && deadlineDelta(task, today) === 0).length
+  const late = tasks.filter((task) => isLate(task, today)).length
+  const dueToday = tasks.filter((task) => isDueToday(task, today)).length
   const atRisk = tasks.filter((task) => {
     if (task.is_terminal || task.priority !== 3) return false
     const delta = deadlineDelta(task, today)
@@ -312,6 +318,8 @@ export function buildDashboard(tasks: OperationTask[], today: string): Dashboard
     by_assignee_open: buildAssigneeBars(tasks, 'open'),
     decisions: buildDecisions(tasks),
     initiatives: buildInitiatives(tasks),
+    lenses: buildLenses(tasks),
+    action_queue: buildActionQueue(tasks, today),
     rules: DASHBOARD_RULES,
   }
 }
@@ -332,6 +340,7 @@ export const FACET_LABEL: Record<DashboardFacet['kind'], string> = {
   assignee: 'Charge d’un responsable',
   total: 'Toutes les tâches',
   bucket: 'Tâches de la section',
+  lens: 'Loupe',
 }
 
 // Identité textuelle d'un segment: sert de clé React pour que la fenêtre
@@ -344,6 +353,8 @@ export function facetKey(facet: DashboardFacet): string {
       return `assignee:${facet.key}:${facet.openOnly ? 'open' : 'all'}`
     case 'bucket':
       return `bucket:${facet.bucket}`
+    case 'lens':
+      return `lens:${facet.lens}`
     default:
       return facet.kind
   }
@@ -362,7 +373,7 @@ export function selectFacet(
       case 'open':
         return !task.is_terminal
       case 'late':
-        return !task.is_terminal && (deadlineDelta(task, today) ?? 1) < 0
+        return isLate(task, today)
       case 'blocked':
         return isBlocked(task)
       case 'unassigned':
@@ -381,6 +392,8 @@ export function selectFacet(
         return true
       case 'bucket':
         return bucketOf(task, today) === facet.bucket
+      case 'lens':
+        return matchesLens(task, facet.lens)
     }
   })
   // tri de pilotage: non terminées d'abord, puis priorité, puis échéance la

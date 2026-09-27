@@ -7,14 +7,26 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createHmac } from 'node:crypto'
 
-import { secondaryBadges, isBlocked, isLate } from '@/lib/operations/badges'
+import { isBlocked, isDeadlineOverdue, secondaryBadges } from '@/lib/operations/badges'
 import {
+  BUCKET_LABEL,
   BUCKET_ORDER,
   assignBuckets,
   bucketOf,
   computeKpis,
   emptyBuckets,
+  isDueToday,
+  isInterventionStage,
+  isLate,
 } from '@/lib/operations/buckets'
+import {
+  ACTION_QUEUE_LIMIT,
+  LENS_ORDER,
+  buildActionQueue,
+  buildLenses,
+  matchesLens,
+  overdueDays,
+} from '@/lib/operations/lenses'
 import {
   DASHBOARD_DECISION_LIMIT,
   DASHBOARD_FACET_PAGE_SIZE,
@@ -59,7 +71,11 @@ import {
 } from '@/lib/operations/projection-source'
 import { CLICKUP_PARITY_REASON, buildFreshness, loadOperations, staleAfterSeconds } from '@/lib/operations/service'
 import { ageSeconds, diffIsoDays, formatIsoFr, isIsoDate, shiftIsoDate, todayIso } from '@/lib/operations/time'
-import { STAGE_KEY_BY_ID, STAGE_LABEL, type DashboardFacet, type OperationTask, type TaskBucket } from '@/lib/operations/types'
+import {
+  STAGE_KEY_BY_ID,
+  STAGE_LABEL,
+  TERMINAL_STAGE_KEYS,
+  type DashboardFacet, type OperationTask, type TaskBucket } from '@/lib/operations/types'
 
 const REPO_ROOT = process.env.OPERATIONS_REPO_ROOT ?? process.cwd()
 const TODAY = '2026-09-25'
@@ -241,20 +257,26 @@ test('exclusivité des buckets: une tâche = une seule ligne, zéro double compt
 })
 
 test('ordre d’évaluation des buckets', () => {
-  // terminéprime sur « en retard »
+  // terminé prime sur « en retard »
   assert.equal(bucketOf(task({ id: 1, stage_id: 20, deadline: '2020-01-01' }), TODAY), 'done')
   // terminé prime sur « aujourd’hui »
   assert.equal(bucketOf(task({ id: 2, stage_id: 12, deadline: TODAY }), TODAY), 'done')
-  // retard prime sur intervention
-  assert.equal(bucketOf(task({ id: 3, stage_id: 10, deadline: '2026-09-24' }), TODAY), 'late')
-  // aujourd’hui prime sur intervention
-  assert.equal(bucketOf(task({ id: 4, stage_id: 11, deadline: TODAY }), TODAY), 'today')
-  // intervention ensuite
+  // L'ÉTAPE prime sur l'échéance : décision utilisateur du 2026-09-27. Une tâche
+  // bloquée ou en validation est « en attente », pas « en retard » — sur les
+  // données réelles, « En retard » passe de 25 à 22 et « Interventions » de 10 à
+  // 13. Signaler une date qu'on ne peut pas traiter rendrait le tableau de bord
+  // moins fiable : l'alerte perdrait sa valeur si elle unavoidable.
+  assert.equal(bucketOf(task({ id: 3, stage_id: 10, deadline: '2026-09-24' }), TODAY), 'intervention')
+  assert.equal(bucketOf(task({ id: 4, stage_id: 11, deadline: TODAY }), TODAY), 'intervention')
+  // intervention ensuite, avec ou sans échéance
   assert.equal(bucketOf(task({ id: 5, stage_id: 10 }), TODAY), 'intervention')
   assert.equal(bucketOf(task({ id: 6, stage_id: 11, deadline: '2026-10-01' }), TODAY), 'intervention')
+  // l'échéance ne prime que sur les étapes qui ne demandent aucune intervention
+  assert.equal(bucketOf(task({ id: 21, stage_id: 8, deadline: '2026-09-24' }), TODAY), 'late')
+  assert.equal(bucketOf(task({ id: 22, stage_id: 1, deadline: TODAY }), TODAY), 'today')
   // puis à planifier
-  assert.equal(bucketOf(task({ id: 7, stage_id: 8 }), TODAY), 'a_planifier')
-  assert.equal(bucketOf(task({ id: 8, stage_id: 1 }), TODAY), 'a_planifier')
+  assert.equal(bucketOf(task({ id: 7, stage_id: 8 }), TODAY), 'sans_echeance')
+  assert.equal(bucketOf(task({ id: 8, stage_id: 1 }), TODAY), 'sans_echeance')
   // puis les fenêtres de date
   assert.equal(bucketOf(task({ id: 9, stage_id: 9, deadline: '2026-09-26' }), TODAY), 'j14')
   assert.equal(bucketOf(task({ id: 10, stage_id: 9, deadline: '2026-10-09' }), TODAY), 'j14')
@@ -274,13 +296,17 @@ test('tâche bloquée et en retard: une seule ligne, deux badges', () => {
   const { buckets, unclassified } = assignBuckets([blockedLate], TODAY)
 
   assert.equal(unclassified.length, 0)
-  assert.equal(buckets.late.length, 1)
-  assert.equal(buckets.intervention.length, 0)
+  // une seule section, et c'est « Interventions » : l'étape l'emporte sur la date
+  assert.equal(buckets.intervention.length, 1)
+  assert.equal(buckets.late.length, 0)
   assert.equal(buckets.done.length, 0)
-  assert.equal(buckets.late[0].id, blockedLate.id)
+  assert.equal(buckets.intervention[0].id, blockedLate.id)
 
   assert.equal(isBlocked(blockedLate), true)
-  assert.equal(isLate(blockedLate, TODAY), true)
+  // deux prédicats, deux réponses, et c'est le but : la priorisation ignore la
+  // date, la ligne affiche tout ce qui est vrai d'elle.
+  assert.equal(isLate(blockedLate, TODAY), false)
+  assert.equal(isDeadlineOverdue(blockedLate, TODAY), true)
   const badges = secondaryBadges(blockedLate, TODAY)
   assert.ok(badges.includes('bloquee'))
   assert.ok(badges.includes('en_retard'))
@@ -293,7 +319,7 @@ test('tâche sans échéance', () => {
   const aFaire = task({ id: 1, stage_id: 8 })
   const reception = task({ id: 2, stage_id: 1 })
   const { buckets } = assignBuckets([aFaire, reception], TODAY)
-  assert.equal(buckets.a_planifier.length, 2)
+  assert.equal(buckets.sans_echeance.length, 2)
   assert.equal(buckets.late.length, 0)
   assert.equal(buckets.today.length, 0)
   assert.ok(secondaryBadges(aFaire, TODAY).includes('sans_echeance'))
@@ -338,7 +364,7 @@ test('KPI disjoints et cohérents avec les buckets', () => {
   assert.equal(kpis.late, 1)
   assert.equal(kpis.today, 1)
   assert.equal(kpis.intervention, 1)
-  assert.equal(kpis.a_planifier, 1)
+  assert.equal(kpis.sans_echeance, 1)
   assert.equal(kpis.j14, 1)
   assert.equal(unclassified.length, 1)
   // les 7 KPI (hors « plus tard », qui est une section sans KPI) + la section
@@ -348,7 +374,7 @@ test('KPI disjoints et cohérents avec les buckets', () => {
       kpis.late +
       kpis.today +
       kpis.intervention +
-      kpis.a_planifier +
+      kpis.sans_echeance +
       kpis.j14 +
       buckets.plus_tard.length +
       unclassified.length,
@@ -619,6 +645,7 @@ test('aucune dépendance externe ajoutée dans src/lib/operations', () => {
     'dashboard.ts',
     'gate.ts',
     'history-source.ts',
+    'lenses.ts',
     'normalize.ts',
     'odoo-source.ts',
     'projection-source.ts',
@@ -685,15 +712,32 @@ test('projection réelle: invariants de fraîcheur, de clé canonique et de clas
     assert.equal(entry.deadline === null || isIsoDate(entry.deadline), true)
   }
 
-  // les tâches bloquées et en retard existent bien et restent en un seul bucket
+  // Une tâche bloquée ET dépassée est en un seul bucket, et ce bucket est
+  // « Interventions ». Ses deux badges restent justes : badges exhaustifs,
+  // sections exclusives.
+  let overdueBlocked = 0
   for (const entry of snapshot.tasks) {
-    if (isBlocked(entry) && isLate(entry, today)) {
+    if (isBlocked(entry) && isDeadlineOverdue(entry, today)) {
+      overdueBlocked += 1
       const owned = BUCKET_ORDER.filter((key) => buckets[key].some((row) => row.id === entry.id))
-      assert.deepEqual(owned, ['late'])
-        const badges = secondaryBadges(entry, today)
-        assert.ok(badges.includes('bloquee'))
-        assert.ok(badges.includes('en_retard'))
-      }
+      assert.deepEqual(owned, ['intervention'])
+      const badges = secondaryBadges(entry, today)
+      assert.ok(badges.includes('bloquee'))
+      assert.ok(badges.includes('en_retard'))
+    }
+  }
+  // sans cette ligne, la boucle ci-dessus ne vérifierait plus rien du tout
+  assert.ok(overdueBlocked > 0, 'la projection doit contenir au moins une tâche bloquée et dépassée')
+  // et l'inverse : « en retard » ne contient jamais une tâche d'intervention.
+  // C'est l'invariant qui garantit que la tuile et la section affichent le même
+  // chiffre pour le même mot.
+  for (const entry of snapshot.tasks) {
+    if (isLate(entry, today)) {
+      assert.equal(isInterventionStage(entry.stage_key), false, `${entry.ref} en retard et en intervention`)
+    }
+    if (isDueToday(entry, today)) {
+      assert.equal(isInterventionStage(entry.stage_key), false, `${entry.ref} aujourd'hui et en intervention`)
+    }
   }
 
   // le tableau de bord est dérivé des mêmes tâches, sans rien masquer ni dupliquer
@@ -859,7 +903,7 @@ test('résumé exécutif: chiffres dérivés des tâches, 5 lignes, rien d’inv
   assert.equal(summary.total, 8)
   assert.equal(summary.open, 6)
   assert.equal(summary.done, 2)
-  assert.equal(summary.late, 2, 'tâches 2 et 7 ont une échéance dépassée')
+  assert.equal(summary.late, 1, 'tâche 2 seulement : la 7 est bloquée, l’étape l’emporte sur l’échéance')
   assert.equal(summary.due_today, 1, 'tâche 5')
   assert.equal(summary.at_risk, 2, 'tâches 1 et 7 : priorité 3 à J+7 ou au-delà')
   assert.equal(summary.blocked, 1, 'tâche 7')
@@ -1046,7 +1090,7 @@ test('ouverture d\'un segment: le facet « bucket » liste exactement le KPI ann
     ['late', kpis.late],
     ['today', kpis.today],
     ['intervention', kpis.intervention],
-    ['a_planifier', kpis.a_planifier],
+    ['sans_echeance', kpis.sans_echeance],
     ['j14', kpis.j14],
   ]
   for (const [bucket, count] of pairs) {
@@ -1153,4 +1197,294 @@ test('ouverture d\'un segment: la vue cockpit rend 10 à la fois avec les deux o
   // les tuiles et les barres sont des boutons
   assert.match(view, /<button[\s\S]*?onClick=\{\(\) => onOpen\(facet\)\}/)
   assert.match(view, /onClick=\{\(\) => onOpen\(facetFor\(bar\)\)\}/)
+})
+
+// ═════════════════════════════════════════════════════════════════════════
+// Lot A - loupes et file d'action
+// ═════════════════════════════════════════════════════════════════════════
+
+// today = 2026-09-25. Reparties:
+//   1 en_cours Alice 09-30 · 2 a_faire Bob 09-20 (depasse) · 3 termine Alice
+//   4 en_cours Alice 09-30 · 5 a_faire sans responsable 09-25 (aujourd'hui)
+//   6 termine sans responsable · 7 bloque sans responsable 09-10 (depasse)
+//   8 en_cours sans responsable sans echeance
+const LENS_TASKS: OperationTask[] = [
+  ...DASH_TASKS,
+  task({ id: 10, stage_id: 8, name: 'Sauvegarde mensuelle', deadline: '2026-09-10', is_recurring: true }),
+  task({ id: 11, stage_id: 11, name: 'Validation du budget', deadline: '2026-09-01' }),
+  // terminale, récurrente et sans responsable : elle ne doit.runtime dans aucune loupe
+  task({ id: 12, stage_id: 12, name: 'Rotation du certificat', is_recurring: true }),
+]
+
+test('loupes: quatre axes, dans un ordre fixe', () => {
+  const lenses = buildLenses(LENS_TASKS)
+  assert.deepEqual(
+    lenses.map((lens) => lens.lens),
+    ['non_assignee', 'recurrente', 'bloque', 'en_validation'],
+  )
+  assert.deepEqual(lenses.map((lens) => lens.lens), [...LENS_ORDER])
+  // 5 et 7 et 8 et 10 et 11 ouvertes sans personne ; 3 et 6 et 12 sont exclues
+  assert.deepEqual(
+    lenses.map((lens) => lens.count),
+    [5, 1, 1, 1],
+  )
+  for (const lens of lenses) {
+    assert.ok(lens.label.length > 0, `${lens.lens} n'a pas de libellé`)
+    assert.ok(lens.hint.length > 20, `${lens.lens} n'explique pas ce qu'il compte`)
+  }
+})
+
+test('loupes: un clic ouvre exactement le compte annoncé', () => {
+  // Le même filtre que le chiffre, sinon le compteur ment en silence.
+  for (const lens of buildLenses(LENS_TASKS)) {
+    const listed = selectFacet(LENS_TASKS, { kind: 'lens', lens: lens.lens }, TODAY)
+    assert.equal(
+      listed.length,
+      lens.count,
+      `la loupe ${lens.lens} annonce ${lens.count} mais en liste ${listed.length}`,
+    )
+    assert.equal(
+      listed.every((row) => !row.is_terminal),
+      true,
+      'une loupe ne liste jamais une tâche terminée',
+    )
+  }
+})
+
+test('loupes: une tâche terminée n’entre dans aucune', () => {
+  const terminee = task({ id: 99, stage_id: 12, name: 'Clos', is_recurring: true })
+  for (const lens of LENS_ORDER) {
+    assert.equal(matchesLens(terminee, lens), false, `${terminee.ref} ne doit pas être dans ${lens}`)
+  }
+  // et « récurrente » ne prend pas la tâche 12, pourtant récurrente
+  assert.equal(matchesLens(LENS_TASKS.find((row) => row.id === 12)!, 'recurrente'), false)
+})
+
+test('loupes: la récurrence est déclarée, jamais déduite d’une fréquence', () => {
+  // Odoo n'expose aucune fréquence : la loupe ne peut donc rien dire d'un rythme.
+  const hint = buildLenses(LENS_TASKS).find((lens) => lens.lens === 'recurrente')!.hint
+  assert.match(hint, /récurrent/i)
+  assert.match(hint, /fréquence/i)
+})
+
+test('« sans responsable »: le résumé et la loupe n’ont pas le même périmètre, et le disent', () => {
+  const summary = buildSummary(LENS_TASKS, TODAY)
+  const lens = buildLenses(LENS_TASKS).find((row) => row.lens === 'non_assignee')!
+  // le résumé compte toutes les tâches, la loupe seulement les ouvertes
+  assert.equal(summary.unassigned, 7, 'le résumé inclut 3 et 6, terminées sans responsable')
+  assert.equal(lens.count, 5, 'la loupe exclut les terminées')
+  assert.ok(summary.unassigned > lens.count)
+  // l'écart doit être annoncé, sinon un chiffre plus grand semble être une erreur
+  assert.match(lens.hint, /résumé/)
+  assert.match(lens.hint, /terminées/)
+})
+
+test('facetKey: chaque loupe a sa propre clé, distincte des sections', () => {
+  const cles = LENS_ORDER.map((lens) => facetKey({ kind: 'lens', lens }))
+  assert.deepEqual(cles, [
+    'lens:non_assignee',
+    'lens:recurrente',
+    'lens:bloque',
+    'lens:en_validation',
+  ])
+  assert.equal(new Set(cles).size, LENS_ORDER.length)
+  assert.notEqual(cles[0], facetKey({ kind: 'bucket', bucket: 'sans_echeance' }))
+  assert.equal(facetKey({ kind: 'lens', lens: 'bloque' }), 'lens:bloque')
+})
+
+test('file d’action: échéance la plus ancienne d’abord, sans date en dernier', () => {
+  const queue = buildActionQueue(LENS_TASKS, TODAY)
+  // ouvertes seulement : 11 (09-01), 7 puis 10 (09-10, départage par id), 2 (09-20), 5 (09-25)
+  assert.deepEqual(
+    queue.map((row) => row.id),
+    [11, 7, 10, 2, 5],
+  )
+  assert.equal(queue.length, ACTION_QUEUE_LIMIT)
+  assert.equal(ACTION_QUEUE_LIMIT, 5)
+  // 8 est ouverte et sans échéance : elle passe après tout, donc n’entre pas
+  assert.equal(
+    queue.some((row) => row.id === 8),
+    false,
+  )
+})
+
+test('file d’action: la priorité ne départage pas', () => {
+  // Décision utilisateur du 2026-09-27 : c’est l’ancienneté de l’échéance qui
+  // décide, pas le champ Priorité. À échéance égale, l’identifiant départage
+  // pour que l’ordre reste stable d’un jour à l’autre.
+  const ex_aequo = [
+    task({ id: 123, stage_id: 8, name: 'Plus tard', deadline: '2026-09-10', priority: 1 }),
+    task({ id: 30, stage_id: 8, name: 'Plus urgent', deadline: '2026-09-10', priority: 0 }),
+  ]
+  assert.deepEqual(
+    buildActionQueue(ex_aequo, TODAY).map((row) => row.id),
+    [30, 123],
+  )
+  // une tâche ancienne sans priorité bat une tâche récente qui en a une
+  const anciennes = [
+    task({ id: 2, stage_id: 8, name: 'Ancienne', deadline: '2026-01-01' }),
+    task({ id: 3, stage_id: 8, name: 'Recente', deadline: TODAY, priority: 3 }),
+  ]
+  assert.deepEqual(
+    buildActionQueue(anciennes, TODAY).map((row) => row.id),
+    [2, 3],
+  )
+})
+
+test('file d’action: jamais une tâche terminée, et le retard est compté en jours', () => {
+  const terminee = task({ id: 1, stage_id: 12, name: 'Achevée', deadline: '2020-01-01' })
+  assert.deepEqual(buildActionQueue([terminee], TODAY), [])
+
+  assert.equal(overdueDays(task({ id: 1, stage_id: 8, deadline: '2026-09-20' }), TODAY), 5)
+  assert.equal(overdueDays(task({ id: 2, stage_id: 8, deadline: TODAY }), TODAY), 0)
+  assert.equal(overdueDays(task({ id: 3, stage_id: 8, deadline: '2026-10-05' }), TODAY), 0)
+  assert.equal(overdueDays(task({ id: 4, stage_id: 8 }), TODAY), 0, 'sans échéance, pas de retard')
+
+  // la file porte bien les jours de retard de chaque ligne
+  const queue = buildActionQueue(LENS_TASKS, TODAY)
+  const ligne11 = queue.find((row) => row.id === 11)!
+  assert.equal(ligne11.overdue_days, 24, 'du 01/09 au 25/09')
+  const ligne5 = queue.find((row) => row.id === 5)!
+  assert.equal(ligne5.overdue_days, 0, 'échéance du jour : pas encore en retard')
+})
+
+test('file d’action: elle expose de quoi cliquer, pas seulement des identifiants', () => {
+  const [ligne] = buildActionQueue(LENS_TASKS, TODAY)
+  assert.equal(ligne.ref, 'odoo:11')
+  assert.equal(ligne.name, 'Validation du budget')
+  assert.equal(ligne.stage_key, 'en_validation')
+  assert.equal(ligne.deadline, '2026-09-01')
+  assert.equal(typeof ligne.priority, 'number')
+  assert.ok(Array.isArray(ligne.assignees))
+  assert.equal(ligne.is_recurring, false)
+})
+
+test('tableau de bord: le payload porte les loupes, la file d’action et leurs règles', () => {
+  const dash = buildDashboard(LENS_TASKS, TODAY)
+  assert.equal(dash.lenses.length, 4)
+  assert.equal(dash.action_queue.length, ACTION_QUEUE_LIMIT)
+  assert.equal(
+    dash.action_queue.every((row) => !TERMINAL_STAGE_KEYS.includes(row.stage_key)),
+    true,
+    'la file ne propose que des tâches ouvertes',
+  )
+  assert.match(dash.rules.lenses, /non terminées/)
+  assert.match(dash.rules.action, /échéance/)
+  // les règles sont affichées, pas seulement codées
+  assert.ok(dash.rules.drilldown.length > 0)
+})
+
+test('projection réelle: la tuile et la section affichent le même chiffre', () => {
+  // C'est l'invariant qui manquait. Un « En retard » à 25 dans le tableau de bord
+  // pendant que la section en affiche 22 est exactement ce que ce test interdit.
+  const path = join(REPO_ROOT, '.data/operations-tasks.json')
+  if (!existsSync(path)) return
+  resetProjectionCache()
+
+  const snapshot = readProjectionFile(path)
+  const today = todayIso(new Date(), 'Africa/Casablanca')
+  const { buckets } = assignBuckets(snapshot.tasks, today)
+  const dash = buildDashboard(snapshot.tasks, today)
+
+  assert.equal(dash.summary.late, buckets.late.length, '« En retard » : tuile et section')
+  assert.equal(dash.summary.due_today, buckets.today.length, '« Aujourd’hui » : tuile et section')
+  assert.equal(
+    dash.summary.blocked + dash.summary.in_validation,
+    buckets.intervention.length,
+    '« Interventions » : tuile et section',
+  )
+  assert.equal(dash.summary.open + dash.summary.done, dash.summary.total)
+
+  for (const lens of dash.lenses) {
+    const listed = selectFacet(snapshot.tasks, { kind: 'lens', lens: lens.lens }, today)
+    assert.equal(listed.length, lens.count, `loupe ${lens.lens} : tuile et drilldown`)
+  }
+
+  // la file d'action ne sort jamais du périmètre ouvert, et reste courte
+  const openIds = new Set(snapshot.tasks.filter((row) => !row.is_terminal).map((row) => row.id))
+  assert.equal(
+    dash.action_queue.every((row) => openIds.has(row.id)),
+    true,
+  )
+  assert.ok(
+    dash.action_queue.length <= ACTION_QUEUE_LIMIT,
+    `file d'action de ${dash.action_queue.length} lignes, maximum ${ACTION_QUEUE_LIMIT}`,
+  )
+  // et son ordre est bien « sans échéance en dernier »
+  const dates = dash.action_queue.map((row) => row.deadline)
+  const premiereSansDate = dates.findIndex((value) => value === null)
+  if (premiereSansDate >= 0) {
+    assert.equal(
+      dates.slice(premiereSansDate).every((value) => value === null),
+      true,
+      'une tâche sans échéance ne doit pas être suivie d’une tâche datée',
+    )
+  }
+})
+
+test('affichage: les quatre loupes sont des tuiles cliquables, comme les KPI', () => {
+  const view = read('src/components/modules/operations-dashboard.tsx')
+  // les loupes viennent du payload, dans l'ordre du payload
+  assert.match(view, /dashboard\.lenses\.map\(\(lens: DashboardLens\)/)
+  // et reutilisent la tuile des KPI : pas de second bouton, donc pas de second
+  // comportement de fenetre a maintenir
+  assert.match(view, /<MetricTile[\s\S]*?icon=\{Icon\}[\s\S]*?value=\{lens\.count\}/)
+  assert.match(view, /facet=\{\{ kind: 'lens', lens: lens\.lens \}\}/)
+  assert.match(view, /onOpen=\{openFacet\}/)
+  // une icone et une teinte par loupe, sans dependance ajoutee
+  assert.match(view, /const lensIcon: Record<TaskLens, React\.ElementType>/)
+  assert.match(view, /const lensTone: Record<TaskLens, string>/)
+})
+
+test('affichage: la fenetre nomme la loupe et rappelle sa regle', () => {
+  // Sans le libelle, la fenetre afficherait « Loupe » sans dire laquelle ; sans la
+  // regle, une tache listee semblerait mal classee.
+  const dialog = read('src/components/modules/operations-drilldown.tsx')
+  assert.match(dialog, /LENS_LABEL\[facet\.lens\]/)
+  assert.match(dialog, /LENS_HINT\[facet\.lens\]/)
+  // et la fenetre reste unique dans tout le cockpit
+  assert.equal(countDefinitions(dialog), 1)
+})
+
+test('affichage: la file d\'action est une liste bornee, en lecture seule', () => {
+  const view = read('src/components/modules/operations-dashboard.tsx')
+  assert.match(view, /dashboard\.action_queue\.map\(\(action\)/)
+  // la borne vient de la constante partagee, jamais d'un 5 ecrit en dur
+  assert.match(view, /ACTION_QUEUE_LIMIT/)
+  assert.equal(ACTION_QUEUE_LIMIT, 5)
+  // la regle de tri est affichee sous la file
+  assert.match(view, /rule\(dashboard\.rules\.action\)/)
+  // lecture seule assumee : le cockpit n'a aucun lien vers une tache Odoo, donc
+  // aucun lien ne doit apparaitre. Un bouton qui ne mene nulle part est pire
+  // qu'une liste honnete.
+  assert.equal(view.includes('<a '), false, 'le tableau de bord ne doit pas de lien')
+  assert.equal(view.includes('href'), false, 'le tableau de bord ne doit pas de lien')
+  // la ligne porte la reference et le retard, ce qui permet de la retrouver
+  assert.match(view, /action\.overdue_days/)
+  assert.match(view, /action\.ref/)
+})
+
+test('affichage: la section est bien « Sans echeance », plus « A planifier »', () => {
+  assert.equal(BUCKET_LABEL.sans_echeance, 'Sans échéance')
+  for (const fichier of [
+    'src/lib/operations/buckets.ts',
+    'src/components/modules/operations-tasks.tsx',
+    'src/components/modules/operations-drilldown.tsx',
+  ]) {
+    const source = read(fichier)
+    assert.equal(source.includes('a_planifier'), false, `${fichier} contient encore a_planifier`)
+    assert.equal(source.includes('À planifier'), false, `${fichier} contient encore « À planifier »`)
+  }
+})
+
+test('affichage: chaque regle du payload est affichee quelque part', () => {
+  // Une regle presente dans la charge utile mais invisible a l'ecran est une
+  // regle que personne ne peut verifier.
+  const view = read('src/components/modules/operations-dashboard.tsx')
+  for (const cle of Object.keys(buildDashboard(LENS_TASKS, TODAY).rules)) {
+    assert.ok(
+      view.includes(`rules.${cle}`),
+      `la regle rules.${cle} est dans le payload mais pas dans le tableau de bord`,
+    )
+  }
 })
