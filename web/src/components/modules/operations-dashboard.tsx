@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { formatIsoFr } from '@/lib/operations/time'
 import { odooTaskUrl } from '@/lib/operations/odoo-url'
+import { clickupTaskUrl } from '@/lib/operations/clickup-url'
 import { facetKey } from '@/lib/operations/dashboard'
 import { ACTION_QUEUE_LIMIT } from '@/lib/operations/lenses'
 import {
@@ -220,10 +221,22 @@ function InitiativeRow({ initiative, today }: { initiative: DashboardInitiative;
   const late = delta !== null && delta < 0
   const percent = Math.round(initiative.completion * 100)
   const href = odooTaskUrl(initiative.id)
+  const hrefClic = clickupTaskUrl(initiative.clickup_id)
   return (
     <li className="flex flex-col gap-1.5 border-b border-border/60 px-3 py-2.5 last:border-b-0">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="font-mono text-[11px] text-muted-foreground">{initiative.ref}</span>
+        {hrefClic !== null && (
+          <a
+            href={hrefClic}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Ouvrir ${initiative.ref} dans ClickUp`}
+            className="rounded border border-border/70 px-1 py-px font-mono text-[10px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            CU:{initiative.clickup_id}
+          </a>
+        )}
         {href === null ? (
           <span className="min-w-0 flex-1 text-sm line-clamp-3" title={initiative.name}>
             {initiative.name}
@@ -278,10 +291,22 @@ function InitiativeRow({ initiative, today }: { initiative: DashboardInitiative;
 function ActionRow({ action, today }: { action: DashboardAction; today: string }) {
   const late = action.overdue_days > 0
   const href = odooTaskUrl(action.id)
+  const hrefClic = clickupTaskUrl(action.clickup_id)
   return (
     <li className="flex flex-col gap-1 border-b border-border/60 px-3 py-2.5 last:border-b-0">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="font-mono text-[11px] text-muted-foreground">{action.ref}</span>
+        {hrefClic !== null && (
+          <a
+            href={hrefClic}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Ouvrir ${action.ref} dans ClickUp`}
+            className="rounded border border-border/70 px-1 py-px font-mono text-[10px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            CU:{action.clickup_id}
+          </a>
+        )}
         {href === null ? (
           <span className="min-w-0 flex-1 text-sm line-clamp-3" title={action.name}>
             {action.name}

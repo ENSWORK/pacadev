@@ -22,6 +22,7 @@ import {
 import { cn } from '@/lib/utils'
 import { BUCKET_HINT, BUCKET_LABEL } from '@/lib/operations/buckets'
 import { odooTaskUrl } from '@/lib/operations/odoo-url'
+import { clickupTaskUrl } from '@/lib/operations/clickup-url'
 import {
   DASHBOARD_FACET_PAGE_SIZE,
   FACET_LABEL,
@@ -63,6 +64,7 @@ function DrillRow({ task, today }: { task: OperationTask; today: string }) {
   const delta = daysUntil(task.deadline, today)
   const late = delta !== null && delta < 0
   const href = odooTaskUrl(task.id)
+  const hrefClic = clickupTaskUrl(task.clickup_id)
   return (
     <li className="flex flex-col gap-1 border-b border-border/60 px-3 py-2 last:border-b-0">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -78,6 +80,17 @@ function DrillRow({ task, today }: { task: OperationTask; today: string }) {
           >
             {task.ref}
             <ExternalLink className="size-2.5" />
+          </a>
+        )}
+        {hrefClic !== null && (
+          <a
+            href={hrefClic}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Ouvrir ${task.ref} dans ClickUp`}
+            className="rounded border border-border/70 px-1 py-px font-mono text-[10px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            CU:{task.clickup_id}
           </a>
         )}
         <span className="min-w-0 flex-1 text-sm">{task.name}</span>

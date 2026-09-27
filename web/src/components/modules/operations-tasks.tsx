@@ -44,6 +44,7 @@ import { OperationsDashboard } from '@/components/modules/operations-dashboard'
 import { DrilldownDialog } from '@/components/modules/operations-drilldown'
 import { deadlineDelta, isBlocked, secondaryBadges } from '@/lib/operations/badges'
 import { odooTaskUrl } from '@/lib/operations/odoo-url'
+import { clickupTaskUrl } from '@/lib/operations/clickup-url'
 import { matchesTaskSearch } from '@/lib/operations/search'
 import {
   BUCKET_HINT,
@@ -220,6 +221,7 @@ function TaskRow({
   const deadlineText = task.deadline ? formatIsoFr(task.deadline) : '—'
   const stage = STAGE_LABEL[task.stage_key]
   const badges = new Set(secondaryBadges(task, today))
+  const hrefClic = clickupTaskUrl(task.clickup_id)
   const href = odooTaskUrl(task.id)
 
   return (
@@ -292,9 +294,23 @@ function TaskRow({
           </Badge>
         )}
         {badges.has('clickup') && task.clickup_id && (
-          <Badge variant="outline" className="font-mono text-[10px]">
-            CU:{task.clickup_id}
-          </Badge>
+          hrefClic === null ? (
+            <Badge variant="outline" className="font-mono text-[10px]">
+              CU:{task.clickup_id}
+            </Badge>
+          ) : (
+            <a
+              href={hrefClic}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`Ouvrir ${task.clickup_id} dans ClickUp`}
+              className="underline-offset-2 hover:underline"
+            >
+              <Badge variant="outline" className="font-mono text-[10px]">
+                CU:{task.clickup_id}
+              </Badge>
+            </a>
+          )
         )}
         {badges.has('github') && task.github_issue !== null && (
           <Badge variant="outline" className="font-mono text-[10px]">

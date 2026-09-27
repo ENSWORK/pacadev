@@ -127,5 +127,6 @@ export function buildActionQueue(
       priority: task.priority,
       assignees: task.assignees,
       is_recurring: task.is_recurring,
+      clickup_id: task.clickup_id,
     }))
 }

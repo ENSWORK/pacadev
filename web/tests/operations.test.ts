@@ -65,6 +65,7 @@ import {
 } from '@/lib/operations/normalize'
 import { buildOdooConfig } from '@/lib/operations/odoo-source'
 import { odooTaskUrl } from '@/lib/operations/odoo-url'
+import { clickupTaskUrl } from '@/lib/operations/clickup-url'
 import { matchesTaskSearch } from '@/lib/operations/search'
 import {
   createProjectionSource,
@@ -644,6 +645,7 @@ test('aucune dépendance externe ajoutée dans src/lib/operations', () => {
   assert.deepEqual(files, [
     'badges.ts',
     'buckets.ts',
+    'clickup-url.ts',
     'dashboard.ts',
     'gate.ts',
     'history-source.ts',
@@ -1604,4 +1606,106 @@ test('le lien Odoo est cable sur chaque surface qui liste une tache', () => {
   assert.equal(dash.includes("n'a aucun lien"), false, 'le commentaire interdit toujours le lien Odoo')
   // et le cockpit n ecrit toujours rien dans Odoo
   assert.equal(read('src/lib/operations/odoo-url.ts').includes('fetch('), false)
+})
+
+test('lien ClickUp: format verifie sur les deux formes d identifiant', () => {
+  // Format issu du champ `url` de la reponse "Get Task" de l API ClickUp.
+  assert.equal(clickupTaskUrl('86cb247dd'), 'https://app.clickup.com/t/86cb247dd')
+  // La projection contient aussi des identifiants de 11 caracteres : ils doivent
+  // etre acceptes, sinon 77 liens sur 108 seraient supprimes.
+  assert.equal(clickupTaskUrl('12472jzck7y'), 'https://app.clickup.com/t/12472jzck7y')
+  // Les identifiants documentes peuvent etre bien plus courts (9hx, 9hz, 9hv) :
+  // la longueur n est pas un critere de validite, dans un sens ni dans l autre.
+  assert.equal(clickupTaskUrl('9hx'), 'https://app.clickup.com/t/9hx')
+  assert.equal(clickupTaskUrl(' 86cb247dd '), 'https://app.clickup.com/t/86cb247dd')
+})
+
+test('lien ClickUp: identifiant absent ou sale ne produit aucun lien', () => {
+  assert.equal(clickupTaskUrl(null), null)
+  assert.equal(clickupTaskUrl(undefined), null)
+  assert.equal(clickupTaskUrl(''), null)
+  assert.equal(clickupTaskUrl('   '), null)
+  // on ne fabrique pas d adresse a partir d une donnee qui sort du motif
+  // d extraction [CU:([0-9A-Za-z]+)]
+  assert.equal(clickupTaskUrl('86c-247dd'), null)
+  assert.equal(clickupTaskUrl('../../web'), null)
+  assert.equal(clickupTaskUrl('86cb247dd/../autre'), null)
+})
+
+test('clickup_id se propage de la normalisation jusqu au tableau de bord', () => {
+  const avecCu = task({
+    id: 1,
+    stage_id: 9,
+    name: 'Sauvegarde mensuelle',
+    description: '[CU:86cb247dd]',
+    deadline: '2026-09-30',
+  })
+  const file = buildActionQueue([avecCu], '2026-09-27')
+  assert.equal(file.length, 1)
+  assert.equal(file[0].clickup_id, '86cb247dd')
+  assert.equal(clickupTaskUrl(file[0].clickup_id), 'https://app.clickup.com/t/86cb247dd')
+
+  // et une tache sans reference ClickUp ne produit pas de lien, pas un lien vide
+  const sansCu = task({ id: 2, stage_id: 9, name: 'Dossier sans ClickUp', deadline: '2026-09-30' })
+  const autre = buildActionQueue([sansCu], '2026-09-27')
+  assert.equal(autre[0].clickup_id, null)
+  assert.equal(clickupTaskUrl(autre[0].clickup_id), null)
+})
+
+test('le libelle de la puce ClickUp est une expression, pas du texte litteral', () => {
+  // `CU:task.clickup_id` s affiche tel quel dans le navigateur : le href etait
+  // correct et le libelle affichait la variable. Ce genre de defaut ne se voit
+  // qu au rendu, d ou ce garde-fou.
+  for (const fichier of [
+    'src/components/modules/operations-tasks.tsx',
+    'src/components/modules/operations-drilldown.tsx',
+    'src/components/modules/operations-dashboard.tsx',
+  ]) {
+    const litteral = read(fichier).match(/CU:(?!\{)[A-Za-z_$][\w$]*/g)
+    assert.equal(
+      litteral,
+      null,
+      `${fichier} affiche un libelle litteral au lieu de l identifiant : ${String(litteral)}`,
+    )
+    // meme piege dans l infobulle : `Ouvrir action.ref` s affiche tel quel au
+    // survol de la souris
+    for (const ligne of read(fichier).split('\n')) {
+      if (ligne.includes('dans ClickUp') && !ligne.includes('${')) {
+        assert.fail(`${fichier} a une infobulle sans interpolation : ${ligne.trim()}`)
+      }
+    }
+  }
+})
+
+test('le lien ClickUp est cable sur chaque surface qui liste une tache', () => {
+  for (const fichier of [
+    'src/components/modules/operations-tasks.tsx',
+    'src/components/modules/operations-drilldown.tsx',
+    'src/components/modules/operations-dashboard.tsx',
+  ]) {
+    const source = read(fichier)
+    assert.ok(
+      source.includes('operations/clickup-url'),
+      `${fichier} n importe pas clickupTaskUrl`,
+    )
+    assert.ok(
+      source.includes('clickupTaskUrl('),
+      `${fichier} ne construit aucun lien ClickUp`,
+    )
+    assert.ok(
+      source.includes('href={hrefClic}'),
+      `${fichier} n utilise pas l URL ClickUp calculee`,
+    )
+    // le lien Odoo reste en place sur la meme ligne : les deux cotes sont
+    // accessibles depuis la meme ligne, pas l un a la place de l autre
+    assert.ok(source.includes('odooTaskUrl('), `${fichier} a perdu le lien Odoo`)
+  }
+  // l onglet taches reutilise la puce CU existante : pas de second element
+  const taches = read('src/components/modules/operations-tasks.tsx')
+  assert.ok(
+    taches.includes('title={`Ouvrir ${task.clickup_id} dans ClickUp`}'),
+    'la puce CU de l onglet taches n est pas devenue un lien',
+  )
+  // le module ne fait aucun appel reseau
+  assert.equal(read('src/lib/operations/clickup-url.ts').includes('fetch('), false)
 })

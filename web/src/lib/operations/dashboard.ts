@@ -228,6 +228,7 @@ export function buildInitiatives(
       children_done: done,
       children_open: list.length - done,
       completion: ratio(done, list.length),
+      clickup_id: task.clickup_id,
     })
   }
 

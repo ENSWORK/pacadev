@@ -123,6 +123,7 @@ export interface DashboardAction {
   priority: number
   assignees: string[]
   is_recurring: boolean
+  clickup_id: string | null
 }
 
 // ── Tableau de bord de pilotage ────────────────────────────────────────────
@@ -163,6 +164,7 @@ export interface DashboardInitiative {
   children_open: number
   /** part des sous-tâches terminées, entre 0 et 1 */
   completion: number
+  clickup_id: string | null
 }
 
 export interface DashboardSummary {
