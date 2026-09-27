@@ -13,7 +13,7 @@ const outRoot = join(root, '.data', 'test-build')
 const require = createRequire(join(root, 'package.json'))
 const ts = require('typescript')
 
-const ENTRIES = ['tests/operations.test.ts']
+const ENTRIES = ['tests/operations.test.ts', 'tests/history.test.ts']
 const queue = [...ENTRIES]
 const emitted = new Set()
 

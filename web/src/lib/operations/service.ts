@@ -1,13 +1,81 @@
 // Service du cockpit operations: selection de source, fraicheur, assemblage du payload
 
 import { assignBuckets, computeKpis } from './buckets'
+import { readHistorySeries, type HistorySeries } from './history-source'
 import { buildDashboard } from './dashboard'
 import { buildOdooConfig, createOdooSource, OdooSourceError } from './odoo-source'
 import { createProjectionSource, resolveProjectionPath, type SourceSnapshot, type TaskSource } from './projection-source'
 import { ageSeconds, OPERATIONS_TIMEZONE, todayIso } from './time'
-import type { Freshness, OperationsPayload, TaskSourceName } from './types'
+import type { Freshness, OperationsHistory, OperationsPayload, TaskSourceName } from './types'
 
 export const STALE_MINUTES_DEFAULT = 60
+
+/** Nombre de jours d'historique avant de parler de tendance. Trois points
+ *  aligns ne sont pas une evolution, ils sont du bruit. */
+export const TREND_MIN_DAYS = 14
+
+/** Converture de l'historique en payload, avec la raison de l'indisponibilite.
+ *  Une serie absente est un etat normal les premiers jours : le cockpit ne doit
+ *  pas la traiter comme une panne. */
+export function buildHistory(
+  serie: HistorySeries,
+  trendMinDays: number = TREND_MIN_DAYS,
+  /** Raison imposee quand aucune archive n'a ete lue : `history: false` ne doit
+   *  pas laisser croire qu'aucune archive n'existe. */
+  raisonVide: string | null = null,
+): OperationsHistory {
+  const points = serie.points.map((point) => ({
+    date: point.date,
+    total: point.total,
+    done: point.done,
+    open: point.open,
+    late: point.late,
+    by_stage: point.by_stage,
+  }))
+
+  // `coverage` va du premier point a aujourd'hui, `span` du premier au dernier :
+  // les deux sont egaux exactement quand le dernier point est celui d'aujourd'hui.
+  // Comparer `span` au seuil ne marche pas - 14 points quotidiens ne couvrent que
+  // 13 intervalles, donc une serie parfaitement a jour serait refusee a un jour pres.
+  const bloquant: string | null =
+    serie.points.length === 0
+      ? raisonVide
+        ?? (serie.skipped.length > 0
+          ? 'Aucune archive lisible : toutes les archives présentes ont été rejetées.'
+          : 'Aucune archive pour l’instant. La première est écrite au prochain passage du job.')
+      : serie.days_covered < trendMinDays
+        ? `${serie.days_covered} jour(s) d’historique, ${trendMinDays} requis avant toute tendance.`
+        : serie.coverage > serie.span // serie arretee : le dernier point n'est pas celui d'aujourd'hui
+          ? `Série arrêtée au ${serie.last_date}, sans point aujourd’hui.`
+          : null
+
+  return {
+    points,
+    first_date: serie.first_date,
+    last_date: serie.last_date,
+    coverage: serie.coverage,
+    span: serie.span,
+    days_covered: serie.days_covered,
+    trend_ready: bloquant === null,
+    trend_min_days: trendMinDays,
+    trend_blocked_by: bloquant,
+    skipped: serie.skipped.map((entree) => ({ ...entree })),
+  }
+}
+
+const HISTORIQUE_NON_DEMANDE_RAISON = 'Historique non demandé par ce cockpit.'
+
+/** Serie vide : point de depart de `history: false`, qui ne lit aucun fichier
+ *  sur disque et ne pretend donc rien des archives reellement presentes. */
+const HISTORIQUE_NON_DEMANDE: HistorySeries = {
+  points: [],
+  skipped: [],
+  first_date: null,
+  last_date: null,
+  coverage: 0,
+  span: 0,
+  days_covered: 0,
+}
 
 export const CLICKUP_PARITY_REASON =
   'Parité ClickUp indisponible : la rotation du token API ClickUp n’est pas faite. ' +
@@ -42,6 +110,9 @@ export interface LoadOperationsOptions {
   now?: Date
   env?: NodeJS.ProcessEnv
   cwd?: string
+  /** Désactive la lecture de l'historique, pour un cockpit qui ne fait que lire
+   *  la projection courante. */
+  history?: boolean
 }
 
 export interface LoadedOperations {
@@ -98,6 +169,9 @@ export async function loadOperations(
     kpis: computeKpis(buckets, snapshot.tasks.length),
     dashboard: buildDashboard(snapshot.tasks, today),
     freshness,
+    history: options.history === false
+      ? buildHistory(HISTORIQUE_NON_DEMANDE, TREND_MIN_DAYS, HISTORIQUE_NON_DEMANDE_RAISON)
+      : buildHistory(readHistorySeries({ cwd, env, now: () => now.getTime() })),
     clickup_parity: {
       available: false,
       reason: CLICKUP_PARITY_REASON,

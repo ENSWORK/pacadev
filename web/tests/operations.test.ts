@@ -576,7 +576,7 @@ test('la projection n’est jamais importable depuis le bundle client', () => {
   for (const file of shared) {
     const source = read(`src/lib/operations/${file}`)
     assert.equal(/from\s+['"]node:/.test(source), false, `${file} importe un module node:`)
-    for (const server of ['projection-source', 'odoo-source', 'operations/gate', 'operations/service']) {
+    for (const server of ['projection-source', 'history-source', 'odoo-source', 'operations/gate', 'operations/service']) {
       assert.equal(source.includes(server), false, `${file} référence ${server}`)
     }
   }
@@ -593,6 +593,7 @@ test('la projection n’est jamais importable depuis le bundle client', () => {
     for (const forbidden of [
       'operations-tasks.json',
       'projection-source',
+      'history-source',
       'odoo-source',
       'operations/gate',
       'operations/service',
@@ -617,6 +618,7 @@ test('aucune dépendance externe ajoutée dans src/lib/operations', () => {
     'buckets.ts',
     'dashboard.ts',
     'gate.ts',
+    'history-source.ts',
     'normalize.ts',
     'odoo-source.ts',
     'projection-source.ts',

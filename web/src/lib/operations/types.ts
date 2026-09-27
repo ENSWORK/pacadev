@@ -193,6 +193,34 @@ export interface DashboardPayload {
   rules: DashboardRules
 }
 
+// ── Historique ────────────────────────────────────────────────────────────
+// Le cockpit lit l'historique pour la Phase 4 (tendances). Il n'est pas affiche
+// tant que la serie n'est pas exploitable : `trend_ready` dit pourquoi pas.
+export interface OperationsHistory {
+  points: Array<{
+    date: string
+    total: number
+    done: number
+    open: number
+    late: number
+    by_stage: Record<string, number>
+  }>
+  first_date: string | null
+  last_date: string | null
+  /** Jours entre le premier point et aujourd'hui. */
+  coverage: number
+  /** Etendue couverte par les points eux-memes. */
+  span: number
+  days_covered: number
+  /** Une tendance suppose une longueur minimale. En dessous, c'est un relevé
+   *  de points, pas une evolution : le dire vaut mieux qu'un graphique
+   *  « en hausse » sur trois jours. */
+  trend_ready: boolean
+  trend_min_days: number
+  trend_blocked_by: string | null
+  skipped: Array<{ date: string; reason: string; detail: string }>
+}
+
 export interface OperationsPayload {
   read_only: true
   today: string
@@ -203,6 +231,7 @@ export interface OperationsPayload {
   kpis: OperationsKpis
   dashboard: DashboardPayload
   freshness: Freshness
+  history: OperationsHistory
   clickup_parity: {
     available: false
     reason: string
