@@ -1,0 +1,20 @@
+[Unit]
+Description=Rafraichissement de la projection Odoo toutes les 30 minutes
+Documentation=file:/home/pacadev/pacadev/core/scripts/operations/README.md
+
+[Timer]
+# 2 min apres le boot, pour laisser le reseau et le serveur web se lever.
+OnBootSec=2min
+# 30 minutes, et non 60 : le cockpit signale la projection "stale" au-dela de
+# 60 minutes. Un rythme horaire, c'etait un affichage "stale" sur le fil des
+# retards du serveur. Avec 30 min, il reste une marge d'un cycle entier avant
+# que l'alerte ne se declenche.
+OnUnitActiveSec=30min
+# Etalement aleatoire : evite que le job ne tombe pile au milieu d'une sauvegarde.
+RandomizedDelaySec=90
+# Un aller-retour de 30 min reste coherent avec le cache de 60 s du cockpit.
+AccuracySec=1min
+Unit= pacadev-operations-projection.service
+
+[Install]
+WantedBy=timers.target

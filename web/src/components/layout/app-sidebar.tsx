@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutDashboard, Building2, Briefcase, GitBranch, Brain, Shield, Activity, ShieldCheck, Wifi, WifiOff } from 'lucide-react'
+import { LayoutDashboard, Building2, Briefcase, ListChecks, GitBranch, Brain, Shield, Activity, ShieldCheck, Wifi, WifiOff } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +25,7 @@ const navItems: { key: AppView; label: string; icon: React.ElementType }[] = [
   { key: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { key: 'clients', label: 'Clients', icon: Building2 },
   { key: 'workspace', label: 'Workspace', icon: Briefcase },
+  { key: 'operations', label: 'Opérations', icon: ListChecks },
   { key: 'pipeline', label: 'Pipeline CI/CD', icon: GitBranch },
   { key: 'ai', label: 'IA & Risque', icon: Brain },
   { key: 'backup', label: 'Backup', icon: Shield },

@@ -34,6 +34,7 @@ const viewLabels: Record<AppView, string> = {
   dashboard: 'Tableau de bord',
   clients: 'Clients',
   workspace: 'Workspace',
+  operations: 'Opérations',
   pipeline: 'Pipeline CI/CD',
   ai: 'IA & Risque',
   backup: 'Backup',

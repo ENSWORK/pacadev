@@ -1,0 +1,11 @@
+[Unit]
+Description=ALERTE echec du job de projection Odoo (%i)
+Documentation=file:/home/pacadev/pacadev/core/scripts/operations/README.md
+
+[Service]
+Type=oneshot
+# Volontairement minimal et sans dependance : le but est d'avoir UNE ligne
+# explicite et grepable dans le journal, au niveau "erreur", qui se distingue
+# de la sortie ordinaire du job. La cause reste a lire dans le journal de
+# l'unite principale (%i).
+ExecStart=/usr/bin/logger -p user.err -t operations-projection "ECHEC du job de projection Odoo (%i) : voir journalctl --user -u %i. La projection reste en place, elle va devenir stale et le cockpit le signalera."
