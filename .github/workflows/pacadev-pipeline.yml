@@ -41,6 +41,7 @@ jobs:
 
       - name: xmllint — validation XML (v17/ens_core + modules partagés)
         run: |
+          sudo apt-get update -qq
           sudo apt-get install -y libxml2-utils -qq
           FILES=$(find v17/clients -path "*/addons/ens_core/*.xml" -o \
                                    -path "*/addons/ens_core/**/*.xml" 2>/dev/null || true)
